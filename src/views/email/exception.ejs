@@ -1,0 +1,19 @@
+Environment: <b>
+    <%= env %>
+</b>
+
+<br /><br />
+
+Exception occured at: <b>
+    <%= location.fileName %>
+</b> => <b>
+    <%=location.methodName %>()
+</b>
+<hr />
+<b>
+    <%= errorData.message %>
+</b>
+<br /><br />
+<div style='border: solid 1px #000; background-color: lightgray;'>
+    <%= errorData.detail %>
+</div>

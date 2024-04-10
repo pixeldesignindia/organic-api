@@ -1,0 +1,11 @@
+# NodeJS specific #
+.nyc_output/
+coverage/
+node_modules/
+npm-debug.log
+test/*.log
+*.log
+dist
+.env
+.docker-env
+.node-persist

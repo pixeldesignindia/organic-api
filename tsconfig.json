@@ -1,0 +1,37 @@
+{
+    "exclude": [
+        "./coverage",
+        "./dist",
+        "__tests__",
+        "jest.config.js"
+    ],
+    "compilerOptions": {
+        "module": "commonjs",
+        "esModuleInterop": true,
+        "target": "es6",
+        "noImplicitAny": true,
+        "moduleResolution": "node",
+        "emitDecoratorMetadata": true,
+        "experimentalDecorators": true,
+        "sourceMap": true,
+        "outDir": "dist",
+        "baseUrl": ".",
+        "paths": {
+            "*": [
+                "node_modules/*"
+            ]
+        },
+        "plugins": [
+            {
+                "name": "typescript-tslint-plugin",
+                "alwaysShowRuleFailuresAsWarnings": false,
+                "ignoreDefinitionFiles": true,
+                "configFile": "../tslint.json",
+                "suppressWhileTypeErrorsPresent": false
+            }
+        ]
+    },
+    "include": [
+        "src/**/*"
+    ]
+}
