@@ -15,8 +15,8 @@ export class MailgunService {
 
         this.mailer.domain = config.EMAIL.MAILGUN.DOMAIN;
         this.mailer.apiKey = config.EMAIL.MAILGUN.API_KEY;
-        this.mailer.fromEmail = config.EMAIL.PDF_FROM_EMAIL;
-        this.mailer.fromTitle = config.EMAIL.PDF_FROM_TITLE;
+        this.mailer.fromEmail = config.EMAIL.EXCEPTION_FROM_EMAIL;
+        this.mailer.fromTitle = config.EMAIL.FROM_EMAIL;
 
         try {
             this.mailer.init();

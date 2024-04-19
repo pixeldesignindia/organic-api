@@ -36,7 +36,7 @@ const config: any = {
         SENDGRID: {
             API_KEY: process.env.SENDGRID_API_KEY,
         },
-        FROM_EMAIL: process.env.EMAIL_FROM_PDF,
+        FROM_EMAIL: process.env.EMAIL_FROM_NAME,
         EXCEPTION_FROM_EMAIL: process.env.EXCEPTION_FROM_EMAIL,
         EXCEPTION_NOTIFICATION_EMAIL: process.env.EXCEPTION_NOTIFICATION_EMAIL,
     },
