@@ -39,8 +39,8 @@ class App {
     }
 
     public listen() {
-        const { SERVER_PORT = 3000 } = process.env;
-        const { SERVER_ROOT_URL = "http://localhost:${SERVER_PORT}" } = process.env;
+        const { SERVER_PORT = 8000 } = process.env;
+        const { SERVER_ROOT_URL =`http://localhost:${SERVER_PORT}` } = process.env;
 
         const server = this.app.listen(SERVER_PORT, () => {
             console.log(`Server is running at ${SERVER_ROOT_URL}...`);

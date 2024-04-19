@@ -48,7 +48,7 @@ export class UserService {
         return await User.findOne(filter);
     }
 
-    async register(data: any, headers: any = null) {
+    async store(data: any, headers: any = null) {
         if (!data.email) {
             return Promise.reject({
                 error: true,
