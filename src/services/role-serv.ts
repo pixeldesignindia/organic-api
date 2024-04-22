@@ -1,6 +1,7 @@
 import { BaseService } from './base-serv';
 import constants from '../utils/constants';
 import { IRole, Role } from '../models/role';
+import { Console } from 'console';
 
 export class RoleService extends BaseService {
     constructor() {
@@ -17,7 +18,7 @@ export class RoleService extends BaseService {
     }
 
     async getCustomerRoleId() {
-        let role: any = await this.findOne({ name: constants.ROLES.CUSTOMER.NAME.toUpperCase() });
+        let role: any = await this.findOne({ name: constants.ROLES.CUSTOMER.NAME});
         if (role) {
             return role._id.toString();
         } else {
@@ -84,7 +85,8 @@ export class RoleService extends BaseService {
             }
 
             try {
-                let createdRole = await Role.create(document);
+                console.log(role)
+                let createdRole = await Role.create(role);
                 resolve(createdRole);
             } catch (err) {
                 resolve({

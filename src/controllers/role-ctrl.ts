@@ -17,7 +17,9 @@ export class RoleController extends BaseController {
      * Initializes API routes
      */
     public initializeRoutes() {
-        this.router.post(constants.API.V1 + constants.API.APP.ROLE, (req, res) => { this.createRecord(req, res, this) });
+        this.router.post(constants.API.V1 + constants.API.APP.ROLE, (req, res) => {
+             console.log(req.body);
+            this.createRecord(req, res, this) });
         this.router.get(constants.API.V1 + constants.API.APP.ROLE + '/:id', (req, res) => { this.findRecord(req, res, this) });
         this.router.put(constants.API.V1 + constants.API.APP.ROLE + '/:id', (req, res) => { this.updateRecord(req, res, this) });
         this.router.delete(constants.API.V1 + constants.API.APP.ROLE + '/:id', (req, res) => { this.removeRecord(req, res, this) });
@@ -27,9 +29,12 @@ export class RoleController extends BaseController {
     }
 
     private createRecord(req: Request, res: Response, that: any) {
+        console.log(req)
+
         that.service.store(req.body, req.headers).then((result: any) => {
             that.responseUtil.sendUpdateResponse(req, res, result, 200);
         }, (err: any) => {
+            constants.error(err)
             LoggerUtil.log('error', { message: 'Error in creating role', location: 'crud-ctrl => create', data: err });
             that.responseUtil.sendFailureResponse(req, res, err, { fileName: 'crud-ctrl', methodName: 'create' }, 200);
         });

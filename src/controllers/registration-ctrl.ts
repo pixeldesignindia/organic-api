@@ -17,7 +17,7 @@ export default class RegistrationController extends BaseController {
      * Initializes API routes
      */
     public initializeRoutes() {
-        this.router.post(constants.API.V1 + constants.API.APP.REGISTER, (req, res) => { this.register(req, res, this) });
+        this.router.post(constants.API.V1 + constants.API.APP.REGISTER, (req, res) => {this.register(req, res, this) });
         this.router.post(constants.API.V1 + constants.API.APP.REGISTER + '/verify', (req, res) => { this.verifyUserRegistration(req, res, this) });
     }
 

@@ -125,6 +125,7 @@ class App {
     public initializeJwtVerification() {
         let urlsToIgnore = [
             'cdn',
+            'role',
             'login',
             'search',
             'status',
@@ -135,7 +136,7 @@ class App {
             'forgot-password',
             'product/comments',
             'product/has-liked',
-            'product/has-bookmarked'
+            'product/has-bookmarked',
         ];
 
         this.app.use((req, res, next) => {
@@ -147,7 +148,8 @@ class App {
 
                 if (this.ignoreUrl(urlToCheck, urlsToIgnore)) {
                     next();
-                } else {
+                }
+                 else {
                     if (req.headers && req.headers.authorization) {
                         let token: string = req.headers.authorization;
 

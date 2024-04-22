@@ -57,10 +57,12 @@ export class UserService {
         }
 
         let result: any = await this.isDuplicateUser(data.email, data.mobile, false, null);
+       
         if (!result.duplicate) {
             let createdUser: any;
             try {
                 createdUser = await this.createUser(data, headers);
+                console.log(createdUser)
             } catch (err) {
                 return Promise.reject({
                     error: true,
