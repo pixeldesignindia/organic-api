@@ -173,10 +173,11 @@ export class UserService {
 
             if (user) {
                 if (user.email == email) {
-                    resolve({
-                        duplicate: true,
-                        message: 'Duplicate email'
-                    });
+                    // resolve({
+                    //     duplicate: true,
+                    //     message: 'Duplicate email'
+                    // });
+                    return reject(new AppError("Duplicate Email",null, 400));
                 } else if (user.mobile == mobile) {
                     resolve({
                         duplicate: true,
