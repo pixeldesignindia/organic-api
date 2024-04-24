@@ -62,7 +62,7 @@ export class UserService {
             let createdUser: any;
             try {
                 createdUser = await this.createUser(data, headers);
-                console.log(createdUser)
+                
             } catch (err) {
                 return Promise.reject({
                     error: true,
@@ -88,6 +88,8 @@ export class UserService {
 
     async createUser(data: any, headers: any) {
         let user = new User();
+
+
 
         let password;
         if (data.password)

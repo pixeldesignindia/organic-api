@@ -89,11 +89,11 @@ export class LoginService extends BaseService {
 
                         // check and update fcm token of user
                         if (data.fcm_token) {
-                            await this.userService.update(user.id, { fcm_token: data.fcm_token }, headers);
+                            await this.userService.update(user._id, { fcm_token: data.fcm_token }, headers);
                         }
 
-                        let token = this.jwtUtil.generateJWTToken(user.id.toString() + new Date().getTime(), user.id);
-                        let refreshToken = this.jwtUtil.generateRefreshToken(user.id.toString() + new Date().getTime(), user.id);
+                        let token = this.jwtUtil.generateJWTToken(user._id.toString() + new Date().getTime(), user._id);
+                        let refreshToken = this.jwtUtil.generateRefreshToken(user._id.toString() + new Date().getTime(), user._id);
 
                         resolve({
                             valid: true,

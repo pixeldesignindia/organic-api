@@ -18,7 +18,7 @@ export class JwtUtil {
      *  @param {String} tokenKey
      *  @return {String} generated token
      */
-    generateJWTToken(tokenKey: any, id: number) {
+    generateJWTToken(tokenKey: any, id:string) {
         // get JWT Token and send it back
         let secretKey = appConfig.SERVER_KEYS.SERVER_SECRET;
 
@@ -42,7 +42,7 @@ export class JwtUtil {
      *  @name generateRefreshToken
      *  @return {Number} id
      */
-    generateRefreshToken(tokenKey: any, id: number) {
+    generateRefreshToken(tokenKey: any, id: string) {
         let secretKey = appConfig.SERVER_KEYS.REFRESH_SERVER_SECRET;
 
         let data = {
@@ -77,6 +77,7 @@ export class JwtUtil {
 
                     jwt.verify(decryptedToken, secretKey, function (err: any, payload: any) {
                         if (err) {
+                            console.log(err)
                             result = {
                                 valid: false,
                                 message: 'Failed to verify token.'

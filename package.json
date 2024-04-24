@@ -11,7 +11,8 @@
         "go": "nodemon dist/server.js",
         "test": "jest",
         "test-coverage": "jest --coverage",
-        "debug": "ndb dist/server.js"
+        "debug": "ndb dist/server.js",
+         "watch": "tsc -w"
     },
     "author": "Ashutosh Pandey",
     "license": "ISC",
