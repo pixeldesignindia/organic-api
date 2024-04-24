@@ -1,7 +1,6 @@
 import { BaseService } from './base-serv';
 import constants from '../utils/constants';
 import { IRole, Role } from '../models/role';
-import { Console } from 'console';
 
 export class RoleService extends BaseService {
     constructor() {
@@ -85,7 +84,6 @@ export class RoleService extends BaseService {
             }
 
             try {
-                console.log(role)
                 let createdRole = await Role.create(role);
                 resolve(createdRole);
             } catch (err) {
@@ -102,7 +100,6 @@ export class RoleService extends BaseService {
 
         if (role) {
             let roleToUpdate = this.getUpdatedRole(role, data);
-            console.log(roleToUpdate);
             return await Role.updateOne({ _id: id }, roleToUpdate);
         } else {
             return Promise.reject({

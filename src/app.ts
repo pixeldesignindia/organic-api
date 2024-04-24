@@ -124,20 +124,21 @@ class App {
      */
     public initializeJwtVerification() {
         let urlsToIgnore = [
-            'cdn',
-            'role',
-            'login',
-            'search',
-            'status',
-            'verify',
-            'register',
-            'product/detail',
-            'product/recent',
-            'forgot-password',
-            'product/comments',
-            'product/has-liked',
-            'product/has-bookmarked',
-        ];
+					'cdn',
+					'role',
+					'login',
+					'search',
+					'status',
+					'verify',
+					'register',
+					'category',
+					'product/detail',
+					'product/recent',
+					'forgot-password',
+					'product/comments',
+					'product/has-liked',
+					'product/has-bookmarked',
+				];
 
         this.app.use((req, res, next) => {
             if ((req.url.indexOf('/api/v1/') > -1)) {

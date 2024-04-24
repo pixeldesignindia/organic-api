@@ -45,7 +45,7 @@ interface IProduct extends IBase {
     product_image_name: string,
     product_image_saved_name: string
 
-    category: ICategory,
+    category:string,
 
     end_date: Date,
     start_date: Date,
@@ -179,35 +179,37 @@ const ProductImageSchema = new Schema(
     }
 );
 
-const ProductSchema = new Schema(
-    {
-        name: { type: String, required: true },
-        slip: { type: String },
-        template: { type: String },
-        description: { type: String },
-        category: CategorySchema,
-        user_id: {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: 'User',
-            required: true,
-            index: true,
-        },
+const ProductSchema = new Schema({
+	name: { type: String, required: true },
+	slip: { type: String },
+	template: { type: String },
+	description: { type: String },
+	category: {
+		type: mongoose.Schema.Types.ObjectId,
+		ref: 'Category',
+		required: true,
+	},
+	user_id: {
+		type: mongoose.Schema.Types.ObjectId,
+		ref: 'User',
+		required: true,
+		index: true,
+	},
 
-        tags: [TagSchema],
-        likes: [LikeSchema],
-        ratings: [RatingSchema],
-        comments: [CommentSchema],
-        bookmarks: [BookmarkSchema],
-        images: [ProductImageSchema],
+	tags: [TagSchema],
+	likes: [LikeSchema],
+	ratings: [RatingSchema],
+	comments: [CommentSchema],
+	bookmarks: [BookmarkSchema],
+	images: [ProductImageSchema],
 
-        created_at: { type: Date },
-        updated_at: { type: Date },
-        is_private: { type: Boolean },
-        is_active: { type: Boolean },
-        is_deleted: { type: Boolean },
-        unique_id: { type: String, required: true }
-    }
-);
+	created_at: { type: Date },
+	updated_at: { type: Date },
+	is_private: { type: Boolean },
+	is_active: { type: Boolean },
+	is_deleted: { type: Boolean },
+	unique_id: { type: String, required: true },
+});
 
 ProductSchema.index({
     name: 'text',

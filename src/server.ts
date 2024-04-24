@@ -13,6 +13,7 @@ import SearchController from './controllers/search-ctrl';
 import StatusController from './controllers/status-ctrl';
 import ProductController from './controllers/product-ctrl';
 import SummaryController from './controllers/summary-ctrl';
+import CategoryController from './controllers/category-ctrl';
 import RegistrationController from './controllers/registration-ctrl';
 
 const app = new App(
@@ -27,6 +28,7 @@ const app = new App(
         new StatusController(),
         new ProductController(),
         new SummaryController(),
+        new CategoryController(),
         new RegistrationController()
     ]
 );

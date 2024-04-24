@@ -64,7 +64,7 @@ const constants: any = {
 		ERRORS: {
 			NOT_FOUND: 'Not found',
 			READ_RECORD: 'Cannot read',
-			INVALID_KIOSK: 'Invalid kiosk',
+			ALREADY_EXIST: 'Already exists',
 			CREATE_RECORD: 'Cannot create',
 			UPDATE_RECORD: 'Cannot update',
 			CANNOT_SEND_SMS: 'Cannot send sms',

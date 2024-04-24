@@ -6,6 +6,7 @@ import { LoggerUtil } from '../utils/logger-util';
 import { UserService } from '../services/user-serv';
 import { ProductService } from '../services/product-serv';
 
+
 export default class CrudController extends BaseController {
     constructor() {
         super();
