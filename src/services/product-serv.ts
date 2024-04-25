@@ -200,8 +200,7 @@ export class ProductService {
         let product = new Product();
 
         if (data.tags) {
-            product.tags = [];
-
+            product.tags = []
             data.tags.forEach((tagName: string) => {
                 product.tags.push({
                     name: tagName,
@@ -226,6 +225,7 @@ export class ProductService {
         product.user_id = headers.loggeduserid;
         product.description = data.description;
         product.unique_id = this.genericUtil.getUniqueId();
+        product.category = data.category;
 
         try {
             return await Product.create(product);
