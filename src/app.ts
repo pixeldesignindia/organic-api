@@ -134,6 +134,7 @@ class App {
 					'category',
 					'product/detail',
 					'product/recent',
+                    'product/filter',
 					'forgot-password',
 					'product/comments',
 					'product/has-liked',

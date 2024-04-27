@@ -27,7 +27,7 @@ export default class CrudController extends BaseController {
         this.router.get(constants.API.V1 + endPoint + '/:id', (req, res) => { this.findRecord(req, res, endPoint, service, this) });
         this.router.put(constants.API.V1 + endPoint + '/:id', (req, res) => { this.updateRecord(req, res, endPoint, service, this) });
         this.router.delete(constants.API.V1 + endPoint + '/:id', (req, res) => { this.removeRecord(req, res, endPoint, service, this) });
-        this.router.post(constants.API.V1 + endPoint + '/filter', (req, res) => { this.filterRecords(req, res, endPoint, service, this) });
+        this.router.get(constants.API.V1 + endPoint + '/filter', (req, res) => { this.filterRecords(req, res, endPoint, service, this) });
     }
 
     private createRecord(req: Request, res: Response, endPoint: string, service: any, that: any) {
