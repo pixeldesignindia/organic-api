@@ -39,28 +39,29 @@ if (isValidEnvironment()) {
         This is required for await
     */
     (async () => {
-        // For Docker, postgresql may be starting in background, hence retry connection if failed
-        let retries = 1;
-        while (retries) {
-            try {
-                console.log('Trying connecting: ' + retries);
-                mongoose.connect(config.DB_CONNECTION, {});
-                break;			// Stop loop if connection established
-            } catch (error) {
-                console.log(error);
-            }
+			// For Docker, postgresql may be starting in background, hence retry connection if failed
+			let retries = 1;
+			while (retries) {
+				try {
+					console.log('Trying connecting: ' + retries);
+					mongoose.connect(config.DB_CONNECTION, {});
+					break; // Stop loop if connection established
+				} catch (error) {
+					console.log(error);
+				}
 
-            await new Promise((resolve) => setTimeout(resolve, 2000));
+				await new Promise((resolve) => setTimeout(resolve, 2000));
 
-            ++retries;
+				++retries;
 
-            if (retries > 5)
-                break;
-        }
+				if (retries > 5) break;
+			}
+			// Logging middleware
+			
 
-        //cronUtil.init();
-        app.listen();
-    })();
+			//cronUtil.init();
+			app.listen();
+		})();
 } else {
     console.log('Invalid environment data');
 }

@@ -80,7 +80,7 @@ class App {
         /**
          * Allow cors requests from white listed urls
          */
-        this.app.use(cors());
+        this.app.use(cors())
 
         // Enable if you're behind a reverse proxy (Heroku, Bluemix, AWS ELB, Nginx, etc)
         // see https://expressjs.com/en/guide/behind-proxies.html
@@ -112,6 +112,7 @@ class App {
             request.body.startTime = new Date();
             next();
         });
+        
 
         // Configure Express to use EJS
         this.app.set("views", path.join(__dirname, "views"));
