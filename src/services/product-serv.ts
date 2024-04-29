@@ -219,14 +219,19 @@ export class ProductService {
         product.images = [];
         product.is_active = true;
         product.name = data.name;
+        product.size = data.size;
+		product.stock = data.stock;
         product.is_deleted = false;
+        product.category = data.category;
         product.is_private = data.is_private;
         product.created_at = data.created_at;
+        
         product.user_id = headers.loggeduserid;
         product.description = data.description;
+        product.originalPrice = data.originalPrice;
+		product.discountPrice = data.discountPrice;
         product.unique_id = this.genericUtil.getUniqueId();
-        product.category = data.category;
-
+        
         try {
             return await Product.create(product);
         } catch (err) {
@@ -264,9 +269,13 @@ export class ProductService {
         let productDataToUpdate: any = {};
 
         if (data.hasOwnProperty('name')) productDataToUpdate.name = data.name;
+        if (data.hasOwnProperty('size')) productDataToUpdate.size = data.size;
+        if (data.hasOwnProperty('stock')) productDataToUpdate.stock = data.stock;
         if (data.hasOwnProperty('is_active')) productDataToUpdate.is_active = data.is_active;
         if (data.hasOwnProperty('is_private')) productDataToUpdate.is_private = data.is_private;
         if (data.hasOwnProperty('description')) productDataToUpdate.description = data.description;
+        if (data.hasOwnProperty('originalPrice')) productDataToUpdate.originalPrice = data.originalPrice;
+		if (data.hasOwnProperty('discountPrice')) productDataToUpdate.discountPrice = data.discountPrice;
 
         if (data.hasOwnProperty('product_stage')) {
             data.product_stage.updated_at = null;

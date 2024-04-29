@@ -1,5 +1,6 @@
 import mongoose, { Schema } from 'mongoose';
-import { CategorySchema, ICategory } from './category';
+import {  ICategory } from './category';
+import { timeStamp } from 'console';
 
 interface ITag extends IBase {
     name: string,
@@ -38,31 +39,36 @@ interface IProductImage extends IBase {
 };
 
 interface IProduct extends IBase {
-    name: string,
-    user_id: string,
-    made_for: string,
-    description: string,
-    product_image_name: string,
-    product_image_saved_name: string
+	name: string;
+	user_id: string;
+	made_for: string;
+	description: string;
+	product_image_name: string;
+	product_image_saved_name: string;
 
-    category:string,
+    size:string;
+    stock:number;
+	category: string;
+	originalPrice: number;
+	discountPrice: number;
 
-    end_date: Date,
-    start_date: Date,
-    is_private: boolean,
+	end_date: Date;
+	start_date: Date;
+    isVerified: boolean;
+	is_private: boolean;
 
-    liked: boolean,         // non db field
-    bookmarked: boolean,    // non db field
+	liked: boolean; // non db field
+	bookmarked: boolean; // non db field
 
-    slip: string,
-    template: string,
+	slip: string;
+	template: string;
 
-    tags: ITag[],
-    likes: ILike[],
-    ratings: IRating[],
-    comments: IComment[],
-    bookmarks: IBookMark[],
-    images: IProductImage[],
+	tags: ITag[];
+	likes: ILike[];
+	ratings: IRating[];
+	comments: IComment[];
+	bookmarks: IBookMark[];
+	images: IProductImage[];
 };
 
 /******************** Schema ************************/
@@ -194,6 +200,24 @@ const ProductSchema = new Schema({
 		ref: 'User',
 		required: true,
 		index: true,
+	},
+	originalPrice: {
+		type: Number,
+	},
+	discountPrice: {
+		type: Number,
+		required: [true, 'Please enter your product price!'],
+	},
+	stock: {
+		type: Number,
+		required: [true, 'Please enter your product stock!'],
+	},
+	size: {
+		type: String,
+	},
+	isVerified: {
+		type: Boolean,
+		default: false,
 	},
 
 	tags: [TagSchema],
