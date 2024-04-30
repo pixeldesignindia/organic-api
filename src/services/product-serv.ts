@@ -91,14 +91,19 @@ export class ProductService {
                 },
                 {
                     $project: {
-                        // Specify fields to include
-                        name: 1, // Example: Including the product name
+
+                        name: 1,
+                        size :1,
+                        stock:1,
                         category: 1,
                         is_active: 1,
                         is_deleted: 1,
                         is_private: 1,
                         created_at: 1,
                         description: 1,
+                        originalPrice: 1,
+                        discountedPrice: 1,
+
 
                         liked: 1,
                         bookmarked: 1,
@@ -373,197 +378,185 @@ export class ProductService {
     }
 
     async filter(data: any, headers: any = null) {
-        let where: any = {};
+       let where: any = {};
 
-        let pageNumber = 1;
-        let pageSize = constants.MAX_PAGED_RECORDS_TO_LOAD;
+				let pageNumber = 1;
+				let pageSize = constants.MAX_PAGED_RECORDS_TO_LOAD;
 
-        if (data.pageNumber) {
-            pageNumber = data.pageNumber;
-        }
-        if (data.pageSize) {
-            pageSize = data.pageSize;
-        }
+				if (data.pageNumber) {
+					pageNumber = data.pageNumber;
+				}
+				if (data.pageSize) {
+					pageSize = data.pageSize;
+				}
 
-        const skip = (pageNumber - 1) * pageSize;
+				const skip = (pageNumber - 1) * pageSize;
 
-        if (data.hasOwnProperty('is_active')) {
-            where.is_active = data.is_active;
-        } else {
-            where.is_active = true;
-        }
+				if (data.hasOwnProperty('is_active')) {
+					where.is_active = data.is_active;
+				} else {
+					where.is_active = true;
+				}
 
-        if (data.hasOwnProperty('is_private')) {
-            where.is_private = data.is_private;
-        }
+				if (data.hasOwnProperty('is_private')) {
+					where.is_private = data.is_private;
+				}
 
-        if (data.name) {
-            where.name = data.name;
-        }
+				if (data.name) {
+					where.name = data.name;
+				}
 
-        if (data.user_id) {
-            where.user_id = new mongoose.Types.ObjectId(data.user_id);
-        }
+				if (data.user_id) {
+					where.user_id = new mongoose.Types.ObjectId(data.user_id);
+				}
 
-        let sort: any = { 'name': 1 };
-        if (data.latest) {
-            sort = { 'created_at': -1 };
-        }
-
+				let sort: any = { name: 1 };
+				if (data.latest) {
+					sort = { created_at: -1 }; 
+				}
         const products = await Product.aggregate([
-            {
-                $match: where
-            },
-            {
-                $sort: sort
-            },
-            {
-                $skip: skip
-            },
-            {
-                $limit: pageSize
-            },
-            {
-                $addFields: {
-                    // check if passed user liked the product
-                    liked: {
-                        $cond: {
-                            if: data.user_id,
-                            then: {
-                                $gt: [
-                                    {
-                                        $size: {
-                                            $filter: {
-                                                input: "$likes",
-                                                as: "like",
-                                                cond: {
-                                                    $and: [
-                                                        { $eq: ["$$like.is_active", true] },
-                                                        { $eq: ["$$like.user_id", new mongoose.Types.ObjectId(data.user_id)] }
-                                                    ]
-                                                }
-                                            }
-                                        }
-                                    },
-                                    0
-                                ]
-                            },
-                            else: false
-                        }
-                    },
-                    // check if passed user bookmarked the product
-                    bookmarked: {
-                        $cond: {
-                            if: data.user_id,
-                            then: {
-                                $gt: [
-                                    {
-                                        $size: {
-                                            $filter: {
-                                                input: "$bookmarks",
-                                                as: "bookmark",
-                                                cond: {
-                                                    $and: [
-                                                        { $eq: ["$$bookmark.is_active", true] },
-                                                        { $eq: ["$$bookmark.user_id", new mongoose.Types.ObjectId(data.user_id)] }
-                                                    ]
-                                                }
-                                            }
-                                        }
-                                    },
-                                    0
-                                ]
-                            },
-                            else: false
-                        }
-                    },
-                }
-            },
-            {
-                $project: {
-                    // Specify fields to include
-                    name: 1, // Example: Including the product name
-                    user_id: 1,
-                    is_active: 1,
-                    is_deleted: 1,
-                    is_private: 1,
-                    created_at: 1,
-                    description: 1,
+					{
+						$match: where,
+					},
+					{
+						$sort: sort,
+					},
+					{
+						$skip: skip,
+					},
+					{
+						$limit: pageSize,
+					},
+					{
+						$addFields: {
+							// check if passed user liked the product
+							liked: {
+								$cond: {
+									if: data.user_id,
+									then: {
+										$gt: [
+											{
+												$size: {
+													$filter: {
+														input: '$likes',
+														as: 'like',
+														cond: {
+															$and: [{ $eq: ['$$like.is_active', true] }, { $eq: ['$$like.user_id', new mongoose.Types.ObjectId(data.user_id)] }],
+														},
+													},
+												},
+											},
+											0,
+										],
+									},
+									else: false,
+								},
+							},
+							// check if passed user bookmarked the product
+							bookmarked: {
+								$cond: {
+									if: data.user_id,
+									then: {
+										$gt: [
+											{
+												$size: {
+													$filter: {
+														input: '$bookmarks',
+														as: 'bookmark',
+														cond: {
+															$and: [{ $eq: ['$$bookmark.is_active', true] }, { $eq: ['$$bookmark.user_id', new mongoose.Types.ObjectId(data.user_id)] }],
+														},
+													},
+												},
+											},
+											0,
+										],
+									},
+									else: false,
+								},
+							},
+						},
+					},
+					{
+						$project: {
+							// Specify fields to include
+							name: 1, // Example: Including the product name
+							size: 1,
+							stock: 1,
+							user_id: 1,
+							category: 1,
+							is_active: 1,
+							is_deleted: 1,
+							is_private: 1,
+							created_at: 1,
+							description: 1,
 
-                    liked: 1,
-                    bookmarked: 1,
-                    // Filter nested arrays where is_active is true
-                    images: {
-                        $filter: {
-                            input: '$images',
-                            as: 'image',
-                            cond: {
-                                $and: [
-                                    { $eq: ['$$image.is_active', true] }
-                                ]
-                            }
-                        }
-                    },
-                    bookmarkCount: {
-                        $size: {
-                            $filter: {
-                                input: "$bookmarks",
-                                as: "bookmark",
-                                cond: {
-                                    $and: [
-                                        { $eq: ["$$bookmark.is_active", true] }
-                                    ]
-                                }
-                            }
-                        }
-                    },
-                    commentCount: {
-                        $size: {
-                            $filter: {
-                                input: "$comments",
-                                as: "comment",
-                                cond: {
-                                    $and: [
-                                        { $eq: ["$$comment.is_active", true] }
-                                    ]
-                                }
-                            }
-                        }
-                    },
-                    likeCount: {
-                        $size: {
-                            $filter: {
-                                input: "$likes",
-                                as: "likes",
-                                cond: {
-                                    $and: [
-                                        { $eq: ["$$likes.is_active", true] }
-                                    ]
-                                }
-                            }
-                        }
-                    },
-                    tags: {
-                        $filter: {
-                            input: '$tags',
-                            as: 'tag',
-                            cond: {
-                                $and: [
-                                    { $eq: ['$$tag.is_active', true] }
-                                ]
-                            }
-                        }
-                    },
-                }
-            }
-        ]);
+							originalPrice: 1,
+							discountedPrice: 1,
+
+							liked: 1,
+							bookmarked: 1,
+							// Filter nested arrays where is_active is true
+							images: {
+								$filter: {
+									input: '$images',
+									as: 'image',
+									cond: {
+										$and: [{ $eq: ['$$image.is_active', true] }],
+									},
+								},
+							},
+							bookmarkCount: {
+								$size: {
+									$filter: {
+										input: '$bookmarks',
+										as: 'bookmark',
+										cond: {
+											$and: [{ $eq: ['$$bookmark.is_active', true] }],
+										},
+									},
+								},
+							},
+							commentCount: {
+								$size: {
+									$filter: {
+										input: '$comments',
+										as: 'comment',
+										cond: {
+											$and: [{ $eq: ['$$comment.is_active', true] }],
+										},
+									},
+								},
+							},
+							likeCount: {
+								$size: {
+									$filter: {
+										input: '$likes',
+										as: 'likes',
+										cond: {
+											$and: [{ $eq: ['$$likes.is_active', true] }],
+										},
+									},
+								},
+							},
+							tags: {
+								$filter: {
+									input: '$tags',
+									as: 'tag',
+									cond: {
+										$and: [{ $eq: ['$$tag.is_active', true] }],
+									},
+								},
+							},
+						},
+					},
+				]);
 
         return products;
     }
 
     async getRecentProducts(data: any, headers: any = null) {
         data.latest = true;
-        data.is_private = false;
 
         return await this.filter(data, headers);
     }
