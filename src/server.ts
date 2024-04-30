@@ -7,6 +7,7 @@ import CDNController from './controllers/cdn-ctrl';
 import LogController from './controllers/log-ctrl';
 import CrudController from './controllers/crud-ctrl';
 import RoleController from './controllers/role-ctrl';
+import CartController from './controllers/cart-ctrl';
 import UserController from './controllers/user-ctrl';
 import LoginController from './controllers/login-ctrl';
 import SearchController from './controllers/search-ctrl';
@@ -22,6 +23,7 @@ const app = new App(
         new LogController(),
         new CrudController(),
         new RoleController(),
+        new CartController(),
         new UserController(),
         new LoginController(),
         new SearchController(),
