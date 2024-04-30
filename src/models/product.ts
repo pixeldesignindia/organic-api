@@ -36,19 +36,17 @@ interface IProductImage extends IBase {
     comments: IComment[],
     bookmarks: IBookMark[],
 };
-interface ISizeInfo extends IBase {
-	size: string;
-	stock: number;
-	user_id: string;
-	originalPrice: number;
-	discountPrice: number;
-}
+
 
 interface IProduct extends IBase {
 	name: string;
+	size: string;
+	stock: number;
 	user_id: string;
 	made_for: string;
 	category: string;
+	originalPrice: number;
+	discountPrice: number;
 	description: string;
 	product_image_name: string;
 	product_image_saved_name: string;
@@ -68,7 +66,6 @@ interface IProduct extends IBase {
 	likes: ILike[];
 	ratings: IRating[];
 	comments: IComment[];
-    sizeInfo: ISizeInfo[];
 	bookmarks: IBookMark[];
 	images: IProductImage[];
 };
@@ -203,24 +200,20 @@ const ProductSchema = new Schema({
 		required: true,
 		index: true,
 	},
-	sizeInfo: [
-		{
-			originalPrice: {
-				type: Number,
-			},
-			discountPrice: {
-				type: Number,
-				required: [true, 'Please enter your product price!'],
-			},
-			stock: {
-				type: Number,
-				required: [true, 'Please enter your product stock!'],
-			},
-			size: {
-				type: String,
-			},
-		},
-	],
+	originalPrice: {
+    type: Number,
+	},
+	discountPrice: {
+		type: Number,
+		required: [true, 'Please enter your product price!'],
+	},
+	stock: {
+		type: Number,
+		required: [true, 'Please enter your product stock!'],
+	},
+	size: {
+		type: String,
+	},
 	isVerified: {
 		type: Boolean,
 		default: false,

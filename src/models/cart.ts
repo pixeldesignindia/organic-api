@@ -6,6 +6,7 @@ interface CartItem {
 }
 
 interface ICart extends IBase {
+	size:string;
 	userId: string;
 	items: CartItem[];
 }
@@ -15,7 +16,8 @@ const CartSchema = new Schema({
   userId: { type: String, required: true },
   items: [{
     productId: { type: String, required: true },
-    quantity: { type: Number, required: true }
+    quantity: { type: Number, required: true },
+	size:{ type: String, required: true}
   }],
 	created_at: { type: Date },
 	updated_at: { type: Date },
