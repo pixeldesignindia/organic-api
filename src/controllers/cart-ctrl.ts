@@ -20,11 +20,11 @@ export class CartController extends BaseController {
 		this.router.post(constants.API.V1 + constants.API.APP.CART, (req, res) => {
 			this.createRecord(req, res, this);
 		});
-		this.router.get(constants.API.V1 + constants.API.APP.CATEGORY + '/:id', (req, res) => {
+		this.router.get(constants.API.V1 + constants.API.APP.CART , (req, res) => {
 			this.findRecord(req, res, this);
 		});
 		
-		this.router.delete(constants.API.V1 + constants.API.APP.CATEGORY + '/:id', (req, res) => {
+		this.router.delete(constants.API.V1 + constants.API.APP.CART+ '/:id', (req, res) => {
 			this.removeRecord(req, res, this);
 		});
 		
