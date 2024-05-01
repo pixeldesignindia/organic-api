@@ -17,13 +17,12 @@ export default class ProductController extends BaseController {
 	 * Initializes API routes
 	 */
 	public initializeRoutes() {
+		this.router.get(constants.API.V1 + constants.API.APP.PRODUCT + '/recent', (req, res) => {
+			this.getRecentProducts(req, res, this);
+		});
 		this.router.get(constants.API.V1 + constants.API.APP.PRODUCT + '/detail/:id', (req, res) => {
 			this.find(req, res, this);
 		});
-		this.router.post(constants.API.V1 + constants.API.APP.PRODUCT + '/recent', (req, res) => {
-			this.getRecentProducts(req, res, this);
-		});
-
 		this.router.post(constants.API.V1 + constants.API.APP.PRODUCT + '/add-images', (req, res) => {
 			this.addImages(req, res, this);
 		});
@@ -79,7 +78,7 @@ export default class ProductController extends BaseController {
 	}
 
 	private getRecentProducts(req: Request, res: Response, that: any) {
-		that.service.getRecentProducts(req.body, req.headers).then(
+		that.service.getRecentProducts(req.query, req.headers).then(
 			(result: any) => {
 				that.responseUtil.sendReadResponse(req, res, result, 200);
 			},

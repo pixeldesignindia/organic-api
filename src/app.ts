@@ -133,7 +133,7 @@ class App {
 					'verify',
 					'register',
 					'category',
-					'product/detail',
+					'product',
 					'product/recent',
                     'product/filter',
 					'forgot-password',

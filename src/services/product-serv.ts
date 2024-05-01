@@ -564,16 +564,12 @@ export class ProductService {
     async feed(data: any, headers: any) {
         const user = await this.userService.find(data.user_id, headers);
         if (!user) {
-            return []; // User not found
+            return []; 
         }
-
-        // Combine following and followers into a single list of unique user IDs
         const relevantUserIds = [...user.following, ...user.followers].filter((value, index, self) => self.indexOf(value) === index);
-
-        // Fetch products created by users in the combined list
         const products = await Product.find({
             user_id: { $in: relevantUserIds }
-        }).populate('user_id', 'first_name', 'last_name'); // Example of populating the username of the creator
+        }).populate('user_id', 'first_name', 'last_name'); 
 
         return products;
     }
@@ -901,8 +897,10 @@ export class ProductService {
         if (!data.images || data.images.length == 0) {
             return Promise.reject(new AppError('Image not uploaded', 'product-serv => addImages', constants.HTTP_STATUS.BAD_REQUEST));
         }
+       ;
 
         let product: any = await Product.findById({ _id: new mongoose.Types.ObjectId(data.product_id) });
+        
 
         if (product && data.images) {
             try {
@@ -925,6 +923,7 @@ export class ProductService {
     }
 
     async uploadImage(image: any, productId: string) {
+        
         let file_name = image.file_name;
         let saved_file_name = this.dateUtil.getCurrentEpoch() + "_" + file_name;
 
