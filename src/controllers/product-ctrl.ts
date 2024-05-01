@@ -20,9 +20,6 @@ export default class ProductController extends BaseController {
 		this.router.get(constants.API.V1 + constants.API.APP.PRODUCT + '/recent', (req, res) => {
 			this.getRecentProducts(req, res, this);
 		});
-		this.router.get(constants.API.V1 + constants.API.APP.PRODUCT + '/detail/:id', (req, res) => {
-			this.find(req, res, this);
-		});
 		this.router.post(constants.API.V1 + constants.API.APP.PRODUCT + '/add-images', (req, res) => {
 			this.addImages(req, res, this);
 		});
@@ -31,6 +28,9 @@ export default class ProductController extends BaseController {
 		});
 		this.router.post(constants.API.V1 + constants.API.APP.PRODUCT + '/set-default-image', (req, res) => {
 			this.setDefaultImage(req, res, this);
+		});
+		this.router.get(constants.API.V1 + constants.API.APP.PRODUCT + '/detail/:id', (req, res) => {
+			this.find(req, res, this);
 		});
 
 		this.router.post(constants.API.V1 + constants.API.APP.PRODUCT + '/has-liked', (req, res) => {

@@ -40,8 +40,7 @@ export default class CrudController extends BaseController {
     }
 
     private filterRecords(req: Request, res: Response, endPoint: string, service: any, that: any) {
-      
-        console.log('filterCriteria')
+    
         service.filter(req.query, req.headers).then(
 					(result: any) => {
 						that.responseUtil.sendReadResponse(req, res, result, 200);
