@@ -24,14 +24,29 @@ export class CartController extends BaseController {
 			this.findRecord(req, res, this);
 		});
 		
-		this.router.delete(constants.API.V1 + constants.API.APP.CART+ '/:id', (req, res) => {
+		this.router.delete(constants.API.V1 + constants.API.APP.CART+ '/removeItem', (req, res) => {
 			this.removeRecord(req, res, this);
 		});
-		
+		this.router.post(constants.API.V1 + constants.API.APP.CART + '/decrease', (req, res) => {
+			this.decreaseRecord(req, res, this);
+		});
 	}
+
 
 	private createRecord(req: Request, res: Response, that: any) {
 		that.service.addToCart(req.body, req.headers).then(
+			(result: any) => {
+				that.responseUtil.sendUpdateResponse(req, res, result, 200);
+			},
+			(err: any) => {
+				constants.error(err);
+				LoggerUtil.log('error', { message: 'Error in creating role', location: 'crud-ctrl => create', data: err });
+				that.responseUtil.sendFailureResponse(req, res, err, { fileName: 'crud-ctrl', methodName: 'create' }, 200);
+			}
+		);
+	}
+	private decreaseRecord(req: Request, res: Response, that: any) {
+		that.service.decreaseQuantity(req.body, req.headers).then(
 			(result: any) => {
 				that.responseUtil.sendUpdateResponse(req, res, result, 200);
 			},
@@ -61,7 +76,8 @@ export class CartController extends BaseController {
 	
 
 	private removeRecord(req: Request, res: Response, that: any) {
-		that.service.removeCartItem(req.params.productId, req.headers).then(
+		console.log(req.params.productId);
+		that.service.removeCartItem(req.body, req.headers).then(
 			(result: any) => {
 				that.responseUtil.sendUpdateResponse(req, res, result, 200);
 			},

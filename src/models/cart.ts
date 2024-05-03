@@ -14,7 +14,12 @@ const CartSchema = new Schema({
 	
   userId: { type: String, required: true },
   items: [{
-    productId: { type: String, required: true },
+    productId: { 
+		required: true,
+		type: Schema.Types.ObjectId,
+		ref: 'Product' 
+
+	},
     quantity: { type: Number, required: true },
   }],
 	created_at: { type: Date },
@@ -26,4 +31,4 @@ const CartSchema = new Schema({
 
 const Cart = mongoose.model<ICart>('Cart', CartSchema);
 
-export { ICart, Cart};
+export { ICart, Cart,CartItem};
