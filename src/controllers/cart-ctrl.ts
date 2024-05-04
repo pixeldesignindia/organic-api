@@ -76,7 +76,6 @@ export class CartController extends BaseController {
 	
 
 	private removeRecord(req: Request, res: Response, that: any) {
-		console.log(req.params.productId);
 		that.service.removeCartItem(req.body, req.headers).then(
 			(result: any) => {
 				that.responseUtil.sendUpdateResponse(req, res, result, 200);
