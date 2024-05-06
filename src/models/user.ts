@@ -10,23 +10,24 @@ interface IPasswordReset {
 }
 
 interface IUser extends IBase {
-    pin?: string,
-    email: string,
-    gender: string,
-    mobile: string,
-    role_id: string,
-    password: string,
-    username: string,
-    last_name: string,
-    fcm_token: string,
-    user_type: string,
-    image_file: string,
-    first_name: string,
+	pin?: string;
+	email: string;
+	gender: string;
+	mobile: string;
+	role_id: string;
+	password: string;
+	username: string;
+	last_name: string;
+	fcm_token: string;
+	user_type: string;
+	image_file: string;
+	first_name: string;
+	availableBalance: number;
 
-    role: any,
-    password_resets: IPasswordReset[],
+	role: any;
+	password_resets: IPasswordReset[];
 
-    is_test_account: boolean
+	is_test_account: boolean;
 }
 
 /**************** Schema ***********************/
@@ -101,6 +102,10 @@ const userSchema = new Schema(
         password_resets: [PasswordResetSchema],
 
         is_test_account: { type: Boolean, default: false },
+        availableBalance:{
+            type: Number,
+            default: 0
+        },
 
         created_at: { type: Date },
         updated_at: { type: Date },

@@ -85,12 +85,15 @@ export class CategoryService extends BaseService {
 
 			if (category) {
 				const categoryToUpdate = this.getUpdatedCategory(category, data);
-				return await Category.updateOne({ _id: id }, categoryToUpdate);
+				 await Category.updateOne({ _id: id }, categoryToUpdate);
+				 return {
+						success: true,
+					};
 			} else {
-				throw new AppError(constants.MESSAGES.ERRORS.NOT_FOUND, null, 404);
+				return new AppError(constants.MESSAGES.ERRORS.NOT_FOUND, null, 404);
 			}
 		} catch (error) {
-			throw new AppError('Error updating category', error, 500);
+			return new AppError('Error updating category', error, 500);
 		}
 	}
 
