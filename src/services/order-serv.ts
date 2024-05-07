@@ -79,16 +79,16 @@ export class OrderService extends BaseService {
 			return { success: false, message: error.message || 'Failed to cancel order' };
 		}
 	}
-	async getAllOrdersByUserId(userId: string) {
+	async getAllOrdersByUserId(data:any,headers:any) {
 		try {
-			const orders = await Order.find({ user_id: userId });
+			const orders = await Order.find({ user_id:headers.loggeduserid });
 
 			return { success: true, orders };
 		} catch (error) {
 			return { success: false, message: error.message || 'Failed to fetch orders' };
 		}
 	}
-	async getAllOrdersByVendor(data: any) {
+	async getAllOrdersByVendor(id:any,data: any) {
 		let pageNumber = 1;
 		let pageSize = constants.MAX_PAGED_RECORDS_TO_LOAD;
 		let sortField = 'created_at';
@@ -119,7 +119,7 @@ export class OrderService extends BaseService {
 				},
 				{
 					$match: {
-						'cart.user_id': data.userId,
+						'cart.user_id': id,
 						status: data.status,
 					},
 				},
@@ -140,27 +140,27 @@ export class OrderService extends BaseService {
 		}
 	}
 
-	async updateOrderStatusService(orderId: string, newStatus: string){
+	async updateOrderStatusService(id:any,data:any,headers:any){
 		try {
-			const order = await Order.findById(orderId);
+			const order = await Order.findById(id);
 			if (!order) {
 				throw new AppError('Order not found with this id',null, 404);
 			}
 
-			if (newStatus === 'Transferred to delivery partner') {
+			if (data.newStatus === 'Transferred to delivery partner') {
 				for (const item of order.cart) {
 					await this.updateProductStockService(item.productId, item.quantity);
 				}
 			}
 
-			if (newStatus === 'Delivered') {
+			if (data.newStatus === 'Delivered') {
 				order.deliveredAt = new Date;
 				order.paymentInfo.status = 'Succeeded';
 				const serviceCharge = order.totalPrice * 0.1;
 				await this.updateVendorBalanceService(order.user_id, order.totalPrice - serviceCharge);
 			}
 
-			order.status = newStatus;
+			order.status = data.newStatus;
 			await order.save();
 
 			return { success: true, order };
