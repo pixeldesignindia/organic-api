@@ -10,12 +10,14 @@ import RoleController from './controllers/role-ctrl';
 import CartController from './controllers/cart-ctrl';
 import UserController from './controllers/user-ctrl';
 import LoginController from './controllers/login-ctrl';
+import OrderController  from './controllers/order-ctrl';
 import SearchController from './controllers/search-ctrl';
 import StatusController from './controllers/status-ctrl';
 import ProductController from './controllers/product-ctrl';
 import SummaryController from './controllers/summary-ctrl';
 import CategoryController from './controllers/category-ctrl';
 import RegistrationController from './controllers/registration-ctrl';
+
 
 const app = new App(
     [
@@ -26,6 +28,7 @@ const app = new App(
         new CartController(),
         new UserController(),
         new LoginController(),
+        new OrderController(),
         new SearchController(),
         new StatusController(),
         new ProductController(),

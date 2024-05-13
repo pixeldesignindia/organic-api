@@ -5,12 +5,6 @@ import { LoggerUtil } from "../utils/logger-util";
 import { OrderService } from "../services/order-serv";
 
 
-
-
-
-
-
-
 export class OrderController extends BaseController {
 	constructor() {
 		super(new OrderService());
@@ -121,3 +115,5 @@ export class OrderController extends BaseController {
 		);
 	}
 }
+
+export default OrderController;
