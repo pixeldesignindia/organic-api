@@ -2,11 +2,14 @@ import mongoose, { Schema, Document } from 'mongoose';
 
 interface ShippingAddress {
 	city: string;
+	email: string;
 	state: string;
 	phone: string;
 	address: string;
 	pinCode: string;
 	country: string;
+	last_name: string;
+	first_name: string;
 }
 
 interface PaymentInfo {
@@ -54,12 +57,15 @@ const OrderSchema = new Schema({
 		},
 	],
 	shippingAddress: {
+		email: { type: String, required: true },
 		city: { type: String, required: true },
 		phone: { type: String, required: true },
 		state: { type: String, required: true },
 		pinCode: { type: String, required: true },
 		address: { type: String, required: true },
 		country: { type: String, required: true },
+		last_name:{ type: String, required: true},
+		first_name: { type: String, required: true},
 	},
 	user_id: {
 		type: Schema.Types.ObjectId,
