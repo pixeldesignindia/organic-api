@@ -20,18 +20,20 @@ export class CartController extends BaseController {
 		this.router.post(constants.API.V1 + constants.API.APP.CART, (req, res) => {
 			this.createRecord(req, res, this);
 		});
-		this.router.get(constants.API.V1 + constants.API.APP.CART , (req, res) => {
+		this.router.get(constants.API.V1 + constants.API.APP.CART, (req, res) => {
 			this.findRecord(req, res, this);
 		});
-		
-		this.router.delete(constants.API.V1 + constants.API.APP.CART+ '/removeItem', (req, res) => {
+
+		this.router.delete(constants.API.V1 + constants.API.APP.CART + '/removeItem', (req, res) => {
 			this.removeRecord(req, res, this);
 		});
 		this.router.post(constants.API.V1 + constants.API.APP.CART + '/decrease', (req, res) => {
 			this.decreaseRecord(req, res, this);
 		});
+			this.router.post(constants.API.V1 + constants.API.APP.CART + '/:id', (req, res) => {
+				this.deleteRecord(req, res, this);
+			});
 	}
-
 
 	private createRecord(req: Request, res: Response, that: any) {
 		that.service.addToCart(req.body, req.headers).then(
@@ -58,7 +60,7 @@ export class CartController extends BaseController {
 		);
 	}
 	private findRecord(req: Request, res: Response, that: any) {
-		that.service.find( req.headers).then(
+		that.service.find(req.headers).then(
 			(result: any) => {
 				if (result) {
 					that.responseUtil.sendReadResponse(req, res, result, constants.HTTP_STATUS.OK);
@@ -73,10 +75,19 @@ export class CartController extends BaseController {
 		);
 	}
 
-	
-
 	private removeRecord(req: Request, res: Response, that: any) {
 		that.service.removeCartItem(req.body, req.headers).then(
+			(result: any) => {
+				that.responseUtil.sendUpdateResponse(req, res, result, 200);
+			},
+			(err: any) => {
+				LoggerUtil.log('error', { message: 'Error in removing role', location: 'crud-ctrl => remove', data: err });
+				that.responseUtil.sendFailureResponse(req, res, err, { fileName: 'crud-ctrl', methodName: 'remove' }, 200);
+			}
+		);
+	}
+	private deleteRecord(req: Request, res: Response, that: any) {
+		that.service.delete(req.params, req.headers).then(
 			(result: any) => {
 				that.responseUtil.sendUpdateResponse(req, res, result, 200);
 			},

@@ -75,7 +75,6 @@ export class CartService extends BaseService {
 	}
 
 	async removeCartItem(data: any, headers: any = null) {
-		
 		console.log('Removing from cart:', data.productId);
 		const userId = headers.loggeduserid;
 		try {
@@ -108,6 +107,17 @@ export class CartService extends BaseService {
 				success: false,
 				message: error ? error.toString() : 'Failed to remove item from cart',
 			};
+		}
+	}
+	async delete(id: string, headers: any = null) {
+		try {
+			const cart = await Cart.findByIdAndDelete(id);
+			if (!cart) {
+				throw new AppError('Cart not found', null, 404);
+			}
+			return { success: true, message: 'Cart delete successfully' };
+		} catch (error) {
+			throw new AppError('Error deleting cart', error, 500);
 		}
 	}
 }
