@@ -109,9 +109,10 @@ export class CartService extends BaseService {
 			};
 		}
 	}
-	async delete(id: string, headers: any = null) {
+	async delete(data:any, headers: any = null) {
 		try {
-			const cart = await Cart.findByIdAndDelete(id);
+
+			const cart = await Cart.findByIdAndDelete({_id: data.id});
 			if (!cart) {
 				throw new AppError('Cart not found', null, 404);
 			}
