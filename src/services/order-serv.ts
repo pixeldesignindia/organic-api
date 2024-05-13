@@ -18,6 +18,7 @@ export class OrderService extends BaseService {
 		// Assuming data.cart is an array of products
 		order.cart = data.cart.map((cartItem: any) => {
 			return {
+				
 				user_id: cartItem.user_id,
 				quantity: cartItem.quantity,
 				category: cartItem.category,
@@ -56,8 +57,10 @@ export class OrderService extends BaseService {
 		order.unique_id = this.genericUtil.getUniqueId();
 
 		try {
-			return await Order.create(order);
+		return await Order.create(order);
+
 		} catch (err) {
+			console.log(err);
 			return Promise.reject({
 				success: false,
 				message: err ? err.toString() : 'Cannot create order',

@@ -31,6 +31,6 @@ const WishlistSchema = new Schema({
 	unique_id: { type: String, required: true },
 });
 
-const Cart = mongoose.model<IWishlist>('Wishlist', WishlistSchema);
+const Wishlist = mongoose.model<IWishlist>('Wishlist', WishlistSchema);
 
-export { IWishlist, Cart, WishlistItem};
+export { IWishlist, Wishlist, WishlistItem};

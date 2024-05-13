@@ -44,7 +44,7 @@ interface IProduct extends IBase {
 	stock: number;
 	user_id: string;
 	made_for: string;
-	category: string;
+	category: string; 
 	originalPrice: number;
 	discountPrice: number;
 	description: string;

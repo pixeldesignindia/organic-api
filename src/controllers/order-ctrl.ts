@@ -14,6 +14,7 @@ export class OrderController extends BaseController {
 
 	public initializeRoutes() {
 		this.router.post(constants.API.V1 + constants.API.APP.ORDER, (req, res) => {
+			
 			this.createRecord(req, res, this);
 		});
 		this.router.get(constants.API.V1 + constants.API.APP.ORDER + '/find', (req, res) => {
@@ -36,6 +37,7 @@ export class OrderController extends BaseController {
 
 	private createRecord(req: Request, res: Response, that: any) {
 		that.service.store(req.body, req.headers).then(
+			
 			(result: any) => {
 				that.responseUtil.sendUpdateResponse(req, res, result, 200);
 			},
