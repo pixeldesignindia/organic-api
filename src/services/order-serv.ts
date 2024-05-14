@@ -96,55 +96,40 @@ export class OrderService extends BaseService {
 		}
 	}
 	async getAllOrdersByVendor(id:any,data: any) {
-		let pageNumber = 1;
-		let pageSize = constants.MAX_PAGED_RECORDS_TO_LOAD;
-		let sortField = 'created_at';
-		let sortOrder = 1;
+		console.log(id)
+		 let pageNumber = 1;
+			let pageSize = constants.MAX_PAGED_RECORDS_TO_LOAD;
+			let sortField = 'created_at';
+			let sortOrder = 1;
+			const query: any = { 'cart.user_id': id };
 
-		if (data.pageNumber) {
-			pageNumber = data.pageNumber;
-		}
-		if (data.pageSize) {
-			pageSize = data.pageSize;
-		}
-		if (data.sortField) {
-			sortField = data.sortField;
-		}
-		if (data.sortOrder && (data.sortOrder === 'asc' || data.sortOrder === 'desc')) {
-			sortOrder = data.sortOrder === 'desc' ? -1 : 1;
-		}
+			if (data.pageNumber) {
+				pageNumber = data.pageNumber;
+			}
+			if (data.pageSize) {
+				pageSize = data.pageSize;
+			}
+			if (data.sortOrder) {
+				sortOrder = data.sortOrder;
+			}
+			if(data.status){
+				query.status = data.status;
+			}
 
-		const skip = (pageNumber - 1) * pageSize;
+			const skip = (pageNumber - 1) * pageSize;
 
-		try {
-			const sortObj: any = {};
-			sortObj[sortField] = sortOrder;
+			try {
 
-			const orders = await Order.aggregate([
-				{
-					$unwind: '$cart',
-				},
-				{
-					$match: {
-						'cart.user_id': id,
-						status: data.status,
-					},
-				},
-				{
-					$sort: sortObj,
-				},
-				{
-					$skip: skip,
-				},
-				{
-					$limit: pageSize,
-				},
-			]);
+				const orders = await Order.find(query)
+					.populate('cart.productId')
+                .sort({ created_at:1})
+					.skip(skip)
+					.limit(pageSize);
 
-			return { success: true, orders };
-		} catch (error) {
-			return { success: false, message: error.message || 'Failed to fetch orders' };
-		}
+				return { success: true, orders };
+			} catch (error) {
+				return { success: false, message: error.message || 'Failed to fetch orders' };
+			}
 	}
 
 	async updateOrderStatusService(id:any,data:any,headers:any){
