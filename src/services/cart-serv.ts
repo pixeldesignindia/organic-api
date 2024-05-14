@@ -111,14 +111,14 @@ export class CartService extends BaseService {
 	}
 	async delete(data:any, headers: any = null) {
 		try {
-
+ 
 			const cart = await Cart.findByIdAndDelete({_id: data.id});
 			if (!cart) {
-				throw new AppError('Cart not found', null, 404);
+			return new AppError('Cart not found', null, 404);
 			}
 			return { success: true, message: 'Cart delete successfully' };
 		} catch (error) {
-			throw new AppError('Error deleting cart', error, 500);
+		return  new AppError('Error deleting cart', error, 500);
 		}
 	}
 }
