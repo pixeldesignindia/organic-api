@@ -88,7 +88,7 @@ export class OrderService extends BaseService {
 	}
 	async getAllOrdersByUserId(data:any,headers:any) {
 		try {
-			const orders = await Order.find({ user_id:headers.loggeduserid });
+			const orders = await Order.find({ user_id: headers.loggeduserid }).populate("cart.productId");
 
 			return { success: true, orders };
 		} catch (error) {

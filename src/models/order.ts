@@ -50,7 +50,11 @@ const OrderSchema = new Schema({
 			user_id: { type: String, required: true },
 			quantity: { type: Number, required: true },
 			category: { type: String, required: true },
-			productId: { type: String, required: true },
+			productId: {
+				required: true,
+				type: Schema.Types.ObjectId,
+				ref: 'Product',
+			},
 			originalPrice: { type: Number, required: true },
 			discountPrice: { type: Number, required: true },
 			description: { type: String, required: true },
@@ -64,8 +68,8 @@ const OrderSchema = new Schema({
 		pinCode: { type: String, required: true },
 		address: { type: String, required: true },
 		country: { type: String, required: true },
-		last_name:{ type: String, required: true},
-		first_name: { type: String, required: true},
+		last_name: { type: String, required: true },
+		first_name: { type: String, required: true },
 	},
 	user_id: {
 		type: Schema.Types.ObjectId,
@@ -75,7 +79,7 @@ const OrderSchema = new Schema({
 	totalPrice: { type: Number, required: true },
 	status: {
 		type: String,
-		enum: ['placed','Transferred to delivery partner', 'processing', 'shipped', 'delivered'],
+		enum: ['placed', 'Transferred to delivery partner', 'processing', 'shipped', 'delivered'],
 		default: 'placed',
 	},
 	paymentInfo: {
