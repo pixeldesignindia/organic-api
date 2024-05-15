@@ -18,7 +18,6 @@ export class OrderService extends BaseService {
 		// Assuming data.cart is an array of products
 		order.cart = data.cart.map((cartItem: any) => {
 			return {
-				
 				user_id: cartItem.user_id,
 				quantity: cartItem.quantity,
 				category: cartItem.category,
@@ -29,7 +28,7 @@ export class OrderService extends BaseService {
 			};
 		});
 
-		order.shippingAddress = data.shippingAddress
+		order.shippingAddress = data.shippingAddress;
 
 		order.user_id = headers.loggeduserid;
 		order.totalPrice = data.totalPrice;
@@ -46,8 +45,7 @@ export class OrderService extends BaseService {
 		order.unique_id = this.genericUtil.getUniqueId();
 
 		try {
-		return await Order.create(order);
-
+			return await Order.create(order);
 		} catch (err) {
 			console.log(err);
 			return Promise.reject({
@@ -75,57 +73,52 @@ export class OrderService extends BaseService {
 			return { success: false, message: error.message || 'Failed to cancel order' };
 		}
 	}
-	async getAllOrdersByUserId(data:any,headers:any) {
+	async getAllOrdersByUserId(data: any, headers: any) {
 		try {
-			const orders = await Order.find({ user_id: headers.loggeduserid }).populate("cart.productId");
+			const orders = await Order.find({ user_id: headers.loggeduserid }).populate('cart.productId');
 
 			return { success: true, orders };
 		} catch (error) {
 			return { success: false, message: error.message || 'Failed to fetch orders' };
 		}
 	}
-	async getAllOrdersByVendor(id:any,data: any) {
-		console.log(id)
-		 let pageNumber = 1;
-			let pageSize = constants.MAX_PAGED_RECORDS_TO_LOAD;
-			let sortField = 'created_at';
-			let sortOrder = 1;
-			const query: any = { 'cart.user_id': id };
+	async getAllOrdersByVendor(id: any, data: any) {
+		console.log(id);
+		let pageNumber = 1;
+		let pageSize = constants.MAX_PAGED_RECORDS_TO_LOAD;
+		let sortField = 'created_at';
+		let sortOrder = 1;
+		const query: any = { 'cart.user_id': id };
 
-			if (data.pageNumber) {
-				pageNumber = data.pageNumber;
-			}
-			if (data.pageSize) {
-				pageSize = data.pageSize;
-			}
-			if (data.sortOrder) {
-				sortOrder = data.sortOrder;
-			}
-			if(data.status){
-				query.status = data.status;
-			}
+		if (data.pageNumber) {
+			pageNumber = data.pageNumber;
+		}
+		if (data.pageSize) {
+			pageSize = data.pageSize;
+		}
+		if (data.sortOrder) {
+			sortOrder = data.sortOrder;
+		}
+		if (data.status) {
+			query.status = data.status;
+		}
 
-			const skip = (pageNumber - 1) * pageSize;
+		const skip = (pageNumber - 1) * pageSize;
 
-			try {
+		try {
+			const orders = await Order.find(query).populate('cart.productId').sort({ created_at: 1 }).skip(skip).limit(pageSize);
 
-				const orders = await Order.find(query)
-					.populate('cart.productId')
-                .sort({ created_at:1})
-					.skip(skip)
-					.limit(pageSize);
-
-				return { success: true, orders };
-			} catch (error) {
-				return { success: false, message: error.message || 'Failed to fetch orders' };
-			}
+			return { success: true, orders };
+		} catch (error) {
+			return { success: false, message: error.message || 'Failed to fetch orders' };
+		}
 	}
 
-	async updateOrderStatusService(id:any,data:any,headers:any){
+	async updateOrderStatusService(id: any, data: any, headers: any) {
 		try {
 			const order = await Order.findById(id);
 			if (!order) {
-				throw new AppError('Order not found with this id',null, 404);
+				throw new AppError('Order not found with this id', null, 404);
 			}
 
 			if (data.newStatus === 'Transferred to delivery partner') {
@@ -135,7 +128,7 @@ export class OrderService extends BaseService {
 			}
 
 			if (data.newStatus === 'Delivered') {
-				order.deliveredAt = new Date;
+				order.deliveredAt = new Date();
 				order.paymentInfo.status = 'Succeeded';
 				const serviceCharge = order.totalPrice * 0.1;
 				await this.updateVendorBalanceService(order.user_id, order.totalPrice - serviceCharge);
@@ -148,16 +141,16 @@ export class OrderService extends BaseService {
 		} catch (error) {
 			throw error;
 		}
-	};
+	}
 
-	async updateProductStockService (productId: string, quantity: number) {
+	async updateProductStockService(productId: string, quantity: number) {
 		try {
 			const product = await Product.findById(productId);
 			if (!product) {
-				throw new AppError('Product not found with this id',null, 404);
+				throw new AppError('Product not found with this id', null, 404);
 			}
-			if(product.stock <quantity){
-				throw new AppError('Not enough stock for this product',null, 404);
+			if (product.stock < quantity) {
+				throw new AppError('Not enough stock for this product', null, 404);
 			}
 
 			product.stock -= quantity;
@@ -167,13 +160,13 @@ export class OrderService extends BaseService {
 		} catch (error) {
 			throw error;
 		}
-	};
+	}
 
-	async updateVendorBalanceService(userId: string, amount: number){
+	async updateVendorBalanceService(userId: string, amount: number) {
 		try {
 			const vendor = await User.findById(userId);
 			if (!vendor) {
-				throw new AppError('Vendor not found with this id',null, 404);
+				throw new AppError('Vendor not found with this id', null, 404);
 			}
 
 			vendor.availableBalance += amount;
@@ -183,5 +176,16 @@ export class OrderService extends BaseService {
 		} catch (error) {
 			throw error;
 		}
-	};
+	}
+	async find(id: string) {
+		try {
+			const order = await Order.findById(id);
+			if (!order) {
+				return { success: false, message: 'Order not found' };
+			}
+			return { success: true, order };
+		} catch (error) {
+			return { success: false, message: error.message || 'Failed to fetch address' };
+		}
+	}
 }

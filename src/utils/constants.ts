@@ -37,6 +37,7 @@ const constants: any = {
 			LOGIN: '/login',
 			SEARCH: '/search',
 			STATUS: '/status',
+			ADDRESS: '/address',
 			PRODUCT: '/product',
 			SUMMARY: '/summary',
 			CATEGORY: '/category',

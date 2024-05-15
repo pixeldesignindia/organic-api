@@ -14,7 +14,6 @@ export class OrderController extends BaseController {
 
 	public initializeRoutes() {
 		this.router.post(constants.API.V1 + constants.API.APP.ORDER, (req, res) => {
-			
 			this.createRecord(req, res, this);
 		});
 		this.router.get(constants.API.V1 + constants.API.APP.ORDER + '/find', (req, res) => {
@@ -33,11 +32,13 @@ export class OrderController extends BaseController {
 		this.router.delete(constants.API.V1 + constants.API.APP.ORDER + '/cancel/:orderId', (req, res) => {
 			this.cancelRecord(req, res, this);
 		});
+		this.router.get(constants.API.V1 + constants.API.APP.ORDER + '/:id', (req, res) => {
+			this.findOneRecord(req, res, this);
+		});
 	}
 
 	private createRecord(req: Request, res: Response, that: any) {
 		that.service.store(req.body, req.headers).then(
-			
 			(result: any) => {
 				that.responseUtil.sendUpdateResponse(req, res, result, 200);
 			},
@@ -76,6 +77,21 @@ export class OrderController extends BaseController {
 			}
 		);
 	}
+	private findOneRecord(req: Request, res: Response, that: any) {
+		that.service.find(req.params, req.headers).then(
+			(result: any) => {
+				if (result) {
+					that.responseUtil.sendReadResponse(req, res, result, constants.HTTP_STATUS.OK);
+				} else {
+					that.responseUtil.sendReadResponse(req, res, result, constants.HTTP_STATUS.NOT_FOUND);
+				}
+			},
+			(err: any) => {
+				LoggerUtil.log('error', { message: 'Error in finding role', location: 'crud-ctrl => find', data: err });
+				that.responseUtil.sendFailureResponse(req, res, err, { fileName: 'crud-ctrl', methodName: 'find' }, 200);
+			}
+		);
+	}
 
 	private updateRecord(req: Request, res: Response, that: any) {
 		that.service.updateOrderStatusService(req.params.id, req.body, req.headers).then(
@@ -94,7 +110,7 @@ export class OrderController extends BaseController {
 	}
 
 	private venderFindRecord(req: Request, res: Response, that: any) {
-		that.service.getAllOrdersByVendor(req.params.id,req.body, req.headers).then(
+		that.service.getAllOrdersByVendor(req.params.id, req.body, req.headers).then(
 			(result: any) => {
 				that.responseUtil.sendUpdateResponse(req, res, result, 200);
 			},
