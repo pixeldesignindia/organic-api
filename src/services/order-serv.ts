@@ -29,18 +29,7 @@ export class OrderService extends BaseService {
 			};
 		});
 
-		order.shippingAddress = {
-			city: data.shippingAddress.city,
-			email:data.shippingAddress.email,
-			phone: data.shippingAddress.phone,
-			state: data.shippingAddress.state,
-			pinCode: data.shippingAddress.pinCode,
-			address: data.shippingAddress.address,
-			country: data.shippingAddress.country,
-			last_name:data.shippingAddress.last_name,
-			first_name: data.shippingAddress.first_name,
-			
-		};
+		order.shippingAddress = data.shippingAddress
 
 		order.user_id = headers.loggeduserid;
 		order.totalPrice = data.totalPrice;

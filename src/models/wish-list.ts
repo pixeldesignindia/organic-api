@@ -16,12 +16,7 @@ const WishlistSchema = new Schema({
     name: { type: String, required: true ,unique: true },
 	items: [
 		{
-			productId: {
-				required: true,
-				type: Schema.Types.ObjectId,
-				ref: 'Product',
-			},
-			quantity: { type: Number, required: true },
+		
 		},
 	],
 	created_at: { type: Date },

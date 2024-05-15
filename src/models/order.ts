@@ -1,4 +1,5 @@
 import mongoose, { Schema, Document } from 'mongoose';
+import { AddressSchema } from './address';
 
 interface ShippingAddress {
 	city: string;
@@ -60,17 +61,7 @@ const OrderSchema = new Schema({
 			description: { type: String, required: true },
 		},
 	],
-	shippingAddress: {
-		email: { type: String, required: true },
-		city: { type: String, required: true },
-		phone: { type: String, required: true },
-		state: { type: String, required: true },
-		pinCode: { type: String, required: true },
-		address: { type: String, required: true },
-		country: { type: String, required: true },
-		last_name: { type: String, required: true },
-		first_name: { type: String, required: true },
-	},
+	shippingAddress:AddressSchema,
 	user_id: {
 		type: Schema.Types.ObjectId,
 		ref: 'User',
