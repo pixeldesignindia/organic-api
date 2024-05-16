@@ -106,7 +106,7 @@ export class AddressController extends BaseController {
 		);
 	}
 	private setDefaultRecord(req: Request, res: Response, that: any) {
-		that.service.delete(req.params.id, req.headers).then(
+		that.service.getUpdateToDefault(req.params.id, req.headers).then(
 			(result: any) => {
 				that.responseUtil.sendUpdateResponse(req, res, result, 200);
 			},

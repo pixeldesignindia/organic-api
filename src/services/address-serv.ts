@@ -105,7 +105,7 @@ try {
 			return { success: false, message: error.message || 'Failed to fetch address' };
 		}
 	}
-	async getUpdateToDeafult(id: string,headers:any) {
+	async getUpdateToDefault(id: string,headers:any) {
 		try {
             const address = await Address.findOne({user_id:headers.loggeduserid,is_default:true});
             if (!address) {
