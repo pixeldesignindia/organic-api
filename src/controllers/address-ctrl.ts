@@ -8,7 +8,7 @@ import { AddressService } from '../services/address-serv';
 
 export class AddressController extends BaseController {
 	constructor() {
-		super(new AddressService);
+		super(new AddressService());
 
 		this.initializeRoutes();
 	}
@@ -32,6 +32,9 @@ export class AddressController extends BaseController {
 		});
 		this.router.get(constants.API.V1 + constants.API.APP.ADDRESS, (req, res) => {
 			this.filterRecords(req, res, this);
+		});
+		this.router.post(constants.API.V1 + constants.API.APP.ADDRESS + '/:id', (req, res) => {
+			this.setDefaultRecord(req, res, this);
 		});
 	}
 
@@ -93,6 +96,17 @@ export class AddressController extends BaseController {
 	}
 
 	private removeRecord(req: Request, res: Response, that: any) {
+		that.service.delete(req.params.id, req.headers).then(
+			(result: any) => {
+				that.responseUtil.sendUpdateResponse(req, res, result, 200);
+			},
+			(err: any) => {
+				LoggerUtil.log('error', { message: 'Error in removing role', location: 'crud-ctrl => remove', data: err });
+				that.responseUtil.sendFailureResponse(req, res, err, { fileName: 'crud-ctrl', methodName: 'remove' }, 200);
+			}
+		);
+	}
+	private setDefaultRecord(req: Request, res: Response, that: any) {
 		that.service.delete(req.params.id, req.headers).then(
 			(result: any) => {
 				that.responseUtil.sendUpdateResponse(req, res, result, 200);

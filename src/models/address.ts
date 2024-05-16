@@ -17,15 +17,16 @@ interface IAddress extends IBase {
     is_deleted: boolean;
     is_active: boolean;
     unique_id: string;
+    is_default: boolean;
 }
 
 const AddressSchema = new Schema({
 	user_id: {
-        type: 'String',
+        type: String,
         required: [true, "user id must be provided"]
     },
     name: {
-        type: 'String',
+        type: String,
         required: true
     },
     phoneNumber: {
@@ -60,6 +61,7 @@ const AddressSchema = new Schema({
 	updated_at: { type: Date },
 	is_active: { type: Boolean },
 	is_deleted: { type: Boolean },
+    is_default: { type: Boolean },
 	unique_id: { type: String, required: true },
 });
 
