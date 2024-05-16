@@ -1,7 +1,7 @@
-import constants  from '../utils/constants';
-import { AppError } from '../models/app-error';
+
 import { Cart } from '../models/cart';
 import { BaseService } from './base-serv';
+import { AppError } from '../models/app-error';
 
 export class CartService extends BaseService {
 	constructor() {
@@ -27,7 +27,6 @@ export class CartService extends BaseService {
 			const userId = headers.loggeduserid;
 			const quantity = data.quantity;
 			const productId = data.productId;
-			console.log('Adding to cart:', productId, quantity);
 
 			let cart = await Cart.findOne({ userId });
 
@@ -46,7 +45,6 @@ export class CartService extends BaseService {
 				});
 
 				if (existingItemIndex !== -1) {
-					console.log('Cart already exists', cart.items[existingItemIndex]);
 					if (data.decrease) {
 						cart.items[existingItemIndex].quantity -= quantity;
 					} else {

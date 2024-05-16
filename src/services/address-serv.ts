@@ -1,7 +1,7 @@
 
+import { BaseService } from './base-serv';
 import { AppError } from '../models/app-error';
 import { Address, IAddress } from '../models/address';
-import { BaseService } from './base-serv';
 
 export class AddressService extends BaseService {
 	constructor() {
@@ -71,14 +71,14 @@ try {
 	async getUpdatedAddressData(address:IAddress,data: any) {
 		let updatedAddressData: any = {};
 
+		if (data.hasOwnProperty('city') && data.hasOwnProperty('city')) updatedAddressData.city = data.city;
 		if (address.hasOwnProperty('name') && data.hasOwnProperty('name')) updatedAddressData.name = data.name;
-		if (address.hasOwnProperty('phoneNumber') && data.hasOwnProperty('phoneNumber')) updatedAddressData.phoneNumber = data.phoneNumber;
+		if (data.hasOwnProperty('state') && data.hasOwnProperty('state')) updatedAddressData.state = data.state;
+		if (data.hasOwnProperty('pinCode') && data.hasOwnProperty('pinCode')) updatedAddressData.pinCode = data.pinCode;
+		if (data.hasOwnProperty('country') && data.hasOwnProperty('country')) updatedAddressData.country = data.country;
 		if (address.hasOwnProperty('address') && data.hasOwnProperty('address')) updatedAddressData.address = data.address;
 		if (address.hasOwnProperty('landMark') && data.hasOwnProperty('landMark')) updatedAddressData.landMark = data.landMark;
-		if (data.hasOwnProperty('city') && data.hasOwnProperty('city')) updatedAddressData.city = data.city;
-		if (data.hasOwnProperty('state') && data.hasOwnProperty('state')) updatedAddressData.state = data.state;
-		if (data.hasOwnProperty('country') && data.hasOwnProperty('country')) updatedAddressData.country = data.country;
-		if (data.hasOwnProperty('pinCode') && data.hasOwnProperty('pinCode')) updatedAddressData.pinCode = data.pinCode;
+		if (address.hasOwnProperty('phoneNumber') && data.hasOwnProperty('phoneNumber')) updatedAddressData.phoneNumber = data.phoneNumber;
 
 		return updatedAddressData;
 	}

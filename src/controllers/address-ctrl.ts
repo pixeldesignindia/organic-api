@@ -1,5 +1,4 @@
 import { Request, Response } from 'express';
-
 import BaseController from './base-ctrl';
 import constants from '../utils/constants';
 import { LoggerUtil } from '../utils/logger-util';

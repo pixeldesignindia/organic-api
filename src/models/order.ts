@@ -56,9 +56,9 @@ const OrderSchema = new Schema({
 				type: Schema.Types.ObjectId,
 				ref: 'Product',
 			},
-			originalPrice: { type: Number, required: true },
-			discountPrice: { type: Number, required: true },
 			description: { type: String, required: true },
+			discountPrice: { type: Number, required: true },
+			originalPrice: { type: Number, required: true },
 		},
 	],
 	shippingAddress:AddressSchema,
@@ -70,21 +70,21 @@ const OrderSchema = new Schema({
 	totalPrice: { type: Number, required: true },
 	status: {
 		type: String,
-		enum: ['placed', 'Transferred to delivery partner', 'processing', 'shipped', 'delivered'],
 		default: 'placed',
+		enum: ['placed', 'Transferred to delivery partner', 'processing', 'shipped', 'delivered'],
 	},
 	paymentInfo: {
 		id: { type: String },
-		status: { type: String },
 		type: { type: String },
+		status: { type: String },
 	},
-	deliveredAt: { type: Date },
-	paidAt: { type: Date, default: Date.now() },
-	created_at: { type: Date, default: Date.now() },
 	updated_at: { type: Date },
+	deliveredAt: { type: Date },
 	is_active: { type: Boolean },
 	is_deleted: { type: Boolean },
+	paidAt: { type: Date, default: Date.now() },
 	unique_id: { type: String, required: true },
+	created_at: { type: Date, default: Date.now() },
 });
 
 const Order = mongoose.model<IOrder>('Order', OrderSchema);

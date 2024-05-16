@@ -22,21 +22,21 @@ export class OrderService extends BaseService {
 				quantity: cartItem.quantity,
 				category: cartItem.category,
 				productId: cartItem.productId,
+				description: cartItem.description,
 				originalPrice: cartItem.originalPrice,
 				discountPrice: cartItem.discountPrice,
-				description: cartItem.description,
 			};
 		});
 
 		order.shippingAddress = data.shippingAddress;
 
-		order.user_id = headers.loggeduserid;
 		order.totalPrice = data.totalPrice;
-		order.status = data.status || 'placed'; // Default status to 'placed' if not provided
+		order.user_id = headers.loggeduserid;
+		order.status = data.status || 'placed';
 		order.paymentInfo = {
 			id: data.paymentInfo.id || null,
-			status: data.paymentInfo.status || null,
 			type: data.paymentInfo.type || null,
+			status: data.paymentInfo.status || null,
 		};
 		order.is_active = true;
 		order.is_deleted = false;
