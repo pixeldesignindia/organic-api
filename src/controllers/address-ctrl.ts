@@ -21,6 +21,9 @@ export class AddressController extends BaseController {
 		this.router.post(constants.API.V1 + constants.API.APP.ADDRESS, (req, res) => {
 			this.createRecord(req, res, this);
 		});
+		this.router.post(constants.API.V1 + constants.API.APP.ADDRESS + '/default/:id', (req, res) => {
+			this.setDefaultRecord(req, res, this);
+		});
 		this.router.get(constants.API.V1 + constants.API.APP.ADDRESS + '/:id', (req, res) => {
 			this.findRecord(req, res, this);
 		});
@@ -32,9 +35,6 @@ export class AddressController extends BaseController {
 		});
 		this.router.get(constants.API.V1 + constants.API.APP.ADDRESS, (req, res) => {
 			this.filterRecords(req, res, this);
-		});
-		this.router.post(constants.API.V1 + constants.API.APP.ADDRESS + '/:id', (req, res) => {
-			this.setDefaultRecord(req, res, this);
 		});
 	}
 
