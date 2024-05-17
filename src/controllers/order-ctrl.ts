@@ -78,7 +78,7 @@ export class OrderController extends BaseController {
 		);
 	}
 	private findOneRecord(req: Request, res: Response, that: any) {
-		that.service.find(req.params, req.headers).then(
+		that.service.find(req.params.id, req.headers).then(
 			(result: any) => {
 				if (result) {
 					that.responseUtil.sendReadResponse(req, res, result, constants.HTTP_STATUS.OK);
