@@ -177,7 +177,7 @@ export class OrderService extends BaseService {
 			throw error;
 		}
 	}
-	async find(id: string) {
+	async find(id: string,headers:any) {
 		try {
 			const order = await Order.findById(id);
 			if (!order) {

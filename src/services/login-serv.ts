@@ -102,19 +102,10 @@ export class LoginService extends BaseService {
                             refreshToken: refreshToken
                         });
                     } else {
-                        // resolve({
-                        //     valid: false,
-                        //     message: constants.MESSAGES.LOGIN.INVALID
-                        // });
                         return reject(new AppError(constants.MESSAGES.LOGIN.INVALID, null, 401));
 
                     }
                 } else {
-                    // resolve(
-                    //     // valid: false,
-                    //     // message: constants.MESSAGES.LOGIN.INVALID
-                        
-                    // );
                     return reject(new AppError(constants.MESSAGES.LOGIN.INVALID, null, 401));
 
                 }
