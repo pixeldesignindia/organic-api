@@ -64,17 +64,15 @@ const OrderSchema = new Schema({
 			originalPrice: { type: Number, required: true },
 		},
 	],
-	shippingAddress:AddressSchema,
 	user_id: {
 		type: Schema.Types.ObjectId,
 		ref: 'User',
 		default: null,
 	},
-	totalPrice: { type: Number, required: true },
 	status: {
 		type: String,
 		default: 'placed',
-		enum: ['placed', 'Transferred to delivery partner', 'processing', 'shipped', 'delivered'],
+		enum: ['placed', 'Transferred to delivery partner', 'processing', 'shipped', 'delivered', 'cancelled'],
 	},
 	paymentInfo: {
 		id: { type: String },
@@ -85,10 +83,12 @@ const OrderSchema = new Schema({
 	deliveredAt: { type: Date },
 	is_active: { type: Boolean },
 	is_deleted: { type: Boolean },
-	tax:{type: Number,default: 0},
-    shippingCharge:{type: Number,default: 0,},
+	shippingAddress: AddressSchema,
+	tax: { type: Number, default: 0 },
 	paidAt: { type: Date, default: Date.now() },
 	unique_id: { type: String, required: true },
+	totalPrice: { type: Number, required: true },
+	shippingCharge: { type: Number, default: 0 },
 	created_at: { type: Date, default: Date.now() },
 });
 
