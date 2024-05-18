@@ -27,23 +27,24 @@ export class OrderService extends BaseService {
 				discountPrice: cartItem.discountPrice,
 			};
 		});
-
-		order.shippingAddress = data.shippingAddress;
-
-		order.totalPrice = data.totalPrice;
-		order.user_id = headers.loggeduserid;
-		order.status = data.status || 'placed';
 		order.paymentInfo = {
 			id: data.paymentInfo.id || null,
 			type: data.paymentInfo.type || null,
 			status: data.paymentInfo.status || null,
 		};
-		order.is_active = true;
-		order.is_deleted = false;
-		order.created_at = new Date();
-		order.paidAt = data.paidAt || new Date();
-		order.unique_id = this.genericUtil.getUniqueId();
-
+			order.shippingAddress = data.shippingAddress;
+			
+			order.is_active = true;
+			order.is_deleted = false;
+			order.tax = data.tax || null;
+			order.created_at = new Date();
+			order.totalPrice = data.totalPrice;
+			order.user_id = headers.loggeduserid;
+			order.status = data.status || 'placed';
+			order.paidAt = data.paidAt || new Date();
+			order.unique_id = this.genericUtil.getUniqueId();
+			order.shippingCharge = data.shippingCharge || null;
+			
 		try {
 			return await Order.create(order);
 		} catch (err) {

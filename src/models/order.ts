@@ -30,6 +30,7 @@ interface Product {
 }
 
 interface IOrder extends IBase {
+	tax: number;
 	paidAt: Date;
 	status: string;
 	cart: Product[];
@@ -41,8 +42,10 @@ interface IOrder extends IBase {
 	is_active: boolean;
 	totalPrice: number;
 	is_deleted: boolean;
+	shippingCharge:number;
 	paymentInfo: PaymentInfo;
 	shippingAddress: ShippingAddress;
+
 }
 
 const OrderSchema = new Schema({
@@ -82,6 +85,8 @@ const OrderSchema = new Schema({
 	deliveredAt: { type: Date },
 	is_active: { type: Boolean },
 	is_deleted: { type: Boolean },
+	tax:{type: Number,default: 0},
+    shippingCharge:{type: Number,default: 0,},
 	paidAt: { type: Date, default: Date.now() },
 	unique_id: { type: String, required: true },
 	created_at: { type: Date, default: Date.now() },
