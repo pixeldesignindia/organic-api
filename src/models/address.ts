@@ -2,6 +2,7 @@ import mongoose, { Schema } from 'mongoose';
 
 
 interface IAddress extends IBase {
+  
 	user_id: string;
 	name: string;
 	phoneNumber: number;

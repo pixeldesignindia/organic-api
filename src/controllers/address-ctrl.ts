@@ -79,17 +79,17 @@ export class AddressController extends BaseController {
 	}
 
 	private updateRecord(req: Request, res: Response, that: any) {
-		that.service.updateAddress(req.params.id, req.body, req.headers).then(
+		that.service.updateAddress(req.params.id,req.body, req.headers).then(
 			(result: any) => {
 				if (result) {
-					that.responseUtil.sendUpdateResponse(req, res, result, constants.HTTP_STATUS.UPDATED);
+					that.responseUtil.sendReadResponse(req, res, result, constants.HTTP_STATUS.OK);
 				} else {
 					that.responseUtil.sendReadResponse(req, res, result, constants.HTTP_STATUS.NOT_FOUND);
 				}
 			},
 			(err: any) => {
-				LoggerUtil.log('error', { message: 'Error in updating role', location: 'crud-ctrl => update', data: err });
-				that.responseUtil.sendFailureResponse(req, res, err, { fileName: 'crud-ctrl', methodName: 'update' }, 200);
+				LoggerUtil.log('error', { message: 'Error in finding role', location: 'crud-ctrl => find', data: err });
+				that.responseUtil.sendFailureResponse(req, res, err, { fileName: 'crud-ctrl', methodName: 'find' }, 200);
 			}
 		);
 	}

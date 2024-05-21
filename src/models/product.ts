@@ -39,12 +39,13 @@ interface IProductImage extends IBase {
 
 
 interface IProduct extends IBase {
+	_id:any;
 	name: string;
 	size: string;
 	stock: number;
 	user_id: string;
 	made_for: string;
-	category: string; 
+	category: string;
 	originalPrice: number;
 	discountPrice: number;
 	description: string;
@@ -248,5 +249,5 @@ const Product = mongoose.model<IProduct>('Product', ProductSchema);
 
 export {
     ITag, IComment, ILike,
-    Product, IProduct, IProductImage, ICategory
+    Product, IProduct, IProductImage, ICategory,ProductSchema
 }
