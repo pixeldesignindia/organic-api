@@ -3,6 +3,7 @@ import constants from '../utils/constants';
 import { AppError } from '../models/app-error';
 import { Wishlist } from '../models/wish-list';
 import { IProduct } from '../models/product';
+import mongoose from 'mongoose';
 
 export class WishlistService extends BaseService {
 	constructor() {
@@ -11,7 +12,7 @@ export class WishlistService extends BaseService {
 
 	async find(id: string, headers: any = null) {
 		try {
-			const wishlist = await Wishlist.findById(id);
+			const wishlist = await Wishlist.findById(id).populate('products');
 			if (!wishlist) {
 				return Promise.reject(new AppError('wishlist not found', null, 404));
 			}
@@ -21,9 +22,9 @@ export class WishlistService extends BaseService {
 		}
 	}
 
-	async findAll( headers: any = null) {
+	async findAll(headers: any = null) {
 		try {
-			const wishlist = await Wishlist.find({ user_id: headers.loggeduserid })
+			const wishlist = await Wishlist.find({ user_id: headers.loggeduserid }).populate('products');
 			return wishlist;
 		} catch (error) {
 			return Promise.reject(new AppError('Error finding wishlist', error, 500));
@@ -49,34 +50,31 @@ export class WishlistService extends BaseService {
 
 	async updateWishlist(id: string, data: any, headers: any) {
 		try {
+			if (!id || !data) {
+				throw new AppError('Invalid input data', null, 400);
+			}
+
 			const wishlist = await Wishlist.findById(id);
 
 			if (!wishlist) {
-				return new AppError(constants.MESSAGES.ERRORS.NOT_FOUND, null, 404);
+				throw new AppError(constants.MESSAGES.ERRORS.NOT_FOUND, null, 404);
 			}
 
-			const existingProducts: string[] = [];
-			data.products.forEach((newProduct: IProduct) => {
-				const existingProductIndex = wishlist.products.findIndex((product: IProduct) => product._id === newProduct._id);
-
-				if (existingProductIndex !== -1) {
-					existingProducts.push(newProduct.name);
-				} else {
-					wishlist.products.push(newProduct);
-				}
-			});
-
-			await wishlist.save();
-			if (existingProducts.length > 0) {
-				return Promise.reject(new AppError('Products already exist', null, 404));
-			}
-			if(data.name){
+			if (data.name) {
 				wishlist.name = data.name;
 			}
+			if (data.productId) {
+				// Add the product ID to the wishlist if it's not already included
+				if (!wishlist.products.includes(data.productId)) {
+					wishlist.products.push(data.productId);
+				}
+			}
+
 			await wishlist.save();
 
 			return wishlist;
 		} catch (error) {
+			console.error(error);
 			return Promise.reject(new AppError('Error updating wishlist', error, 500));
 		}
 	}
@@ -85,62 +83,65 @@ export class WishlistService extends BaseService {
 		try {
 			const wishlist = await Wishlist.findByIdAndDelete(id);
 			if (!wishlist) {
-				return Promise.reject( new AppError('wishlist not found', null, 404));
+				return Promise.reject(new AppError('wishlist not found', null, 404));
 			}
 			return wishlist;
 		} catch (error) {
-			return Promise.reject( new AppError('Error deleting wishlist', error, 500));
+			return Promise.reject(new AppError('Error deleting wishlist', error, 500));
 		}
 	}
-async  moveProduct(data: { product: IProduct, sourceWishlistId: string, destinationWishlistId: string }, headers: any = null) {
-  try {
-    const { product, sourceWishlistId, destinationWishlistId } = data;
+	async moveProduct(data: { productId: string; sourceWishlistId: string; destinationWishlistId: string }, headers: any = null) {
+		try {
+			const { productId, sourceWishlistId, destinationWishlistId } = data;
 
-    const sourceWishlist = await Wishlist.findById(sourceWishlistId);
-    const destinationWishlist= await Wishlist.findById(destinationWishlistId);
+			const sourceWishlist = await Wishlist.findById(sourceWishlistId);
+			const destinationWishlist = await Wishlist.findById(destinationWishlistId);
 
-    if (!sourceWishlist || !destinationWishlist) {
-      return new AppError(constants.MESSAGES.ERRORS.NOT_FOUND, null, 404);
-    }
+			if (!sourceWishlist || !destinationWishlist) {
+				return new AppError(constants.MESSAGES.ERRORS.NOT_FOUND, null, 404);
+			}
 
-    const existingProductIndex = destinationWishlist.products.findIndex(
-      (prod: IProduct) => prod._id.toString() === product._id.toString()
-    );
+			const existingProductIndex = destinationWishlist.products.findIndex((prod: mongoose.Types.ObjectId) => prod.toString() === productId.toString());
 
-    if (existingProductIndex !== -1) {
-      return new AppError(constants.MESSAGES.ERRORS.CONFLICT,null, 409);
-    }
+			if (existingProductIndex !== -1) {
+				return new AppError(constants.MESSAGES.ERRORS.CONFLICT, null, 404);
+			}
 
-    const sourceProductIndex = sourceWishlist.products.findIndex((prod: IProduct) => prod._id.toString() === product._id.toString());
-    if (sourceProductIndex !== -1) {
-      const movedProduct = sourceWishlist.products.splice(sourceProductIndex, 1)[0];
-      destinationWishlist.products.push(movedProduct);
-    } else {
-      return new AppError(constants.MESSAGES.ERRORS.NOT_FOUND, null, 404);
-    }
+			const sourceProductIndex = sourceWishlist.products.findIndex((prod: mongoose.Types.ObjectId) => prod.toString() === productId.toString());
+			if (sourceProductIndex !== -1) {
+				const [movedProduct] = sourceWishlist.products.splice(sourceProductIndex, 1);
+				destinationWishlist.products.push(movedProduct);
+			} else {
+				throw new AppError(constants.MESSAGES.ERRORS.NOT_FOUND, null, 404);
+			}
 
-    await sourceWishlist.save();
-    await destinationWishlist.save();
+			await sourceWishlist.save();
+			await destinationWishlist.save();
 
-    return { message: 'Product moved successfully', destinationWishlist, movedProduct: product };
-  } catch (error) {
-    return new AppError('Error moving product between wishlists', error, 500);
-  }
-}
-	async removeProduct(id:any,data:any,headers:any){
-	try{
-		const wishlist  =  await this.find(id)
-    	const existingProductIndex = wishlist.products.findIndex((prod: IProduct) => prod._id.toString() === data.product._id.toString());
-
-		if(existingProductIndex ! == -1){
-			 wishlist.products.splice(existingProductIndex, 1)[0];
+			return { message: 'Product moved successfully', destinationWishlist, movedProduct: productId };
+		} catch (error) {
+			console.error(error);
+			return Promise.reject(new AppError('Error moving product between wishlists', error, 500));
 		}
-		await wishlist.save();
-		return {messsage:"Product deleted successfully"}
-
-
-	}catch (error) {
-		return Promise.reject(new AppError('Error removing product',error, 500))
 	}
+	async removeProduct(id: string, data: { productId: string }, headers: any) {
+		try {
+			const wishlist = await Wishlist.findById(id);
+			if (!wishlist) {
+				throw new AppError(constants.MESSAGES.ERRORS.NOT_FOUND, null, 404);
+			}
+
+			const existingProductIndex = wishlist.products.findIndex((prod: mongoose.Types.ObjectId) => prod.toString() === data.productId.toString());
+
+			if (existingProductIndex !== -1) {
+				wishlist.products.splice(existingProductIndex, 1);
+				await wishlist.save();
+				return { message: 'Product deleted successfully' };
+			} else {
+				throw new AppError(constants.MESSAGES.ERRORS.NOT_FOUND, null, 404);
+			}
+		} catch (error) {
+			return Promise.reject(new AppError('Error removing product', error, 500));
+		}
 	}
 }

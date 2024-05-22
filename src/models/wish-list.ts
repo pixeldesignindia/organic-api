@@ -5,17 +5,20 @@ import { IProduct } from './product';
 interface IWishlist extends IBase {
 	user_id: string;
 	name: string;
-	products: IProduct[];
+	products: mongoose.Types.ObjectId[];
 }
 
 const WishlistSchema = new Schema({
 	user_id: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
 	name: { type: String, required: true, unique: true },
-	products: [ProductSchema],
-	createdAt: {
-		type: Date,
-		default: Date.now,
-	},
+	products: [{
+		type: mongoose.Schema.Types.ObjectId,
+        ref: 'Product',
+        required: true,
+        unique: true,
+	}
+
+	],
 	created_at: { type: Date },
 	updated_at: { type: Date },
 	is_active: { type: Boolean },
