@@ -41,6 +41,7 @@ const constants: any = {
 			PRODUCT: '/product',
 			SUMMARY: '/summary',
 			CATEGORY: '/category',
+			WISHLIST: '/wishlist',
 			REGISTER: '/register',
 			RESET_PASSWORD: '/reset-password',
 			FORGOT_PASSWORD: '/forgot-password',

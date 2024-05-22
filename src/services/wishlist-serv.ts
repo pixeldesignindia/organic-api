@@ -23,10 +23,7 @@ export class WishlistService extends BaseService {
 
 	async findAll( headers: any = null) {
 		try {
-			const wishlist = await Wishlist.find({ user_id: headers.loggeduserid }).select({ products: 0 });
-			if (wishlist.length === 0) {
-				return Promise.reject(new AppError('No Wishlist found ', null, 404));
-			}
+			const wishlist = await Wishlist.find({ user_id: headers.loggeduserid })
 			return wishlist;
 		} catch (error) {
 			return Promise.reject(new AppError('Error finding wishlist', error, 500));
@@ -76,6 +73,7 @@ export class WishlistService extends BaseService {
 			if(data.name){
 				wishlist.name = data.name;
 			}
+			await wishlist.save();
 
 			return wishlist;
 		} catch (error) {

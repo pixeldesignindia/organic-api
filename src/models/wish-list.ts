@@ -10,7 +10,7 @@ interface IWishlist extends IBase {
 
 const WishlistSchema = new Schema({
 	user_id: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
-	name: { type: String, required: true, unique: true, default: 'Shopping List' },
+	name: { type: String, required: true, unique: true },
 	products: [ProductSchema],
 	createdAt: {
 		type: Date,
