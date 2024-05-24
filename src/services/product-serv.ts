@@ -926,8 +926,9 @@ export class ProductService {
         
         let file_name = image.file_name;
         let saved_file_name = this.dateUtil.getCurrentEpoch() + "_" + file_name;
-
-        let fileContent = Buffer.from(image.base64, 'base64');
+        
+        const base64Data = image.base64.replace(/^data:image\/\w+;base64,/, '');
+        let fileContent = Buffer.from(base64Data, 'base64');
         let uploadResponse: any = await this.awsS3Service.uploadFile('product-image/' + saved_file_name, fileContent, config.AWS.S3_IMAGE_BUCKET);
 
         if (uploadResponse) {
