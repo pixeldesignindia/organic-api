@@ -24,10 +24,12 @@ export default class AwsS3Service {
     // Method to upload a file to S3
     async uploadFile(fileKey: string, fileContent: any, bucketName: string) {
         const params: any = {
-            Bucket: bucketName,
-            Key: fileKey,
-            Body: fileContent,
-        };
+					Bucket: bucketName,
+					Key: fileKey,
+					Body: fileContent,
+					ContentEncoding: 'base64',
+					ContentType: 'image/jpeg',
+				};
 
         try {
             const data = await new Upload({
