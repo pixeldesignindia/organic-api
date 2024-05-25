@@ -2,13 +2,15 @@ import mongoose, { Schema } from "mongoose";
 
 interface ICategory extends IBase {
 	name: string;
-	description: string;
 	parent_id: string;
+	image_file: string;
+	description: string;
 };
 
 const CategorySchema = new Schema({
-	name: { type: String, required: true, unique: true },
+	image_file: { type: String },
 	description: { type: String },
+	name: { type: String, required: true, unique: true },
 	parent_id: {
 		type: Schema.Types.ObjectId,
 		ref: 'Category',

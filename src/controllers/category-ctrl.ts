@@ -29,18 +29,19 @@ export class CategoryController extends BaseController {
 		this.router.delete(constants.API.V1 + constants.API.APP.CATEGORY + '/:id', (req, res) => {
 			this.removeRecord(req, res, this);
 		});
-		this.router.get(constants.API.V1 + constants.API.APP.CATEGORY , (req, res) => {
-	
+		this.router.get(constants.API.V1 + constants.API.APP.CATEGORY, (req, res) => {
 			this.filterRecords(req, res, this);
 		});
 
 		this.router.get(constants.API.V1 + constants.API.APP.CATEGORY + '/sub-category/:id', (req, res) => {
 			this.subCategory(req, res, this);
 		});
+		this.router.post(constants.API.V1 + constants.API.APP.CATEGORY + '/update-image', (req, res) => {
+			this.updateImage(req, res, this);
+		});
 	}
 
 	private createRecord(req: Request, res: Response, that: any) {
-
 		that.service.create(req.body, req.headers).then(
 			(result: any) => {
 				that.responseUtil.sendUpdateResponse(req, res, result, 200);
@@ -55,7 +56,6 @@ export class CategoryController extends BaseController {
 
 	private filterRecords(req: Request, res: Response, that: any) {
 		that.service.filter(req.query, req.headers).then(
-			
 			(result: any) => {
 				that.responseUtil.sendReadResponse(req, res, result, 200);
 			},
@@ -118,6 +118,17 @@ export class CategoryController extends BaseController {
 			(err: any) => {
 				LoggerUtil.log('error', { message: 'Error in assigning role permission', location: 'role-ctrl => assign', error: err });
 				that.responseUtil.sendFailureResponse(req, res, err, { fileName: 'role-ctrl', methodName: 'assign' }, 200);
+			}
+		);
+	}
+	private updateImage(req: Request, res: Response, that: any) {
+		that.service.updateImage(req.body, req.headers).then(
+			(result: any) => {
+				that.responseUtil.sendReadResponse(req, res, result, 200);
+			},
+			(err: any) => {
+				LoggerUtil.log('error', { message: 'Error in adding image', location: 'category-ctrl => updateImage', error: err });
+				that.responseUtil.sendFailureResponse(req, res, err, { fileName: 'category-ctrl', methodName: 'updateImage' }, 200);
 			}
 		);
 	}

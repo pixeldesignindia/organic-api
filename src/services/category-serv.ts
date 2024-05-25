@@ -1,11 +1,16 @@
+import AwsS3Service from './aws-s3-serv';
 import { BaseService } from './base-serv';
-import { ICategory,Category } from "../models/category" ;
-import { AppError } from '../models/app-error';
+import config from '../config/app-config';
 import constants from '../utils/constants';
+import { AppError } from '../models/app-error';
+import { LoggerUtil } from '../utils/logger-util';
+import { ICategory,Category } from "../models/category" ;
 
 export class CategoryService extends BaseService {
+	private awsS3Service: AwsS3Service;
 	constructor() {
 		super(Category);
+		this.awsS3Service = new AwsS3Service();
 	}
 	async find(id: string, headers: any = null) {
 		try {
@@ -21,14 +26,12 @@ export class CategoryService extends BaseService {
 
 	async filter(data: any = null, headers: any = null) {
 		try {
-			
 			let where: any = {};
 			if (data && data.name) {
-	
-			where.name = {
-				$regex: new RegExp(data.name, 'i'),
-			};
-		}
+				where.name = {
+					$regex: new RegExp(data.name, 'i'),
+				};
+			}
 			const categories = await Category.find(where);
 			if (categories.length === 0) {
 				throw new AppError('No categories found', null, 404);
@@ -85,10 +88,10 @@ export class CategoryService extends BaseService {
 
 			if (category) {
 				const categoryToUpdate = this.getUpdatedCategory(category, data);
-				 await Category.updateOne({ _id: id }, categoryToUpdate);
-				 return {
-						success: true,
-					};
+				await Category.updateOne({ _id: id }, categoryToUpdate);
+				return {
+					success: true,
+				};
 			} else {
 				return new AppError(constants.MESSAGES.ERRORS.NOT_FOUND, null, 404);
 			}
@@ -122,6 +125,57 @@ export class CategoryService extends BaseService {
 			return category;
 		} catch (error) {
 			throw new AppError('Error deleting category', error, 500);
+		}
+	}
+
+	async updateImage(data: any, headers: any = null) {
+		if (!data.image) {
+			return Promise.reject(new AppError('Image not uploaded', 'user-serv => updateImage', constants.HTTP_STATUS.BAD_REQUEST));
+		}
+
+		let category: any = Category.findById({ _id: data.categoryId });
+
+		if (category) {
+			if (data.image) {
+				let file_name = data.image.file_name;
+				let saved_file_name = this.dateUtil.getCurrentEpoch() + '_' + file_name;
+
+				let fileContent = Buffer.from(data.image.base64, 'base64');
+				let uploadResponse: any = await this.awsS3Service.uploadFile('category-image/' + saved_file_name, fileContent, config.AWS.S3_IMAGE_BUCKET);
+
+				if (uploadResponse) {
+					try {
+						await Category.updateOne({ _id: data.categoryId }, { image_file: saved_file_name });
+
+						LoggerUtil.log('info', { message: `User image added.` });
+
+						return {
+							success: true,
+						};
+					} catch (error) {
+						LoggerUtil.log('error', { message: 'Error in adding user image:' + error?.toString(), location: 'user-sev => updateImage' });
+						return {
+							error: true,
+							success: false,
+							message: error ? error.toString() : null,
+						};
+					}
+				} else {
+					return {
+						error: true,
+						success: false,
+						message: 'Could not upload image to storage',
+					};
+				}
+			} else {
+				return {
+					error: true,
+					success: false,
+					message: 'Image not provided',
+				};
+			}
+		} else {
+			return null;
 		}
 	}
 }

@@ -27,8 +27,6 @@ export default class AwsS3Service {
 					Bucket: bucketName,
 					Key: fileKey,
 					Body: fileContent,
-					ContentEncoding: 'base64',
-					ContentType: 'image/jpeg',
 				};
 
         try {
