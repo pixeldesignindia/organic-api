@@ -140,7 +140,8 @@ export class CategoryService extends BaseService {
 				let file_name = data.image.file_name;
 				let saved_file_name = this.dateUtil.getCurrentEpoch() + '_' + file_name;
 
-				let fileContent = Buffer.from(data.image.base64, 'base64');
+				const base64Data = data.image.base64.replace(/^data:image\/\w+;base64,/, '');
+				let fileContent = Buffer.from(base64Data, 'base64');
 				let uploadResponse: any = await this.awsS3Service.uploadFile('category-image/' + saved_file_name, fileContent, config.AWS.S3_IMAGE_BUCKET);
 
 				if (uploadResponse) {
