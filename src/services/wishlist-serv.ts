@@ -2,7 +2,7 @@ import { BaseService } from './base-serv';
 import constants from '../utils/constants';
 import { AppError } from '../models/app-error';
 import { Wishlist } from '../models/wish-list';
-import { IProduct } from '../models/product';
+
 import mongoose from 'mongoose';
 
 export class WishlistService extends BaseService {

@@ -11,6 +11,7 @@ import CartController from './controllers/cart-ctrl';
 import UserController from './controllers/user-ctrl';
 import LoginController from './controllers/login-ctrl';
 import OrderController  from './controllers/order-ctrl';
+import VenderController from './controllers/vender-ctrl';
 import SearchController from './controllers/search-ctrl';
 import StatusController from './controllers/status-ctrl';
 import ProductController from './controllers/product-ctrl';
@@ -31,6 +32,7 @@ const app = new App(
         new UserController(),
         new LoginController(),
         new OrderController(),
+        new VenderController(),
         new SearchController(),
         new StatusController(),
         new ProductController(),
