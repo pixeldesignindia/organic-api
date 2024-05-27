@@ -4,25 +4,31 @@ import AwsS3Service from './aws-s3-serv';
 import { BaseService } from './base-serv';
 
 export class CDNService extends BaseService {
-    private awsS3Service: AwsS3Service;
+	private awsS3Service: AwsS3Service;
 
-    constructor() {
-        super();
+	constructor() {
+		super();
 
-        this.awsS3Service = new AwsS3Service();
-    }
+		this.awsS3Service = new AwsS3Service();
+	}
 
-    async getUserImage(data: any, headers: any) {
-        data.folder = 'user-image';
-        data.bucketName = config.AWS.S3_IMAGE_BUCKET;
+	async getUserImage(data: any, headers: any) {
+		data.folder = 'user-image';
+		data.bucketName = config.AWS.S3_IMAGE_BUCKET;
 
-        return await this.awsS3Service.getImage(data, headers);
-    }
+		return await this.awsS3Service.getImage(data, headers);
+	}
+	async getCategoryImage(data: any, headers: any) {
+		data.folder = 'category-image';
+		data.bucketName = config.AWS.S3_IMAGE_BUCKET;
 
-    async getProductImage(data: any, headers: any) {
-        data.folder = 'product-image';
-        data.bucketName = config.AWS.S3_IMAGE_BUCKET;
+		return await this.awsS3Service.getImage(data, headers);
+	}
 
-        return await this.awsS3Service.getImage(data, headers);
-    }
+	async getProductImage(data: any, headers: any) {
+		data.folder = 'product-image';
+		data.bucketName = config.AWS.S3_IMAGE_BUCKET;
+
+		return await this.awsS3Service.getImage(data, headers);
+	}
 }
