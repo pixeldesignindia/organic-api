@@ -5,8 +5,8 @@
     "main": "dist/server.js",
     "scripts": {
         "build": "tsc && npm run ejs && npm run static",
-        "ejs": "copyfiles -u 1 src/**/*.ejs dist",
-        "static": "copyfiles -u 1 src/**/*.jpg src/**/*.png src/**/*.js src/**/*.css src/**/*.json src/**/*.eot src/**/*.woff src/**/*.woff2  dist",
+        "ejs": "copyfiles -u 1 src/*/.ejs dist",
+        "static": "copyfiles -u 1 src/*/.jpg src/*/.png src/*/.js src/*/.css src/*/.json src/*/.eot src/*/.woff src/*/.woff2  dist",
         "start": "npm run build && nodemon dist/server.js",
         "go": "nodemon dist/server.js",
         "test": "jest",
