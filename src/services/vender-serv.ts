@@ -102,15 +102,16 @@ export class VenderService extends BaseService {
 		}
 	}
 
-	async checkStatus(id: string, headers: any = null) {
+	async checkStatus( headers: any = null) {
 		try {
-			const applyDetails = await Vender.findOne({ user_id:headers.loggeduserid }).select({ status: 1, id: 1 });
+			const applyDetails = await Vender.findOne({ user_id: headers.loggeduserid }).select({ status: 1, id: 1 });
 			if (!applyDetails) {
 				return Promise.reject(new AppError(' registration data not found', null, 404));
 			}
 			return applyDetails;
 		} catch (error) {
-			return Promise.reject(new AppError('Error deleting wishlist', error, 500));
+			console.log(error)
+			return Promise.reject(new AppError('Error checking vendor status', error, 500));
 		}
 	}
 }
