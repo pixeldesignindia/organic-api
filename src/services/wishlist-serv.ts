@@ -31,6 +31,7 @@ export class WishlistService extends BaseService {
 		}
 	}
 	async create(data: any, headers: any = null) {
+	
 		try {
 			const wishlist = new Wishlist();
 			wishlist.is_active = true;
@@ -39,8 +40,9 @@ export class WishlistService extends BaseService {
 			wishlist.user_id = headers.loggeduserid;
 			const checkUniqueness = await Wishlist.findOne({ name: data.name });
 			if (checkUniqueness) {
-				Promise.reject(new AppError(constants.MESSAGES.ERRORS.ALREADY_EXIST, null, 400));
+			return new AppError(constants.MESSAGES.ERRORS.ALREADY_EXIST, null, 400);
 			}
+		
 
 			return await Wishlist.create(wishlist);
 		} catch (error) {
