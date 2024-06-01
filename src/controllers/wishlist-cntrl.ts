@@ -42,7 +42,6 @@ export class wishlistController extends BaseController {
 	}
 
 	private createRecord(req: Request, res: Response, that: any) {
-		console.log(req.body)
 		that.service.create(req.body, req.headers).then(
 			(result: any) => {
 				that.responseUtil.sendUpdateResponse(req, res, result, 200);

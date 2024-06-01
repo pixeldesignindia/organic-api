@@ -1,7 +1,4 @@
 import mongoose, { Schema } from 'mongoose';
-import { ProductSchema } from '../models/product';
-import { IProduct } from './product';
-
 interface IWishlist extends IBase {
 	user_id: string;
 	name: string;
@@ -14,10 +11,7 @@ const WishlistSchema = new Schema({
 	products: [{
 		type: mongoose.Schema.Types.ObjectId,
         ref: 'Product',
-        required: true,
-        unique: true,
 	}
-
 	],
 	created_at: { type: Date },
 	updated_at: { type: Date },
@@ -25,7 +19,6 @@ const WishlistSchema = new Schema({
 	is_deleted: { type: Boolean },
 	unique_id: { type: String, required: true },
 });
-
 const Wishlist = mongoose.model<IWishlist>('Wishlist', WishlistSchema);
 
 export { IWishlist, Wishlist, WishlistSchema };

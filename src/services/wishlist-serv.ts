@@ -2,8 +2,8 @@ import { BaseService } from './base-serv';
 import constants from '../utils/constants';
 import { AppError } from '../models/app-error';
 import { Wishlist } from '../models/wish-list';
-
 import mongoose from 'mongoose';
+
 
 export class WishlistService extends BaseService {
 	constructor() {
@@ -12,7 +12,7 @@ export class WishlistService extends BaseService {
 
 	async find(id: string, headers: any = null) {
 		try {
-			const wishlist = await Wishlist.findById(id).populate('products');
+			const wishlist = await Wishlist.findById(id)
 			if (!wishlist) {
 				return Promise.reject(new AppError('wishlist not found', null, 404));
 			}
@@ -25,27 +25,34 @@ export class WishlistService extends BaseService {
 	async findAll(headers: any = null) {
 		try {
 			const wishlist = await Wishlist.find({ user_id: headers.loggeduserid }).populate('products');
+			console.log(wishlist)
 			return wishlist;
 		} catch (error) {
 			return Promise.reject(new AppError('Error finding wishlist', error, 500));
 		}
 	}
+
 	async create(data: any, headers: any = null) {
 	
 		try {
+
 			const wishlist = new Wishlist();
 			wishlist.is_active = true;
-			wishlist.unique_id = this.genericUtil.getUniqueId();
 			wishlist.name = data.name;
 			wishlist.user_id = headers.loggeduserid;
-			const checkUniqueness = await Wishlist.findOne({ name: data.name });
+			wishlist.unique_id = this.genericUtil.getUniqueId();
+			
+			const checkUniqueness = await Wishlist.findOne({ user_id: headers.loggeduserid,name: data.name });
 			if (checkUniqueness) {
 			return new AppError(constants.MESSAGES.ERRORS.ALREADY_EXIST, null, 400);
 			}
-		
 
-			return await Wishlist.create(wishlist);
+			if (wishlist.products.length === 0) {
+				wishlist.products =[];
+			}
+			return await wishlist.save();
 		} catch (error) {
+			console.error(error);
 			return Promise.reject(new AppError('Error creating wishlist', error, 500));
 		}
 	}
