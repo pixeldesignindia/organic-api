@@ -72,8 +72,20 @@ export default class ProductController extends BaseController {
 		this.router.get(constants.API.V1 + constants.API.APP.PRODUCT + '/bookmarks/:id/:pageNumber/:pageSize', (req, res) => {
 			this.getBookmarks(req, res, this);
 		});
-        this.router.post(constants.API.V1 + constants.API.APP.PRODUCT + '/remove-tag', (req, res) => {
-					this.removeTag(req, res, this);
+		this.router.post(constants.API.V1 + constants.API.APP.PRODUCT + '/remove-tag', (req, res) => {
+			this.removeTag(req, res, this);
+		});
+		this.router.post(constants.API.V1 + constants.API.APP.PRODUCT + '/add-rating', (req, res) => {
+			this.addRating(req, res, this);
+		});
+		this.router.post(constants.API.V1 + constants.API.APP.PRODUCT + '/update-rating', (req, res) => {
+			this.updateRating(req, res, this);
+		});
+		this.router.post(constants.API.V1 + constants.API.APP.PRODUCT + '/has-rating', (req, res) => {
+			this.hasRating(req, res, this);
+		});
+		this.router.get(constants.API.V1 + constants.API.APP.PRODUCT + '/ratings/:id/:pageNumber/:pageSize', (req, res) => {
+			this.getRatings(req, res, this);
 		});
 	}
 
@@ -288,6 +300,50 @@ export default class ProductController extends BaseController {
 			(err: any) => {
 				LoggerUtil.log('error', { message: 'Error in removing bookmark', location: 'product-ctrl => removeBookmark', error: err });
 				that.responseUtil.sendFailureResponse(req, res, err, { fileName: 'product-ctrl', methodName: 'removeBookmark' }, 200);
+			}
+		);
+	}
+	private addRating(req: Request, res: Response, that: any) {
+		that.service.addRating(req.body, req.headers).then(
+			(result: any) => {
+				that.responseUtil.sendReadResponse(req, res, result, 200);
+			},
+			(err: any) => {
+				LoggerUtil.log('error', { message: 'Error in adding comment', location: 'product-ctrl => addComment', error: err });
+				that.responseUtil.sendFailureResponse(req, res, err, { fileName: 'product-ctrl', methodName: 'addComment' }, 200);
+			}
+		);
+	}
+	private updateRating(req: Request, res: Response, that: any) {
+		that.service.updateRating(req.body, req.headers).then(
+			(result: any) => {
+				that.responseUtil.sendReadResponse(req, res, result, 200);
+			},
+			(err: any) => {
+				LoggerUtil.log('error', { message: 'Error in updating comment', location: 'product-ctrl => updateComment', error: err });
+				that.responseUtil.sendFailureResponse(req, res, err, { fileName: 'product-ctrl', methodName: 'updateComment' }, 200);
+			}
+		);
+	}
+	private hasRating(req: Request, res: Response, that: any) {
+		that.service.hasRating(req.body, req.headers).then(
+			(result: any) => {
+				that.responseUtil.sendReadResponse(req, res, result, 200);
+			},
+			(err: any) => {
+				LoggerUtil.log('error', { message: 'Error in checking has liked', location: 'product-ctrl => hasLiked', error: err });
+				that.responseUtil.sendFailureResponse(req, res, err, { fileName: 'product-ctrl', methodName: 'hasLiked' }, 200);
+			}
+		);
+	}
+	private getRatings(req: Request, res: Response, that: any) {
+		that.service.getRatings(req.params, req.headers).then(
+			(result: any) => {
+				that.responseUtil.sendReadResponse(req, res, result, 200);
+			},
+			(err: any) => {
+				LoggerUtil.log('error', { message: 'Error in getting product likes', location: 'product-ctrl => getLikes', error: err });
+				that.responseUtil.sendFailureResponse(req, res, err, { fileName: 'product-ctrl', methodName: 'getLikes' }, 200);
 			}
 		);
 	}

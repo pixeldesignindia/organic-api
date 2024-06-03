@@ -1191,6 +1191,7 @@ export class ProductService {
 					{
 						$set: {
 							'comments.$.comment': data.comment,
+							
 							'comments.$.updated_at': data.updated_at,
 						},
 					}
