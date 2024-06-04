@@ -9,8 +9,9 @@ interface ILike extends IBase {
     user_id: string
 };
 interface IComment extends IBase {
-    comment: string,
-    user_id: string
+	rating: number;
+	comment: string;
+	user_id: string;
 };
 interface IBookMark extends IBase {
     user_id: string
@@ -108,23 +109,22 @@ const LikeSchema = new Schema(
     }
 );
 
-const CommentSchema = new Schema(
-    {
-        comment: { type: String, required: true },
-        user_id: {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: 'User',
-            required: true,
-            index: true,
-        },
+const CommentSchema = new Schema({
+	rating: Number,
+	comment: { type: String},
+	user_id: {
+		type: mongoose.Schema.Types.ObjectId,
+		ref: 'User',
+		required: true,
+		index: true,
+	},
 
-        created_at: { type: Date },
-        updated_at: { type: Date },
-        is_active: { type: Boolean },
-        is_deleted: { type: Boolean },
-        unique_id: { type: String, required: true },
-    }
-);
+	created_at: { type: Date },
+	updated_at: { type: Date },
+	is_active: { type: Boolean },
+	is_deleted: { type: Boolean },
+	unique_id: { type: String, required: true },
+});
 
 const BookmarkSchema = new Schema(
     {

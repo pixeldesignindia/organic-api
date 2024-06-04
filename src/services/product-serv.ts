@@ -1149,6 +1149,7 @@ export class ProductService {
 							comments: {
 								is_active: true,
 								is_deleted: false,
+								rating: data.rating,
 								comment: data.comment,
 								created_at: data.created_at,
 								user_id: headers.loggeduserid,
@@ -1180,6 +1181,11 @@ export class ProductService {
 
 	async updateComment(data: any, headers: any) {
 		try {
+			let comment;
+			if(data.comment){
+				comment = data.comment;
+			}
+
 			let product: any = await this.find(data.product_id, headers);
 
 			if (product) {
@@ -1190,7 +1196,8 @@ export class ProductService {
 					},
 					{
 						$set: {
-							'comments.$.comment': data.comment,
+							'comments.$.comment':comment,
+							'comments.$.rating': data.rating,
 							
 							'comments.$.updated_at': data.updated_at,
 						},
