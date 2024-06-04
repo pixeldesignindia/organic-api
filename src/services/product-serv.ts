@@ -690,7 +690,18 @@ export class ProductService {
 				{
 					$match: { 'comments.is_active': true }, // Filter only active comments
 				},
-				// Optional: match specific comments if there are conditions
+				// Calculate total review count and average rating for the product
+				{
+					$group: {
+						_id: '$_id', // Group by the original product ID
+						totalReviews: { $sum: 1 }, // Count the total reviews
+						averageRating: { $avg: '$comments.rating' }, // Calculate the average rating
+						comments: { $push: '$comments' }, // Push all comments into an array
+					},
+				},
+				{
+					$unwind: '$comments', // Unwind the comments array again for pagination
+				},
 				{
 					$sort: { 'comments.created_at': -1 }, // Sort the comments by created_at or any other field
 				},
@@ -724,7 +735,8 @@ export class ProductService {
 						// Group the comments back into a single document
 						_id: '$_id', // Group by the original product ID
 						comments: { $push: '$comments' }, // Push the comments back into an array
-						total: { $sum: 1 }, // Count the total comments after filtering and before pagination
+						totalReviews: { $first: '$totalReviews' }, // Get the total reviews
+						averageRating: { $first: '$averageRating' }, // Get the average rating
 					},
 				},
 			];
@@ -1182,7 +1194,7 @@ export class ProductService {
 	async updateComment(data: any, headers: any) {
 		try {
 			let comment;
-			if(data.comment){
+			if (data.comment) {
 				comment = data.comment;
 			}
 
@@ -1196,9 +1208,9 @@ export class ProductService {
 					},
 					{
 						$set: {
-							'comments.$.comment':comment,
+							'comments.$.comment': comment,
 							'comments.$.rating': data.rating,
-							
+
 							'comments.$.updated_at': data.updated_at,
 						},
 					}
