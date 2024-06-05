@@ -45,8 +45,10 @@ export class CartService extends BaseService {
 				});
 
 				if (existingItemIndex !== -1) {
-					if (data.decrease) {
+					if (data.decrease ) {
+						if(quantity < cart.items[existingItemIndex].quantity){
 						cart.items[existingItemIndex].quantity -= quantity;
+						}
 					} else {
 						cart.items[existingItemIndex].quantity += quantity;
 					}

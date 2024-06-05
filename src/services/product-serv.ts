@@ -471,10 +471,8 @@ export class ProductService {
 					is_private: 1,
 					created_at: 1,
 					description: 1,
-
 					originalPrice: 1,
-					discountedPrice: 1,
-
+					discountPrice: 1,
 					liked: 1,
 					bookmarked: 1,
 					// Filter nested arrays where is_active is true
