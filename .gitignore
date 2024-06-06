@@ -6,6 +6,6 @@ npm-debug.log
 test/*.log
 *.log
 dist
-.env
+# .env
 .docker-env
 .node-persist
