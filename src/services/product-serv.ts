@@ -194,8 +194,8 @@ export class ProductService {
 					is_active: true,
 					updated_at: null,
 					is_deleted: false,
+					user_id:  data.user_id,
 					created_at: data.created_at,
-					user_id: headers.loggeduserid,
 					unique_id: this.genericUtil.getUniqueId(),
 				});
 			});
@@ -209,10 +209,10 @@ export class ProductService {
 		product.size = data.size;
 		product.is_deleted = false;
 		product.stock = data.stock;
+		product.user_id = data.user_id;
 		product.category = data.category;
 		product.is_private = data.is_private;
 		product.created_at = data.created_at;
-		product.user_id = headers.loggeduserid;
 		product.description = data.description;
 		product.originalPrice = data.originalPrice;
 		product.discountPrice = data.discountPrice;
