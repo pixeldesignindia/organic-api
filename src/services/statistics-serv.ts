@@ -17,12 +17,19 @@ export class StatisticsService extends BaseService {
 			const productsStats = await this.getProductStatistics();
 			const customersStats = await this.getCustomerStatistics();
 			const businessStats = await this.getBusinessStatistics();
-
-			return {
+			const monthwiseOrderStats = await this.getMonthwiseOrderStatistics();
+			const monthWiseCostumerStats = await this.getMonthwiseCustomerStatistics();
+			const monthwiseProductStats = await  this .getMonthwiseProductStatistics();
+			const monthwiseVenderStats = await this.getMonthwiseBusinessStatistics();
+				return {
 				ordersStats,
 				productsStats,
 				customersStats,
 				businessStats,
+				monthwiseOrderStats,
+                monthWiseCostumerStats,
+                monthwiseProductStats,
+				monthwiseVenderStats
 			};
 		} catch (error) {
 			throw new AppError('Failed to fetch dashboard statistics', error, 500);
@@ -96,4 +103,107 @@ export class StatisticsService extends BaseService {
 			topPerformingVendorData,
 		};
 	}
+
+    async getMonthwiseOrderStatistics() {
+        const monthWiseOrderCounts = await Order.aggregate([
+            {
+                $group: {
+                    _id: {
+                        year: { $year: "$created_at" },
+                        month: { $month: "$created_at" }
+                    },
+                    count: { $sum: 1 }
+                }
+            },
+            {
+                $sort: { "_id.year": 1, "_id.month": 1 }
+            }
+        ]);
+
+        const months = monthWiseOrderCounts.map(item => `${item._id.month}/${item._id.year}`);
+        const orderCounts = monthWiseOrderCounts.map(item => item.count);
+
+        return {
+            months,
+            orderCounts
+        };
+    }
+
+    async getMonthwiseProductStatistics() {
+        const monthWiseProductCounts = await Product.aggregate([
+            {
+                $group: {
+                    _id: {
+                        year: { $year: "$created_at" },
+                        month: { $month: "$created_at" }
+                    },
+                    count: { $sum: 1 }
+                }
+            },
+            {
+                $sort: { "_id.year": 1, "_id.month": 1 }
+            }
+        ]);
+
+        const months = monthWiseProductCounts.map(item => `${item._id.month}/${item._id.year}`);
+        const productCounts = monthWiseProductCounts.map(item => item.count);
+
+        return {
+            months,
+            productCounts
+        };
+    }
+
+    async getMonthwiseCustomerStatistics() {
+        const monthWiseCustomerCounts = await User.aggregate([
+            {
+                $group: {
+                    _id: {
+                        year: { $year: "$created_at" },
+                        month: { $month: "$created_at" }
+                    },
+                    count: { $sum: 1 }
+                }
+            },
+            {
+                $sort: { "_id.year": 1, "_id.month": 1 }
+            }
+        ]);
+
+        const months = monthWiseCustomerCounts.map(item => `${item._id.month}/${item._id.year}`);
+        const customerCounts = monthWiseCustomerCounts.map(item => item.count);
+
+        return {
+            months,
+            customerCounts
+        };
+    }
+
+    async getMonthwiseBusinessStatistics() {
+        const monthWiseVendorCounts = await Vender.aggregate([
+					{
+						$match: { status: 'SUCCESS' }, // Only include vendors with status 'success'
+					},
+					{
+						$group: {
+							_id: {
+								year: { $year: '$created_at' },
+								month: { $month: '$created_at' },
+							},
+							count: { $sum: 1 },
+						},
+					},
+					{
+						$sort: { '_id.year': 1, '_id.month': 1 },
+					},
+				]);
+
+        const months = monthWiseVendorCounts.map(item => `${item._id.month}/${item._id.year}`);
+        const vendorCounts = monthWiseVendorCounts.map(item => item.count);
+
+        return {
+            months,
+            vendorCounts
+        };
+    }
 }
