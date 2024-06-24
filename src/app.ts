@@ -134,6 +134,7 @@ class App {
 					'register',
 					'category',
 					'product',
+                    'statistics',
                     'product/filter',
 					'forgot-password',
 					'product/comments',

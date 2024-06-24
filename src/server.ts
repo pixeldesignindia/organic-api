@@ -19,6 +19,7 @@ import SummaryController from './controllers/summary-ctrl';
 import AddressController from './controllers/address-ctrl';
 import CategoryController from './controllers/category-ctrl';
 import wishlistController from './controllers/wishlist-cntrl';
+import StatisticsController from './controllers/statistics-cntrl';
 import RegistrationController from './controllers/registration-ctrl';
 
 
@@ -40,6 +41,7 @@ const app = new App(
         new AddressController(),
         new CategoryController(),
         new wishlistController(),
+        new StatisticsController(),
         new RegistrationController()
     ]
 );

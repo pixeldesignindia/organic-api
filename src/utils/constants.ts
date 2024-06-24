@@ -44,6 +44,7 @@ const constants: any = {
 			CATEGORY: '/category',
 			WISHLIST: '/wishlist',
 			REGISTER: '/register',
+			STATISTICS: '/statistics',
 			RESET_PASSWORD: '/reset-password',
 			FORGOT_PASSWORD: '/forgot-password',
 			VERIFY_FORGOT_PASSWORD: '/verify-forgot-password',
