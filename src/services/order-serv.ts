@@ -32,19 +32,19 @@ export class OrderService extends BaseService {
 			type: data.paymentInfo.type || null,
 			status: data.paymentInfo.status || null,
 		};
-			order.shippingAddress = data.shippingAddress;
-			
-			order.is_active = true;
-			order.is_deleted = false;
-			order.tax = data.tax || null;
-			order.created_at = new Date();
-			order.totalPrice = data.totalPrice;
-			order.user_id = headers.loggeduserid;
-			order.status = data.status || 'placed';
-			order.paidAt = data.paidAt || new Date();
-			order.unique_id = this.genericUtil.getUniqueId();
-			order.shippingCharge = data.shippingCharge || null;
-			
+		order.shippingAddress = data.shippingAddress;
+
+		order.is_active = true;
+		order.is_deleted = false;
+		order.tax = data.tax || null;
+		order.created_at = new Date();
+		order.totalPrice = data.totalPrice;
+		order.user_id = headers.loggeduserid;
+		order.status = data.status || 'placed';
+		order.paidAt = data.paidAt || new Date();
+		order.unique_id = this.genericUtil.getUniqueId();
+		order.shippingCharge = data.shippingCharge || null;
+
 		try {
 			return await Order.create(order);
 		} catch (err) {
@@ -178,12 +178,24 @@ export class OrderService extends BaseService {
 			throw error;
 		}
 	}
-	async find(id: string,headers:any) {
+	async find(id: string, headers: any) {
 		try {
 			const order = await Order.findById(id);
 			if (!order) {
 				return { success: false, message: 'Order not found' };
 			}
+			return { success: true, order };
+		} catch (error) {
+			return { success: false, message: error.message || 'Failed to fetch address' };
+		}
+	}
+	async filter(data:any, headers: any) {
+		try {
+			let where:any = {};
+			if(data.status){
+				where.status = data.status
+			}
+			const order = await Order.find(where);
 			return { success: true, order };
 		} catch (error) {
 			return { success: false, message: error.message || 'Failed to fetch address' };

@@ -21,5 +21,4 @@ export class CouponService extends BaseService {
 		}
 	}
 
-	
 }
