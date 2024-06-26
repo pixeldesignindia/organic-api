@@ -6,19 +6,28 @@ import { StatisticsService } from '../services/statistics-serv';
 
 export class StatisticsController extends BaseController {
 	constructor() {
-		super(new StatisticsService() );
+		super(new StatisticsService());
 
 		this.initializeRoutes();
 	}
 
 	public initializeRoutes() {
-		this.router.get(constants.API.V1 + constants.API.APP.STATISTICS, (req, res) => {
-			this.getRecord(req, res, this);
+		this.router.get(constants.API.V1 + constants.API.APP.STATISTICS + '/product', (req, res) => {
+			this.getProductRecord(req, res, this);
+		});
+		this.router.get(constants.API.V1 + constants.API.APP.STATISTICS + '/order', (req, res) => {
+			this.getOrderRecord(req, res, this);
+		});
+		this.router.get(constants.API.V1 + constants.API.APP.STATISTICS + '/customer', (req, res) => {
+			this.getCustomerRecord(req, res, this);
+		});
+		this.router.get(constants.API.V1 + constants.API.APP.STATISTICS + '/business', (req, res) => {
+			this.getBusinessRecord(req, res, this);
 		});
 	}
 
-	private getRecord(req: Request, res: Response, that: any) {
-		that.service.getDashboardData(req.headers,req.query).then(
+	private getProductRecord(req: Request, res: Response, that: any) {
+		that.service.getDashboardData(req.headers, req.query).then(
 			(result: any) => {
 				that.responseUtil.sendUpdateResponse(req, res, result, 200);
 			},
@@ -29,6 +38,41 @@ export class StatisticsController extends BaseController {
 			}
 		);
 	}
-
+	private getOrderRecord(req: Request, res: Response, that: any) {
+		that.service.getDashboardData(req.headers, req.query).then(
+			(result: any) => {
+				that.responseUtil.sendUpdateResponse(req, res, result, 200);
+			},
+			(err: any) => {
+				constants.error(err);
+				LoggerUtil.log('error', { message: 'Error in creating role', location: 'crud-ctrl => create', data: err });
+				that.responseUtil.sendFailureResponse(req, res, err, { fileName: 'crud-ctrl', methodName: 'create' }, 200);
+			}
+		);
+	}
+	private getCustomerRecord(req: Request, res: Response, that: any) {
+		that.service.getDashboardData(req.headers, req.query).then(
+			(result: any) => {
+				that.responseUtil.sendUpdateResponse(req, res, result, 200);
+			},
+			(err: any) => {
+				constants.error(err);
+				LoggerUtil.log('error', { message: 'Error in creating role', location: 'crud-ctrl => create', data: err });
+				that.responseUtil.sendFailureResponse(req, res, err, { fileName: 'crud-ctrl', methodName: 'create' }, 200);
+			}
+		);
+	}
+	private getBusinessRecord(req: Request, res: Response, that: any) {
+		that.service.getDashboardData(req.headers, req.query).then(
+			(result: any) => {
+				that.responseUtil.sendUpdateResponse(req, res, result, 200);
+			},
+			(err: any) => {
+				constants.error(err);
+				LoggerUtil.log('error', { message: 'Error in creating role', location: 'crud-ctrl => create', data: err });
+				that.responseUtil.sendFailureResponse(req, res, err, { fileName: 'crud-ctrl', methodName: 'create' }, 200);
+			}
+		);
+	}
 }
 export default StatisticsController;

@@ -10,32 +10,6 @@ export class StatisticsService extends BaseService {
 		super();
 	}
 
-	async getDashboardData(headers: any, specificDate?: Date, specificMonth?: number, specificYear?: number) {
-		try {
-			const ordersStats = await this.getOrderStatistics(specificDate, specificMonth, specificYear);
-			const productsStats = await this.getProductStatistics(specificDate, specificMonth, specificYear);
-			const customersStats = await this.getCustomerStatistics(specificDate, specificMonth, specificYear);
-			const businessStats = await this.getBusinessStatistics(specificDate, specificMonth, specificYear);
-			const monthwiseOrderStats = await this.getMonthwiseOrderStatistics(specificMonth, specificYear);
-			const monthWiseCustomerStats = await this.getMonthwiseCustomerStatistics(specificMonth, specificYear);
-			const monthwiseProductStats = await this.getMonthwiseProductStatistics(specificMonth, specificYear);
-			const monthwiseVenderStats = await this.getMonthwiseBusinessStatistics(specificMonth, specificYear);
-
-			return {
-				ordersStats,
-				productsStats,
-				customersStats,
-				businessStats,
-				monthwiseOrderStats,
-				monthWiseCustomerStats,
-				monthwiseProductStats,
-				monthwiseVenderStats,
-			};
-		} catch (error) {
-			throw new AppError('Failed to fetch dashboard statistics', error, 500);
-		}
-	}
-
 	private getDateMatchStage(specificDate?: Date, specificMonth?: number, specificYear?: number) {
 		if (specificDate) {
 			return { $match: { created_at: specificDate } };
@@ -90,14 +64,28 @@ export class StatisticsService extends BaseService {
 
 	async getCustomerStatistics(specificDate?: Date, specificMonth?: number, specificYear?: number) {
 		const matchStage = this.getDateMatchStage(specificDate, specificMonth, specificYear);
-		const genderCounts = await User.aggregate([matchStage, { $group: { _id: '$gender', count: { $sum: 1 } } }]);
+		const userTypeCounts = await User.aggregate([matchStage, { $group: { _id: '$user_type', count: { $sum: 1 } } }]);
 
-		const genderLabels = genderCounts.map((item) => item._id || 'Unknown');
-		const genderData = genderCounts.map((item) => item.count);
+		let userCount = 0;
+		let vendorCount = 0;
+
+		userTypeCounts.forEach((item) => {
+			if (item._id === 'user') {
+				userCount = item.count;
+			} else if (item._id === 'vendor') {
+				vendorCount = item.count;
+			}
+		});
+
+		const total = userCount + vendorCount;
+		const userRatio = total ? (userCount / total) * 100 : 0;
+		const vendorRatio = total ? (vendorCount / total) * 100 : 0;
 
 		return {
-			genderLabels,
-			genderData,
+			userCount,
+			vendorCount,
+			userRatio,
+			vendorRatio,
 		};
 	}
 
@@ -227,5 +215,60 @@ export class StatisticsService extends BaseService {
 			months,
 			vendorCounts,
 		};
+	}
+
+	async getOrdersData(headers: any, specificDate?: Date, specificMonth?: number, specificYear?: number) {
+		try {
+			const ordersStats = await this.getOrderStatistics(specificDate, specificMonth, specificYear);
+			const monthwiseOrderStats = await this.getMonthwiseOrderStatistics(specificMonth, specificYear);
+
+			return {
+				ordersStats,
+				monthwiseOrderStats,
+			};
+		} catch (error) {
+			throw new AppError('Failed to fetch orders statistics', error, 500);
+		}
+	}
+
+	async getProductsData(headers: any, specificDate?: Date, specificMonth?: number, specificYear?: number) {
+		try {
+			const productsStats = await this.getProductStatistics(specificDate, specificMonth, specificYear);
+			const monthwiseProductStats = await this.getMonthwiseProductStatistics(specificMonth, specificYear);
+			return {
+				productsStats,
+				monthwiseProductStats,
+			};
+		} catch (error) {
+			throw new AppError('Failed to fetch products statistics', error, 500);
+		}
+	}
+
+	async getUsersData(headers: any, specificDate?: Date, specificMonth?: number, specificYear?: number) {
+		try {
+			const customersStats = await this.getCustomerStatistics(specificDate, specificMonth, specificYear);
+			const monthWiseCustomerStats = await this.getMonthwiseCustomerStatistics(specificMonth, specificYear);
+
+			return {
+				customersStats,
+				monthWiseCustomerStats,
+			};
+		} catch (error) {
+			throw new AppError('Failed to fetch customer statistics', error, 500);
+		}
+	}
+
+	async getBusinessesData(headers: any, specificDate?: Date, specificMonth?: number, specificYear?: number) {
+		try {
+			const businessStats = await this.getBusinessStatistics(specificDate, specificMonth, specificYear);
+			const monthwiseVenderStats = await this.getMonthwiseBusinessStatistics(specificMonth, specificYear);
+
+			return {
+				businessStats,
+				monthwiseVenderStats,
+			};
+		} catch (error) {
+			throw new AppError('Failed to fetch business statistics', error, 500);
+		}
 	}
 }
