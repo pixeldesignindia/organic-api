@@ -195,7 +195,8 @@ export class OrderService extends BaseService {
 			if(data.status){
 				where.status = data.status
 			}
-			const order = await Order.find(where).sort({created_at: 1});
+			// populate products  on order cart
+			const order = await Order.find(where).populate('cart.productId').sort({ created_at: 1 });
 			return { success: true, order };
 		} catch (error) {
 			return { success: false, message: error.message || 'Failed to fetch address' };
