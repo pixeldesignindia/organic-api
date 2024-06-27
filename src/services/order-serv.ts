@@ -18,6 +18,7 @@ export class OrderService extends BaseService {
 		// Assuming data.cart is an array of products
 		order.cart = data.cart.map((cartItem: any) => {
 			return {
+				size: cartItem.size,
 				user_id: cartItem.user_id,
 				quantity: cartItem.quantity,
 				category: cartItem.category,
@@ -25,6 +26,7 @@ export class OrderService extends BaseService {
 				description: cartItem.description,
 				originalPrice: cartItem.originalPrice,
 				discountPrice: cartItem.discountPrice,
+				productSkuName: cartItem.productSkuName
 			};
 		});
 		order.paymentInfo = {
