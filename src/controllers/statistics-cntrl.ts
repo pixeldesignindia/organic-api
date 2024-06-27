@@ -27,7 +27,7 @@ export class StatisticsController extends BaseController {
 	}
 
 	private getProductRecord(req: Request, res: Response, that: any) {
-		that.service.getDashboardData(req.headers, req.query).then(
+		that.service.getProductsData(req.headers, req.query).then(
 			(result: any) => {
 				that.responseUtil.sendUpdateResponse(req, res, result, 200);
 			},
@@ -39,7 +39,7 @@ export class StatisticsController extends BaseController {
 		);
 	}
 	private getOrderRecord(req: Request, res: Response, that: any) {
-		that.service.getDashboardData(req.headers, req.query).then(
+		that.service.getOrdersData(req.headers, req.query).then(
 			(result: any) => {
 				that.responseUtil.sendUpdateResponse(req, res, result, 200);
 			},
@@ -51,7 +51,7 @@ export class StatisticsController extends BaseController {
 		);
 	}
 	private getCustomerRecord(req: Request, res: Response, that: any) {
-		that.service.getDashboardData(req.headers, req.query).then(
+		that.service.getUsersData(req.headers, req.query).then(
 			(result: any) => {
 				that.responseUtil.sendUpdateResponse(req, res, result, 200);
 			},
@@ -63,7 +63,7 @@ export class StatisticsController extends BaseController {
 		);
 	}
 	private getBusinessRecord(req: Request, res: Response, that: any) {
-		that.service.getDashboardData(req.headers, req.query).then(
+		that.service.getBusinessesData(req.headers, req.query).then(
 			(result: any) => {
 				that.responseUtil.sendUpdateResponse(req, res, result, 200);
 			},
