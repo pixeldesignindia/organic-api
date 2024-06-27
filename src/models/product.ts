@@ -1,21 +1,33 @@
 import mongoose, { Schema } from 'mongoose';
 import { ICategory } from './category';
 
+interface IBase {
+	created_at?: Date;
+	updated_at?: Date;
+	is_active?: boolean;
+	is_deleted?: boolean;
+	unique_id: string;
+}
+
 interface ITag extends IBase {
 	name: string;
 	user_id: string;
 }
+
 interface ILike extends IBase {
 	user_id: string;
 }
+
 interface IComment extends IBase {
 	rating: number;
 	comment: string;
 	user_id: string;
 }
+
 interface IBookMark extends IBase {
 	user_id: string;
 }
+
 interface IRating extends IBase {
 	rating: number;
 	user_id: string;
@@ -28,9 +40,7 @@ interface IProductImage extends IBase {
 	description: string;
 	file_extension: string;
 	saved_file_name: string;
-
 	is_default: boolean;
-
 	tags: ITag[];
 	likes: ILike[];
 	ratings: IRating[];
@@ -38,37 +48,37 @@ interface IProductImage extends IBase {
 	bookmarks: IBookMark[];
 }
 
+interface ISKU extends IBase {
+	name: string;
+	size: string;
+	price: number;
+	stock: number;
+}
+
 interface IProduct extends IBase {
 	_id: any;
 	name: string;
-	size: string;
-	stock: number;
 	user_id: string;
 	made_for: string;
 	category: string;
-	originalPrice: number;
-	discountPrice: number;
 	description: string;
 	product_image_name: string;
 	product_image_saved_name: string;
-
 	end_date: Date;
 	start_date: Date;
 	isVerified: boolean;
 	is_private: boolean;
-
-	liked: boolean; // non db field
-	bookmarked: boolean; // non db field
-
+	liked: boolean;
+	bookmarked: boolean;
 	slip: string;
 	template: string;
-
 	tags: ITag[];
 	likes: ILike[];
 	ratings: IRating[];
 	comments: IComment[];
 	bookmarks: IBookMark[];
 	images: IProductImage[];
+	skus: ISKU[];
 }
 
 /******************** Schema ************************/
@@ -81,7 +91,6 @@ const TagSchema = new Schema({
 		required: true,
 		index: true,
 	},
-
 	created_at: { type: Date },
 	updated_at: { type: Date },
 	is_active: { type: Boolean },
@@ -96,7 +105,6 @@ const LikeSchema = new Schema({
 		required: true,
 		index: true,
 	},
-
 	created_at: { type: Date },
 	updated_at: { type: Date },
 	is_active: { type: Boolean },
@@ -113,7 +121,6 @@ const CommentSchema = new Schema({
 		required: true,
 		index: true,
 	},
-
 	created_at: { type: Date },
 	updated_at: { type: Date },
 	is_active: { type: Boolean },
@@ -128,7 +135,6 @@ const BookmarkSchema = new Schema({
 		required: true,
 		index: true,
 	},
-
 	created_at: { type: Date },
 	updated_at: { type: Date },
 	is_active: { type: Boolean },
@@ -144,7 +150,6 @@ const RatingSchema = new Schema({
 		required: true,
 		index: true,
 	},
-
 	created_at: { type: Date },
 	updated_at: { type: Date },
 	is_active: { type: Boolean },
@@ -159,13 +164,11 @@ const ProductImageSchema = new Schema({
 	description: { type: String },
 	file_extension: { type: String, required: true },
 	saved_file_name: { type: String, required: true },
-
 	tags: [TagSchema],
 	likes: [LikeSchema],
 	ratings: [RatingSchema],
 	comments: [CommentSchema],
 	bookmarks: [BookmarkSchema],
-
 	created_at: { type: Date },
 	updated_at: { type: Date },
 	is_active: { type: Boolean },
@@ -173,6 +176,7 @@ const ProductImageSchema = new Schema({
 	is_deleted: { type: Boolean },
 	unique_id: { type: String, required: true },
 });
+
 
 const ProductSchema = new Schema({
 	name: { type: String, required: true },
@@ -190,32 +194,23 @@ const ProductSchema = new Schema({
 		required: true,
 		index: true,
 	},
-	originalPrice: {
-		type: Number,
-	},
-	discountPrice: {
-		type: Number,
-		required: [true, 'Please enter your product price!'],
-	},
-	stock: {
-		type: Number,
-		required: [true, 'Please enter your product stock!'],
-	},
-	size: {
-		type: String,
-	},
 	isVerified: {
 		type: Boolean,
 		default: false,
 	},
-
+	skus: [
+		{	name:{type: String,required: true},
+			size: { type: String, required: true },
+			price: { type: Number, required: true },
+			stock: { type: Number, required: true },
+		},
+	],
 	tags: [TagSchema],
 	likes: [LikeSchema],
 	ratings: [RatingSchema],
 	comments: [CommentSchema],
 	bookmarks: [BookmarkSchema],
 	images: [ProductImageSchema],
-
 	created_at: { type: Date },
 	updated_at: { type: Date },
 	is_private: { type: Boolean },
@@ -228,12 +223,10 @@ ProductSchema.index({
 	name: 'text',
 	description: 'text',
 	'product_type.name': 'text',
-	// For simplicity, assuming tags and collections names can be directly indexed
-	// This may require adjustments based on your actual schema and data structure
 	'tags.name': 'text',
 	'collections.name': 'text',
 });
 
 const Product = mongoose.model<IProduct>('Product', ProductSchema);
 
-export { ITag, IComment, ILike, Product, IProduct, IProductImage, ICategory, ProductSchema };
+export { ITag, IComment, ILike, Product, IProduct, IProductImage, ICategory, ProductSchema, ISKU };

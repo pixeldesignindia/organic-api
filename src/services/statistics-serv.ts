@@ -10,7 +10,7 @@ export class StatisticsService extends BaseService {
 		super();
 	}
 
-	private getDateMatchStage(specificDate?: Date, specificMonth?: number, specificYear?: number) {
+ private async getDateMatchStage(specificDate?: Date, specificMonth?: number, specificYear?: number) {
 		if (specificDate) {
 			return { $match: { created_at: specificDate } };
 		}
@@ -24,8 +24,8 @@ export class StatisticsService extends BaseService {
 	}
 
 	async getOrderStatistics(specificDate?: Date, specificMonth?: number, specificYear?: number) {
-		const matchStage = this.getDateMatchStage(specificDate, specificMonth, specificYear);
-		const orderStatusCounts = await Order.aggregate([matchStage, { $group: { _id: '$status', count: { $sum: 1 } } }]);
+		const matchStage = await this.getDateMatchStage(specificDate, specificMonth, specificYear);
+		const orderStatusCounts = await Order.aggregate([{ $group: { _id: '$status', count: { $sum: 1 } } }]);
 
 		const orderStatusLabels = orderStatusCounts.map((item) => item._id);
 		const orderStatusData = orderStatusCounts.map((item) => item.count);
@@ -37,8 +37,8 @@ export class StatisticsService extends BaseService {
 	}
 
 	async getProductStatistics(specificDate?: Date, specificMonth?: number, specificYear?: number) {
-		const matchStage = this.getDateMatchStage(specificDate, specificMonth, specificYear);
-		const productCategoryCounts = await Product.aggregate([matchStage, { $group: { _id: '$category', count: { $sum: 1 } } }]);
+		const matchStage = await this.getDateMatchStage(specificDate, specificMonth, specificYear);
+		const productCategoryCounts = await Product.aggregate([ { $group: { _id: '$category', count: { $sum: 1 } } }]);
 
 		const productCategoryLabels = productCategoryCounts.map((item) => item._id);
 		const productCategoryData = productCategoryCounts.map((item) => item.count);
@@ -62,35 +62,51 @@ export class StatisticsService extends BaseService {
 		};
 	}
 
-	async getCustomerStatistics(specificDate?: Date, specificMonth?: number, specificYear?: number) {
-		const matchStage = this.getDateMatchStage(specificDate, specificMonth, specificYear);
-		const userTypeCounts = await User.aggregate([matchStage, { $group: { _id: '$user_type', count: { $sum: 1 } } }]);
+	async getCustomerStatistics(specificDate:Date, specificMonth:number, specificYear:number) {
 
-		let userCount = 0;
-		let vendorCount = 0;
+		try {
+			let userTypeCounts;
 
-		userTypeCounts.forEach((item) => {
-			if (item._id === 'user') {
-				userCount = item.count;
-			} else if (item._id === 'vendor') {
-				vendorCount = item.count;
-			}
-		});
+				userTypeCounts = await User.aggregate([
+					{
+						$group: {
+							_id: '$user_type',
+							count: { $sum: 1 },
+						},
+					},
+				]);
+			
 
-		const total = userCount + vendorCount;
-		const userRatio = total ? (userCount / total) * 100 : 0;
-		const vendorRatio = total ? (vendorCount / total) * 100 : 0;
+			console.log('User Type Counts:', userTypeCounts);
 
-		return {
-			userCount,
-			vendorCount,
-			userRatio,
-			vendorRatio,
-		};
+			let userCount = 0;
+			let vendorCount = 0;
+
+			userTypeCounts.forEach((item) => {
+				if (item._id === 'User') {
+					userCount = item.count;
+				} else if (item._id === 'Vendor') {
+					vendorCount = item.count;
+				}
+			});
+
+			const total = userCount + vendorCount;
+			const userRatio = total ? (userCount / total) * 100 : 0;
+			const vendorRatio = total ? (vendorCount / total) * 100 : 0;
+
+			return {
+				userCount,
+				vendorCount,
+				userRatio,
+				vendorRatio,
+			};
+		} catch (error) {
+			console.error('Error in aggregation pipeline:', error);
+			throw error;
+		}
 	}
-
 	async getBusinessStatistics(specificDate?: Date, specificMonth?: number, specificYear?: number) {
-		const matchStage = this.getDateMatchStage(specificDate, specificMonth, specificYear);
+		const matchStage = await this.getDateMatchStage(specificDate, specificMonth, specificYear);
 		const businessTypeCounts = await Vender.aggregate([matchStage, { $group: { _id: '$type', count: { $sum: 1 } } }]);
 
 		const businessTypeLabels = businessTypeCounts.map((item) => item._id || 'Unknown');
@@ -110,7 +126,7 @@ export class StatisticsService extends BaseService {
 	}
 
 	async getMonthwiseOrderStatistics(specificMonth?: number, specificYear?: number) {
-		const matchStage = this.getDateMatchStage(undefined, specificMonth, specificYear);
+		const matchStage =await this.getDateMatchStage(undefined, specificMonth, specificYear);
 		const monthWiseOrderCounts = await Order.aggregate([
 			matchStage,
 			{
@@ -119,8 +135,10 @@ export class StatisticsService extends BaseService {
 						year: { $year: '$created_at' },
 						month: { $month: '$created_at' },
 					},
+					
 					count: { $sum: 1 },
 				},
+				
 			},
 			{
 				$sort: { '_id.year': 1, '_id.month': 1 },
@@ -137,7 +155,7 @@ export class StatisticsService extends BaseService {
 	}
 
 	async getMonthwiseProductStatistics(specificMonth?: number, specificYear?: number) {
-		const matchStage = this.getDateMatchStage(undefined, specificMonth, specificYear);
+		const matchStage = await this.getDateMatchStage(undefined, specificMonth, specificYear);
 		const monthWiseProductCounts = await Product.aggregate([
 			matchStage,
 			{
@@ -164,7 +182,7 @@ export class StatisticsService extends BaseService {
 	}
 
 	async getMonthwiseCustomerStatistics(specificMonth?: number, specificYear?: number) {
-		const matchStage = this.getDateMatchStage(undefined, specificMonth, specificYear);
+		const matchStage = await this.getDateMatchStage(undefined, specificMonth, specificYear);
 		const monthWiseCustomerCounts = await User.aggregate([
 			matchStage,
 			{
@@ -191,7 +209,7 @@ export class StatisticsService extends BaseService {
 	}
 
 	async getMonthwiseBusinessStatistics(specificMonth?: number, specificYear?: number) {
-		const matchStage = this.getDateMatchStage(undefined, specificMonth, specificYear);
+		const matchStage =await this.getDateMatchStage(undefined, specificMonth, specificYear);
 		const monthWiseVendorCounts = await Vender.aggregate([
 			matchStage,
 			{
@@ -248,7 +266,7 @@ export class StatisticsService extends BaseService {
 		try {
 			const customersStats = await this.getCustomerStatistics(specificDate, specificMonth, specificYear);
 			const monthWiseCustomerStats = await this.getMonthwiseCustomerStatistics(specificMonth, specificYear);
-
+			console.log(monthWiseCustomerStats);
 			return {
 				customersStats,
 				monthWiseCustomerStats,
