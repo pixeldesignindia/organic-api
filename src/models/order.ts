@@ -20,6 +20,7 @@ interface PaymentInfo {
 }
 
 interface Product {
+	size:string;
 	user_id: string;
 	quantity: number;
 	category: string;
@@ -27,6 +28,7 @@ interface Product {
 	description: string;
 	originalPrice: number;
 	discountPrice: number;
+	productSkuName: string;
 }
 
 interface IOrder extends IBase {
@@ -59,6 +61,8 @@ const OrderSchema = new Schema({
 				type: Schema.Types.ObjectId,
 				ref: 'Product',
 			},
+			size: { type: String, required: true},
+			productSkuName: { type: String, required: true},
 			description: { type: String, required: true },
 			discountPrice: { type: Number, required: true },
 			originalPrice: { type: Number, required: true },
