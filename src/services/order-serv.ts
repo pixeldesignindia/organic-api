@@ -144,24 +144,36 @@ export class OrderService extends BaseService {
 		}
 	}
 
-	async updateProductStockService(productId: string, quantity: number) {
-		try {
-			const product = await Product.findById(productId);
-			if (!product) {
-				throw new AppError('Product not found with this id', null, 404);
-			}
-			if (product.stock < quantity) {
-				throw new AppError('Not enough stock for this product', null, 404);
-			}
+	async updateProductStockService(data:any, quantity: number) {
+try {
+        const product = await Product.findById(data.productId);
 
-			product.stock -= quantity;
-			await product.save();
+        if (!product) {
+            throw new AppError('Product not found with this id', null, 404);
+        }
 
-			return { success: true };
-		} catch (error) {
-			throw error;
-		}
-	}
+        // Find the SKU by name
+        const skuToUpdate = product.skus.find(sku => sku.name === data.skuName);
+
+        if (!skuToUpdate) {
+            throw new AppError(` not found for this product`, null, 404);
+        }
+
+        // Check if there is enough stock
+        if (skuToUpdate.stock < quantity) {
+            throw new AppError(`Not enough stock `,null, 404);
+        }
+
+        // Update the stock
+        skuToUpdate.stock -= quantity;
+
+        await product.save();
+
+        return { success: true };
+    } catch (error) {
+        throw error;
+    }
+}
 
 	async updateVendorBalanceService(userId: string, amount: number) {
 		try {

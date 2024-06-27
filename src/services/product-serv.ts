@@ -86,17 +86,13 @@ export class ProductService {
 				{
 					$project: {
 						name: 1,
-						size: 1,
-						stock: 1,
 						category: 1,
 						is_active: 1,
 						is_deleted: 1,
 						is_private: 1,
 						created_at: 1,
 						description: 1,
-						originalPrice: 1,
-						discountPrice: 1,
-
+						skus: 1,
 						liked: 1,
 						bookmarked: 1,
 						// Filter nested arrays where is_active is true
@@ -194,7 +190,7 @@ export class ProductService {
 					is_active: true,
 					updated_at: null,
 					is_deleted: false,
-					user_id:  data.user_id,
+					user_id: data.user_id,
 					created_at: data.created_at,
 					unique_id: this.genericUtil.getUniqueId(),
 				});
@@ -203,19 +199,28 @@ export class ProductService {
 			product.tags = [];
 		}
 
+		if (data.skus && Array.isArray(data.skus) && data.skus.length > 0) {
+			product.skus = data.skus.map((skuData: any) => ({
+				name: skuData.name || product.name, // Assuming name falls back to product name if not provided
+				originalPrice: skuData.originalPrice,
+				discountPrice: skuData.discountPrice,
+				size: skuData.size,
+				stock: skuData.stock,
+			}));
+		} else {
+			return Promise.reject({
+				message: constants.MESSAGES.ERRORS.NOT_FOUND,
+			});
+		}
 		product.images = [];
 		product.is_active = true;
 		product.name = data.name;
-		product.size = data.size;
 		product.is_deleted = false;
-		product.stock = data.stock;
 		product.user_id = data.user_id;
 		product.category = data.category;
 		product.is_private = data.is_private;
 		product.created_at = data.created_at;
 		product.description = data.description;
-		product.originalPrice = data.originalPrice;
-		product.discountPrice = data.discountPrice;
 		product.unique_id = this.genericUtil.getUniqueId();
 
 		try {
@@ -239,6 +244,39 @@ export class ProductService {
 				product.product_image_name = constants.DEFAULTS.PRODUCT_IMAGE;
 				product.product_image_saved_name = constants.DEFAULTS.PRODUCT_IMAGE;
 			}
+			if (data.skus && Array.isArray(data.skus)) {
+				productDataToUpdate.skus = product.skus.map((existingSKU: any) => {
+					let updatedSKU = data.skus.find((newSKU: any) => newSKU.name === existingSKU.name);
+
+					if (updatedSKU) {
+						// Update existing SKU with new data
+						return {
+							...existingSKU,
+							originalPrice: updatedSKU.originalPrice,
+							discountPrice: updatedSKU.discountPrice,
+							size: updatedSKU.size,
+							stock: updatedSKU.stock,
+							updated_at: data.updated_at,
+						};
+					}
+
+					// Return existing SKU if no update found
+					return existingSKU;
+				});
+
+				// Add new SKUs that are not in the existing list
+				data.skus.forEach((newSKU: any) => {
+					if (!product.skus.find((existingSKU: any) => existingSKU.name === newSKU.name)) {
+						productDataToUpdate.skus.push({
+							name: newSKU.name,
+							originalPrice: newSKU.originalPrice,
+							discountPrice: newSKU.discountPrice,
+							size: newSKU.size,
+							stock: newSKU.stock,
+						});
+					}
+				});
+			}
 
 			await Product.updateOne({ _id: new mongoose.Types.ObjectId(id) }, productDataToUpdate);
 			return {
@@ -254,13 +292,9 @@ export class ProductService {
 	getUpdatedProduct(data: any, user_id: string) {
 		let productDataToUpdate: any = {};
 		if (data.hasOwnProperty('name')) productDataToUpdate.name = data.name;
-		if (data.hasOwnProperty('size')) productDataToUpdate.size = data.size;
-		if (data.hasOwnProperty('stock')) productDataToUpdate.stock = data.stock;
 		if (data.hasOwnProperty('is_active')) productDataToUpdate.is_active = data.is_active;
 		if (data.hasOwnProperty('is_private')) productDataToUpdate.is_private = data.is_private;
 		if (data.hasOwnProperty('description')) productDataToUpdate.description = data.description;
-		if (data.hasOwnProperty('originalPrice')) productDataToUpdate.originalPrice = data.originalPrice;
-		if (data.hasOwnProperty('discountPrice')) productDataToUpdate.discountPrice = data.discountPrice;
 		if (data.hasOwnProperty('product_stage')) {
 			data.product_stage.updated_at = null;
 			data.product_stage.user_id = user_id;
@@ -461,9 +495,8 @@ export class ProductService {
 			{
 				$project: {
 					// Specify fields to include
-					name: 1, // Example: Including the product name
-					size: 1,
-					stock: 1,
+					name: 1,
+					skus:1, // Example: Including the product name
 					user_id: 1,
 					category: 1,
 					is_active: 1,
@@ -471,8 +504,6 @@ export class ProductService {
 					is_private: 1,
 					created_at: 1,
 					description: 1,
-					originalPrice: 1,
-					discountPrice: 1,
 					liked: 1,
 					bookmarked: 1,
 					// Filter nested arrays where is_active is true
@@ -538,6 +569,44 @@ export class ProductService {
 		data.latest = true;
 
 		return await this.filter(data, headers);
+	}
+
+	async removeSku(data: any, headers: any) {
+		try {
+			let product: any = await this.find(data.id, headers);
+
+			if (product) {
+				const skuIndex = product.skus.findIndex((sku: any) => sku.name === data.skuName);
+
+				if (skuIndex !== -1) {
+					product.skus[skuIndex].is_deleted = true;
+					product.skus[skuIndex].updated_at = new Date();
+
+					await Product.updateOne({ _id: new mongoose.Types.ObjectId(data.id) }, { skus: product.skus });
+
+					return {
+						success: true,
+						message: 'SKU removed successfully.',
+					};
+				} else {
+					return {
+						success: false,
+						message: 'SKU not found in product.',
+					};
+				}
+			} else {
+				return {
+					success: false,
+					message: 'Product not found.',
+				};
+			}
+		} catch (err) {
+			console.error(err);
+			return {
+				success: false,
+				message: err ? err.toString() : 'Error removing SKU.',
+			};
+		}
 	}
 
 	async feed(data: any, headers: any) {
