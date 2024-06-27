@@ -172,7 +172,7 @@ export class RoleService extends BaseService {
         }
     }
 
-    async remove(id: number, headers: any = null) {
-        return await this.removeRecord(id);
+    async remove(id:string, headers: any = null) {
+        return await Role.deleteOne({ _id: id })
     }
 }
