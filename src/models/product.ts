@@ -201,6 +201,10 @@ const ProductSchema = new Schema({
 	},
 	skus: [
 		{
+			name:{
+				type: String,
+                required: [true, 'Please enter your product name!'],
+			},
 			originalPrice: {
 				type: Number,
 			},
