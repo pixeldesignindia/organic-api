@@ -201,7 +201,7 @@ export class ProductService {
 
 		if (data.skus && Array.isArray(data.skus) && data.skus.length > 0) {
 			product.skus = data.skus.map((skuData: any) => ({
-				name: skuData.name || product.name, // Assuming name falls back to product name if not provided
+				name: skuData.name ,
 				originalPrice: skuData.originalPrice,
 				discountPrice: skuData.discountPrice,
 				size: skuData.size,
