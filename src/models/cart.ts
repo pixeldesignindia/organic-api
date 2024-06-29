@@ -3,6 +3,7 @@ import mongoose, { Schema } from 'mongoose';
 interface CartItem {
 	productId: string;
 	quantity: number;
+	productSkuName: string;
 }
 
 interface ICart extends IBase {
@@ -11,17 +12,18 @@ interface ICart extends IBase {
 }
 
 const CartSchema = new Schema({
-	
-  userId: { type: String, required: true },
-  items: [{
-    productId: { 
-		required: true,
-		type: Schema.Types.ObjectId,
-		ref: 'Product' 
-
-	},
-    quantity: { type: Number, required: true },
-  }],
+	userId: { type: String, required: true },
+	items: [
+		{
+			productId: {
+				required: true,
+				type: Schema.Types.ObjectId,
+				ref: 'Product',
+			},
+			quantity: { type: Number, required: true },
+			productSkuName: { type: String, required: true },
+		},
+	],
 	created_at: { type: Date },
 	updated_at: { type: Date },
 	is_active: { type: Boolean },

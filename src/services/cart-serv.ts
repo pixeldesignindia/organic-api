@@ -25,37 +25,38 @@ export class CartService extends BaseService {
 	async addToCart(data: any, headers: any = null) {
 		try {
 			const userId = headers.loggeduserid;
-			const quantity = data.quantity;
-			const productId = data.productId;
+			const { quantity, productId, productSkuName, decrease } = data;
 
 			let cart = await Cart.findOne({ userId });
 
 			if (!cart) {
-				cart = new Cart({ userId, items: [{ productId, quantity }] });
-				cart.is_active = true;
-				cart.unique_id = this.genericUtil.getUniqueId();
+				cart = new Cart({
+					userId,
+					items: [{ productId, quantity, productSkuName }],
+					is_active: true,
+					unique_id: this.genericUtil.getUniqueId(),
+				});
 				await Cart.create(cart);
 			} else {
-				// Check if the product already exists in the cart
 				let existingItemIndex = -1;
 				cart.items.forEach((item, index) => {
-					if (item.productId.toString() === productId.toString()) {
+					if (item.productId.toString() === productId.toString() && item.productSkuName === productSkuName) {
 						existingItemIndex = index;
 					}
 				});
 
 				if (existingItemIndex !== -1) {
-					if (data.decrease ) {
-						if(quantity < cart.items[existingItemIndex].quantity){
-						cart.items[existingItemIndex].quantity -= quantity;
+					if (decrease) {
+						if (quantity < cart.items[existingItemIndex].quantity) {
+							cart.items[existingItemIndex].quantity -= quantity;
 						}
 					} else {
 						cart.items[existingItemIndex].quantity += quantity;
 					}
 				} else {
-					cart.items.push({ productId, quantity });
+					cart.items.push({ productId, quantity, productSkuName });
 				}
-				await cart.save(); // Save changes to the cart
+				await cart.save();
 			}
 
 			return cart;
@@ -87,7 +88,7 @@ export class CartService extends BaseService {
 			let removedQuantity = 0;
 
 			// Find the existing item in the cart
-			const existingItemIndex = cart.items.findIndex((item) => item.productId.toString() === data.productId.toString());
+			const existingItemIndex = cart.items.findIndex((item) => item.productId.toString() === data.productId.toString() && item.productSkuName === data.productSkuName);
 			if (existingItemIndex !== -1) {
 				console.log('Existing item found:', cart.items[existingItemIndex]);
 
@@ -109,16 +110,15 @@ export class CartService extends BaseService {
 			};
 		}
 	}
-	async delete(data:any, headers: any = null) {
+	async delete(data: any, headers: any = null) {
 		try {
- 
-			const cart = await Cart.findByIdAndDelete({_id: data.id});
+			const cart = await Cart.findByIdAndDelete({ _id: data.id });
 			if (!cart) {
-			return new AppError('Cart not found', null, 404);
+				return new AppError('Cart not found', null, 404);
 			}
 			return { success: true, message: 'Cart delete successfully' };
 		} catch (error) {
-		return  new AppError('Error deleting cart', error, 500);
+			return new AppError('Error deleting cart', error, 500);
 		}
 	}
 }
