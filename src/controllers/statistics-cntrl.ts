@@ -24,6 +24,9 @@ export class StatisticsController extends BaseController {
 		this.router.get(constants.API.V1 + constants.API.APP.STATISTICS + '/business', (req, res) => {
 			this.getBusinessRecord(req, res, this);
 		});
+		this.router.get(constants.API.V1 + constants.API.APP.STATISTICS + '/dashboard', (req, res) => {
+			this.getDashboardRecord(req, res, this);
+		});
 	}
 
 	private getProductRecord(req: Request, res: Response, that: any) {
@@ -64,6 +67,18 @@ export class StatisticsController extends BaseController {
 	}
 	private getBusinessRecord(req: Request, res: Response, that: any) {
 		that.service.getBusinessesData(req.headers, req.query).then(
+			(result: any) => {
+				that.responseUtil.sendUpdateResponse(req, res, result, 200);
+			},
+			(err: any) => {
+				constants.error(err);
+				LoggerUtil.log('error', { message: 'Error in creating role', location: 'crud-ctrl => create', data: err });
+				that.responseUtil.sendFailureResponse(req, res, err, { fileName: 'crud-ctrl', methodName: 'create' }, 200);
+			}
+		);
+	}
+	private getDashboardRecord(req: Request, res: Response, that: any) {
+		that.service.getDashboard(req.headers, req.query).then(
 			(result: any) => {
 				that.responseUtil.sendUpdateResponse(req, res, result, 200);
 			},

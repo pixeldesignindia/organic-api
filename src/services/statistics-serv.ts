@@ -4,13 +4,15 @@ import { AppError } from '../models/app-error';
 import { Product } from '../models/product';
 import { Order } from '../models/order';
 import { BaseService } from './base-serv';
+import { calculatePercentage } from '../utils/helpers';
+import { Category } from '../models/category';
 
 export class StatisticsService extends BaseService {
 	constructor() {
 		super();
 	}
 
- private async getDateMatchStage(specificDate?: Date, specificMonth?: number, specificYear?: number) {
+	private async getDateMatchStage(specificDate?: Date, specificMonth?: number, specificYear?: number) {
 		if (specificDate) {
 			return { $match: { created_at: specificDate } };
 		}
@@ -38,7 +40,7 @@ export class StatisticsService extends BaseService {
 
 	async getProductStatistics(specificDate?: Date, specificMonth?: number, specificYear?: number) {
 		const matchStage = await this.getDateMatchStage(specificDate, specificMonth, specificYear);
-		const productCategoryCounts = await Product.aggregate([ { $group: { _id: '$category', count: { $sum: 1 } } }]);
+		const productCategoryCounts = await Product.aggregate([{ $group: { _id: '$category', count: { $sum: 1 } } }]);
 
 		const productCategoryLabels = productCategoryCounts.map((item) => item._id);
 		const productCategoryData = productCategoryCounts.map((item) => item.count);
@@ -62,20 +64,18 @@ export class StatisticsService extends BaseService {
 		};
 	}
 
-	async getCustomerStatistics(specificDate:Date, specificMonth:number, specificYear:number) {
-
+	async getCustomerStatistics(specificDate: Date, specificMonth: number, specificYear: number) {
 		try {
 			let userTypeCounts;
 
-				userTypeCounts = await User.aggregate([
-					{
-						$group: {
-							_id: '$user_type',
-							count: { $sum: 1 },
-						},
+			userTypeCounts = await User.aggregate([
+				{
+					$group: {
+						_id: '$user_type',
+						count: { $sum: 1 },
 					},
-				]);
-			
+				},
+			]);
 
 			console.log('User Type Counts:', userTypeCounts);
 
@@ -126,7 +126,7 @@ export class StatisticsService extends BaseService {
 	}
 
 	async getMonthwiseOrderStatistics(specificMonth?: number, specificYear?: number) {
-		const matchStage =await this.getDateMatchStage(undefined, specificMonth, specificYear);
+		const matchStage = await this.getDateMatchStage(undefined, specificMonth, specificYear);
 		const monthWiseOrderCounts = await Order.aggregate([
 			matchStage,
 			{
@@ -135,10 +135,9 @@ export class StatisticsService extends BaseService {
 						year: { $year: '$created_at' },
 						month: { $month: '$created_at' },
 					},
-					
+
 					count: { $sum: 1 },
 				},
-				
 			},
 			{
 				$sort: { '_id.year': 1, '_id.month': 1 },
@@ -209,7 +208,7 @@ export class StatisticsService extends BaseService {
 	}
 
 	async getMonthwiseBusinessStatistics(specificMonth?: number, specificYear?: number) {
-		const matchStage =await this.getDateMatchStage(undefined, specificMonth, specificYear);
+		const matchStage = await this.getDateMatchStage(undefined, specificMonth, specificYear);
 		const monthWiseVendorCounts = await Vender.aggregate([
 			matchStage,
 			{
@@ -289,4 +288,125 @@ export class StatisticsService extends BaseService {
 			throw new AppError('Failed to fetch business statistics', error, 500);
 		}
 	}
+
+	async getDashboard(data: any) {
+		try {
+			const today = new Date();
+			const sixMonthsAgo = new Date(today.getFullYear(), today.getMonth() - 6, today.getDate());
+
+			const thisMonth = {
+				start: new Date(today.getFullYear(), today.getMonth(), 1),
+				end: today,
+			};
+
+			const lastMonth = {
+				start: new Date(today.getFullYear(), today.getMonth() - 1, 1),
+				end: new Date(today.getFullYear(), today.getMonth(), 0),
+			};
+
+			const [
+				thisMonthProducts,
+				lastMonthProducts,
+				thisMonthUsers,
+				lastMonthUsers,
+				thisMonthOrders,
+				lastMonthOrders,
+				productsCount,
+				usersCount,
+				allOrders,
+				lastSixMonthOrders,
+				latestTransaction,
+				categoryCount,
+				userTypeCounts,
+			] = await Promise.all([
+				Product.find({ created_at: { $gte: thisMonth.start, $lte: thisMonth.end } }),
+				Product.find({ created_at: { $gte: lastMonth.start, $lte: lastMonth.end } }),
+				User.find({ created_at: { $gte: thisMonth.start, $lte: thisMonth.end } }),
+				User.find({ created_at: { $gte: lastMonth.start, $lte: lastMonth.end } }),
+				Order.find({ created_at: { $gte: thisMonth.start, $lte: thisMonth.end } }),
+				Order.find({ created_at: { $gte: lastMonth.start, $lte: lastMonth.end } }),
+				Product.countDocuments(),
+				User.countDocuments(),
+				Order.find({}).select('totalPrice'),
+				Order.find({ created_at: { $gte: sixMonthsAgo, $lte: today } }),
+				Order.find({}).select(['cart', 'discount', 'totalPrice', 'status']).limit(4),
+				Category.countDocuments(),
+				User.aggregate([{ $group: { _id: '$user_type', count: { $sum: 1 } } }]),
+			]);
+
+			const thisMonthRevenue = thisMonthOrders.reduce((total, order) => total + (order.totalPrice || 0), 0);
+			const lastMonthRevenue = lastMonthOrders.reduce((total, order) => total + (order.totalPrice || 0), 0);
+
+			const changePercent = {
+				revenue: calculatePercentage(thisMonthRevenue, lastMonthRevenue),
+				product: calculatePercentage(thisMonthProducts.length, lastMonthProducts.length),
+				user: calculatePercentage(thisMonthUsers.length, lastMonthUsers.length),
+				order: calculatePercentage(thisMonthOrders.length, lastMonthOrders.length),
+			};
+
+			const revenue = allOrders.reduce((total, order) => total + (order.totalPrice || 0), 0);
+
+			const count = {
+				revenue,
+				product: productsCount,
+				user: usersCount,
+				order: allOrders.length,
+			};
+
+			const orderMonthCounts = new Array(6).fill(0);
+			const orderMonthlyRevenue = new Array(6).fill(0);
+
+			lastSixMonthOrders.forEach((order) => {
+				const creationDate = new Date(order.created_at);
+				const monthDiff = (today.getFullYear() - creationDate.getFullYear()) * 12 + today.getMonth() - creationDate.getMonth();
+
+				if (monthDiff < 6) {
+					orderMonthCounts[5 - monthDiff] += 1;
+					orderMonthlyRevenue[5 - monthDiff] += order.totalPrice;
+				}
+			});
+
+			let userCount = 0;
+			let vendorCount = 0;
+
+			userTypeCounts.forEach((item) => {
+				if (item._id === 'User') {
+					userCount = item.count;
+				} else if (item._id === 'Vendor') {
+					vendorCount = item.count;
+				}
+			});
+
+			const totalUsersAndVendors = userCount + vendorCount;
+			const userRatio = totalUsersAndVendors ? (userCount / totalUsersAndVendors) * 100 : 0;
+			const vendorRatio = totalUsersAndVendors ? (vendorCount / totalUsersAndVendors) * 100 : 0;
+
+			const modifiedLatestTransaction = latestTransaction.map((i) => ({
+				_id: i._id,
+				amount: i.totalPrice,
+				quantity: i.cart.length,
+				status: i.status,
+			}));
+
+			const stats:any = {
+				categoryCount,
+				changePercent,
+				count,
+				chart: {
+					order: orderMonthCounts,
+					revenue: orderMonthlyRevenue,
+				},
+				userRatio: {
+					user: userRatio,
+					vendor: vendorRatio,
+				},
+				latestTransaction: modifiedLatestTransaction,
+			};
+
+			return stats;
+		} catch (err) {
+			console.error('Error in getDashboard:', err);
+			throw new AppError('Failed to fetch dashboard statistics',null, 500);
+		}
+	};
 }

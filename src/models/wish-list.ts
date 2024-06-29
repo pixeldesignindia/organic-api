@@ -1,17 +1,26 @@
 import mongoose, { Schema } from 'mongoose';
+interface productItem {
+	productId: string;
+	productSkuName: string;
+}
 interface IWishlist extends IBase {
 	user_id: string;
 	name: string;
-	products: mongoose.Types.ObjectId[];
+	products:productItem[];
 }
 
 const WishlistSchema = new Schema({
 	user_id: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
-	name: { type: String, required: true, unique: true },
+	name: { type: String, required: true},
 	products: [{
-		type: mongoose.Schema.Types.ObjectId,
-        ref: 'Product',
-	}
+			productId: {
+				required: true,
+				type: Schema.Types.ObjectId,
+				ref: 'Product',
+			},
+			productSkuName: { type: String, required: true },
+		},
+
 	],
 	created_at: { type: Date },
 	updated_at: { type: Date },

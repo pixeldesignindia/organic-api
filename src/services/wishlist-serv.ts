@@ -12,7 +12,7 @@ export class WishlistService extends BaseService {
 
 	async find(id: string, headers: any = null) {
 		try {
-			const wishlist = await Wishlist.findById(id)
+			const wishlist = await Wishlist.findById(id);
 			if (!wishlist) {
 				return Promise.reject(new AppError('wishlist not found', null, 404));
 			}
@@ -25,7 +25,7 @@ export class WishlistService extends BaseService {
 	async findAll(headers: any = null) {
 		try {
 			const wishlist = await Wishlist.find({ user_id: headers.loggeduserid }).populate('products');
-			console.log(wishlist)
+			console.log(wishlist);
 			return wishlist;
 		} catch (error) {
 			return Promise.reject(new AppError('Error finding wishlist', error, 500));
@@ -33,22 +33,20 @@ export class WishlistService extends BaseService {
 	}
 
 	async create(data: any, headers: any = null) {
-	
 		try {
-
 			const wishlist = new Wishlist();
 			wishlist.is_active = true;
 			wishlist.name = data.name;
 			wishlist.user_id = headers.loggeduserid;
 			wishlist.unique_id = this.genericUtil.getUniqueId();
-			
-			const checkUniqueness = await Wishlist.findOne({ user_id: headers.loggeduserid,name: data.name });
+
+			const checkUniqueness = await Wishlist.findOne({ user_id: headers.loggeduserid, name: data.name });
 			if (checkUniqueness) {
-			return new AppError(constants.MESSAGES.ERRORS.ALREADY_EXIST, null, 400);
+				return new AppError(constants.MESSAGES.ERRORS.ALREADY_EXIST, null, 400);
 			}
 
 			if (wishlist.products.length === 0) {
-				wishlist.products =[];
+				wishlist.products = [];
 			}
 			return await wishlist.save();
 		} catch (error) {
@@ -72,10 +70,12 @@ export class WishlistService extends BaseService {
 			if (data.name) {
 				wishlist.name = data.name;
 			}
-			if (data.productId) {
-				// Add the product ID to the wishlist if it's not already included
-				if (!wishlist.products.includes(data.productId)) {
-					wishlist.products.push(data.productId);
+			if (data.productId && data.productSkuName) {
+				// Add the product to the wishlist if it's not already included
+				const productExists = wishlist.products.some((product) => product.productId.toString() === data.productId.toString() && product.productSkuName === data.productSkuName);
+
+				if (!productExists) {
+					wishlist.products.push({ productId: data.productId, productSkuName: data.productSkuName });
 				}
 			}
 
@@ -99,9 +99,9 @@ export class WishlistService extends BaseService {
 			return Promise.reject(new AppError('Error deleting wishlist', error, 500));
 		}
 	}
-	async moveProduct(data: { productId: string; sourceWishlistId: string; destinationWishlistId: string }, headers: any = null) {
+	async moveProduct(data: { productId: string; productSkuName: string; sourceWishlistId: string; destinationWishlistId: string }, headers: any = null) {
 		try {
-			const { productId, sourceWishlistId, destinationWishlistId } = data;
+			const { productId, productSkuName, sourceWishlistId, destinationWishlistId } = data;
 
 			const sourceWishlist = await Wishlist.findById(sourceWishlistId);
 			const destinationWishlist = await Wishlist.findById(destinationWishlistId);
@@ -110,14 +110,18 @@ export class WishlistService extends BaseService {
 				return new AppError(constants.MESSAGES.ERRORS.NOT_FOUND, null, 404);
 			}
 
-			const existingProductIndex = destinationWishlist.products.findIndex((prod: mongoose.Types.ObjectId) => prod.toString() === productId.toString());
+			// Check if the product already exists in the destination wishlist
+			const existingProductIndex = destinationWishlist.products.findIndex((prod) => prod.productId.toString() === productId.toString() && prod.productSkuName === productSkuName);
 
 			if (existingProductIndex !== -1) {
-				return new AppError(constants.MESSAGES.ERRORS.CONFLICT, null, 404);
+				return new AppError(constants.MESSAGES.ERRORS.CONFLICT, null, 409);
 			}
 
-			const sourceProductIndex = sourceWishlist.products.findIndex((prod: mongoose.Types.ObjectId) => prod.toString() === productId.toString());
+			// Find the product in the source wishlist
+			const sourceProductIndex = sourceWishlist.products.findIndex((prod) => prod.productId.toString() === productId.toString() && prod.productSkuName === productSkuName);
+
 			if (sourceProductIndex !== -1) {
+				// Move the product from source to destination
 				const [movedProduct] = sourceWishlist.products.splice(sourceProductIndex, 1);
 				destinationWishlist.products.push(movedProduct);
 			} else {
@@ -127,20 +131,21 @@ export class WishlistService extends BaseService {
 			await sourceWishlist.save();
 			await destinationWishlist.save();
 
-			return { message: 'Product moved successfully', destinationWishlist, movedProduct: productId };
+			return { message: 'Product moved successfully', destinationWishlist, movedProduct: { productId, productSkuName } };
 		} catch (error) {
 			console.error(error);
 			return Promise.reject(new AppError('Error moving product between wishlists', error, 500));
 		}
 	}
-	async removeProduct(id: string, data: { productId: string }, headers: any) {
+
+	async removeProduct(id: string, data: { productId: string; productSkuName: string }, headers: any) {
 		try {
 			const wishlist = await Wishlist.findById(id);
 			if (!wishlist) {
 				throw new AppError(constants.MESSAGES.ERRORS.NOT_FOUND, null, 404);
 			}
 
-			const existingProductIndex = wishlist.products.findIndex((prod: mongoose.Types.ObjectId) => prod.toString() === data.productId.toString());
+			const existingProductIndex = wishlist.products.findIndex((prod) => prod.productId.toString() === data.productId.toString() && prod.productSkuName === data.productSkuName);
 
 			if (existingProductIndex !== -1) {
 				wishlist.products.splice(existingProductIndex, 1);
@@ -150,6 +155,7 @@ export class WishlistService extends BaseService {
 				throw new AppError(constants.MESSAGES.ERRORS.NOT_FOUND, null, 404);
 			}
 		} catch (error) {
+			console.error(error);
 			return Promise.reject(new AppError('Error removing product', error, 500));
 		}
 	}
