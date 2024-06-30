@@ -12,7 +12,7 @@ export class WishlistService extends BaseService {
 
 	async find(id: string, headers: any = null) {
 		try {
-			const wishlist = await Wishlist.findById(id);
+			const wishlist = await Wishlist.findById(id).populate('products.productId');
 			if (!wishlist) {
 				return Promise.reject(new AppError('wishlist not found', null, 404));
 			}
@@ -24,7 +24,7 @@ export class WishlistService extends BaseService {
 
 	async findAll(headers: any = null) {
 		try {
-			const wishlist = await Wishlist.find({ user_id: headers.loggeduserid }).populate('products');
+			const wishlist = await Wishlist.find({ user_id: headers.loggeduserid }).populate('products.productId');
 			console.log(wishlist);
 			return wishlist;
 		} catch (error) {
