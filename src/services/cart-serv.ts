@@ -10,6 +10,7 @@ export class CartService extends BaseService {
 
 	async find(headers: any = null) {
 		const userId = headers.loggeduserid;
+		console.log(userId);
 		try {
 			const cart = await Cart.findOne({ userId }).populate('items.productId');
 			if (!cart) {
