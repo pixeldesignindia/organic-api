@@ -505,6 +505,7 @@ export class ProductService {
 					user_id: 1,
 					category: 1,
 					is_active: 1,
+					isVerified: 1,
 					is_deleted: 1,
 					is_private: 1,
 					created_at: 1,
