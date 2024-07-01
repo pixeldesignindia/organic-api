@@ -87,10 +87,24 @@ export default class ProductController extends BaseController {
 		this.router.get(constants.API.V1 + constants.API.APP.PRODUCT + '/ratings/:id/:pageNumber/:pageSize', (req, res) => {
 			this.getRatings(req, res, this);
 		});
+		this.router.post(constants.API.V1 + constants.API.APP.PRODUCT + '/notVerified', (req, res) => {
+			this.getUnVerifiedProducts(req, res, this);
+		});
 	}
 
 	private getRecentProducts(req: Request, res: Response, that: any) {
 		that.service.getRecentProducts(req.body, req.headers).then(
+			(result: any) => {
+				that.responseUtil.sendReadResponse(req, res, result, 200);
+			},
+			(err: any) => {
+				LoggerUtil.log('error', { message: 'Error in getting recent products', location: 'product-ctrl => getRecentProducts', error: err });
+				that.responseUtil.sendFailureResponse(req, res, err, { fileName: 'product-ctrl', methodName: 'getRecentProducts' }, 200);
+			}
+		);
+	}
+	private getUnVerifiedProducts(req: Request, res: Response, that: any) {
+		that.service.getUnVerifiedProducts(req.body, req.headers).then(
 			(result: any) => {
 				that.responseUtil.sendReadResponse(req, res, result, 200);
 			},

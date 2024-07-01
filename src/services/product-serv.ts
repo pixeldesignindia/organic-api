@@ -293,6 +293,7 @@ export class ProductService {
 		let productDataToUpdate: any = {};
 		if (data.hasOwnProperty('name')) productDataToUpdate.name = data.name;
 		if (data.hasOwnProperty('is_active')) productDataToUpdate.is_active = data.is_active;
+		if (data.hasOwnProperty('isVerified')) productDataToUpdate.isVerified = data.isVerified;
 		if (data.hasOwnProperty('is_private')) productDataToUpdate.is_private = data.is_private;
 		if (data.hasOwnProperty('description')) productDataToUpdate.description = data.description;
 		if (data.hasOwnProperty('product_stage')) {
@@ -394,6 +395,7 @@ export class ProductService {
 
 	async filter(data: any, headers: any = null) {
 		let where: any = {};
+		where.isVerified = true;
 
 		let pageNumber = 1;
 		let pageSize = constants.MAX_PAGED_RECORDS_TO_LOAD;
@@ -424,6 +426,9 @@ export class ProductService {
 		if (data.user_id) {
 			where.user_id = new mongoose.Types.ObjectId(data.user_id);
 		}
+			if (data.hasOwnProperty('isVerified')) {
+				where.isVerified = false
+			}
 
 		let sort: any = { name: 1 };
 		if (data.latest) {
@@ -500,6 +505,7 @@ export class ProductService {
 					user_id: 1,
 					category: 1,
 					is_active: 1,
+					isVerified: 1,
 					is_deleted: 1,
 					is_private: 1,
 					created_at: 1,
@@ -568,6 +574,10 @@ export class ProductService {
 	async getRecentProducts(data: any, headers: any = null) {
 		data.latest = true;
 
+		return await this.filter(data, headers);
+	}
+	async getUnVerifiedProducts(data: any, headers: any){
+		data.isVerified = false;
 		return await this.filter(data, headers);
 	}
 
