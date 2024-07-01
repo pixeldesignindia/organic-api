@@ -460,6 +460,7 @@ async getVenderDashboard(id:any) {
             product: calculatePercentage(thisMonthProducts.length, lastMonthProducts.length),
             order: calculatePercentage(thisMonthOrders.length, lastMonthOrders.length),
         };
+		
 
         const revenue = allOrders.reduce((total, order) => total + (order.totalPrice || 0), 0);
 

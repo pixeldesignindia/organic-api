@@ -93,7 +93,7 @@ export class StatisticsController extends BaseController {
 		);
 	}
 	private getVenderDashboardRecord(req: Request, res: Response, that: any) {
-		that.service.getVenderDashboard(req.headers, req.params.id).then(
+		that.service.getVenderDashboard(req.params.id, req.headers).then(
 			(result: any) => {
 				that.responseUtil.sendUpdateResponse(req, res, result, 200);
 			},
