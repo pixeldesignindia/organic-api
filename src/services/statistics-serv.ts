@@ -6,6 +6,7 @@ import { Order } from '../models/order';
 import { BaseService } from './base-serv';
 import { calculatePercentage } from '../utils/helpers';
 import { Category } from '../models/category';
+import mongoose from 'mongoose';
 
 export class StatisticsService extends BaseService {
 	constructor() {
@@ -388,7 +389,7 @@ export class StatisticsService extends BaseService {
 				status: i.status,
 			}));
 
-			const stats:any = {
+			const stats: any = {
 				categoryCount,
 				changePercent,
 				count,
@@ -406,7 +407,103 @@ export class StatisticsService extends BaseService {
 			return stats;
 		} catch (err) {
 			console.error('Error in getDashboard:', err);
-			throw new AppError('Failed to fetch dashboard statistics',null, 500);
+			throw new AppError('Failed to fetch dashboard statistics', null, 500);
 		}
-	};
+	}
+async getVenderDashboard(id:any) {
+    try {
+	
+		
+        // Convert id to string
+        const userId = String(id);
+
+        const today = new Date();
+        const sixMonthsAgo = new Date(today.getFullYear(), today.getMonth() - 6, today.getDate());
+
+        const thisMonth = {
+            start: new Date(today.getFullYear(), today.getMonth(), 1),
+            end: today,
+        };
+
+        const lastMonth = {
+            start: new Date(today.getFullYear(), today.getMonth() - 1, 1),
+            end: new Date(today.getFullYear(), today.getMonth(), 0),
+        };
+
+        const [
+					thisMonthProducts,
+					lastMonthProducts,
+					thisMonthOrders,
+					lastMonthOrders,
+					productsCount,
+					allOrders,
+					lastSixMonthOrders,
+					latestTransaction,
+					categoryCount,
+				] = await Promise.all([
+					Product.find({ created_at: { $gte: thisMonth.start, $lte: thisMonth.end }, user_id:id }),
+					Product.find({ created_at: { $gte: lastMonth.start, $lte: lastMonth.end }, user_id: id}),
+					Order.find({ created_at: { $gte: thisMonth.start, $lte: thisMonth.end }, 'cart.user_id': userId }),
+					Order.find({ created_at: { $gte: lastMonth.start, $lte: lastMonth.end }, 'cart.user_id': userId }),
+					Product.countDocuments({user_id:userId}),
+					Order.find({ 'cart.user_id': userId }).select('totalPrice'),
+					Order.find({ created_at: { $gte: sixMonthsAgo, $lte: today }, 'cart.user_id': userId }),
+					Order.find({ 'cart.user_id': userId }).select(['cart', 'discount', 'totalPrice', 'status']).limit(4),
+					Category.countDocuments(),
+				]);
+
+        const thisMonthRevenue = thisMonthOrders.reduce((total, order) => total + (order.totalPrice || 0), 0);
+        const lastMonthRevenue = lastMonthOrders.reduce((total, order) => total + (order.totalPrice || 0), 0);
+
+        const changePercent = {
+            revenue: calculatePercentage(thisMonthRevenue, lastMonthRevenue),
+            product: calculatePercentage(thisMonthProducts.length, lastMonthProducts.length),
+            order: calculatePercentage(thisMonthOrders.length, lastMonthOrders.length),
+        };
+
+        const revenue = allOrders.reduce((total, order) => total + (order.totalPrice || 0), 0);
+
+        const count = {
+            revenue,
+            product: productsCount,
+            order: allOrders.length,
+        };
+
+        const orderMonthCounts = new Array(6).fill(0);
+        const orderMonthlyRevenue = new Array(6).fill(0);
+
+        lastSixMonthOrders.forEach((order) => {
+            const creationDate = new Date(order.created_at);
+            const monthDiff = (today.getFullYear() - creationDate.getFullYear()) * 12 + today.getMonth() - creationDate.getMonth();
+
+            if (monthDiff < 6) {
+                orderMonthCounts[5 - monthDiff] += 1;
+                orderMonthlyRevenue[5 - monthDiff] += order.totalPrice;
+            }
+        });
+
+        const modifiedLatestTransaction = latestTransaction.map((i) => ({
+            _id: i._id,
+            amount: i.totalPrice,
+            quantity: i.cart.length,
+            status: i.status,
+        }));
+
+        const stats: any = {
+            categoryCount,
+            changePercent,
+            count,
+            chart: {
+                order: orderMonthCounts,
+                revenue: orderMonthlyRevenue,
+            },
+            latestTransaction: modifiedLatestTransaction,
+        };
+
+        return stats;
+    } catch (err) {
+        console.error('Error in getDashboard:', err);
+        throw new AppError('Failed to fetch dashboard statistics', null, 500);
+    }
+}
 }
