@@ -81,7 +81,7 @@ export class StatisticsController extends BaseController {
 		);
 	}
 	private getDashboardRecord(req: Request, res: Response, that: any) {
-		that.service.getDashboard(req.headers, req.query).then(
+		that.service.getDashboard( req.body, req.headers).then(
 			(result: any) => {
 				that.responseUtil.sendUpdateResponse(req, res, result, 200);
 			},

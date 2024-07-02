@@ -290,49 +290,51 @@ export class StatisticsService extends BaseService {
 		}
 	}
 
-	async getDashboard(data: any) {
+	async getDashboard(date: any) {
 		try {
+
+
+			// Extract date if it's provided as an object
+			let specificDate;
+			if (date && date.date) {
+				specificDate = new Date(date.date);
+			} else if (date instanceof Date) {
+				specificDate = date;
+			}
+
 			const today = new Date();
-			const sixMonthsAgo = new Date(today.getFullYear(), today.getMonth() - 6, today.getDate());
+			const oneYearAgo = new Date(today.getFullYear() - 1, today.getMonth(), today.getDate());
 
-			const thisMonth = {
-				start: new Date(today.getFullYear(), today.getMonth(), 1),
-				end: today,
-			};
+			let thisMonthStart, thisMonthEnd;
+			let specificMonthStart, specificMonthEnd;
 
-			const lastMonth = {
-				start: new Date(today.getFullYear(), today.getMonth() - 1, 1),
-				end: new Date(today.getFullYear(), today.getMonth(), 0),
-			};
+			if (specificDate instanceof Date && !isNaN(specificDate.getTime())) {
+				// Specific date is provided
+				thisMonthStart = new Date(specificDate.getFullYear(), specificDate.getMonth(), 1);
+				thisMonthEnd = new Date(specificDate.getFullYear(), specificDate.getMonth() + 1, 0);
+				specificMonthStart = thisMonthStart;
+				specificMonthEnd = thisMonthEnd;
+			} else {
+				// Default to current month
+				thisMonthStart = new Date(today.getFullYear(), today.getMonth(), 1);
+				thisMonthEnd = today;
+				specificMonthStart = new Date(today.getFullYear(), today.getMonth(), 1);
+				specificMonthEnd = today;
+			}
 
-			const [
-				thisMonthProducts,
-				lastMonthProducts,
-				thisMonthUsers,
-				lastMonthUsers,
-				thisMonthOrders,
-				lastMonthOrders,
-				productsCount,
-				usersCount,
-				allOrders,
-				lastSixMonthOrders,
-				latestTransaction,
-				categoryCount,
-				userTypeCounts,
-			] = await Promise.all([
-				Product.find({ created_at: { $gte: thisMonth.start, $lte: thisMonth.end } }),
-				Product.find({ created_at: { $gte: lastMonth.start, $lte: lastMonth.end } }),
-				User.find({ created_at: { $gte: thisMonth.start, $lte: thisMonth.end } }),
-				User.find({ created_at: { $gte: lastMonth.start, $lte: lastMonth.end } }),
-				Order.find({ created_at: { $gte: thisMonth.start, $lte: thisMonth.end } }),
-				Order.find({ created_at: { $gte: lastMonth.start, $lte: lastMonth.end } }),
-				Product.countDocuments(),
-				User.countDocuments(),
-				Order.find({}).select('totalPrice'),
-				Order.find({ created_at: { $gte: sixMonthsAgo, $lte: today } }),
-				Order.find({}).select(['cart', 'discount', 'totalPrice', 'status']).limit(4),
+			const lastMonthStart = new Date(today.getFullYear(), today.getMonth() - 1, 1);
+			const lastMonthEnd = new Date(today.getFullYear(), today.getMonth(), 0);
+
+			const [thisMonthProducts, lastMonthProducts, thisMonthOrders, lastMonthOrders, productsCount, allOrders, lastTwelveMonthOrders, latestTransaction, categoryCount] = await Promise.all([
+				Product.find({ created_at: { $gte: thisMonthStart, $lte: thisMonthEnd }}),
+				Product.find({ created_at: { $gte: lastMonthStart, $lte: lastMonthEnd }}),
+				Order.find({ created_at: { $gte: thisMonthStart, $lte: thisMonthEnd }}),
+				Order.find({ created_at: { $gte: lastMonthStart, $lte: lastMonthEnd }}),
+				Product.countDocuments({isVerified: true}),
+				Order.find().select('totalPrice'),
+				Order.find({ created_at: { $gte: oneYearAgo, $lte: today }}),
+				Order.find().select(['cart', 'discount', 'totalPrice', 'status']).limit(4),
 				Category.countDocuments(),
-				User.aggregate([{ $group: { _id: '$user_type', count: { $sum: 1 } } }]),
 			]);
 
 			const thisMonthRevenue = thisMonthOrders.reduce((total, order) => total + (order.totalPrice || 0), 0);
@@ -341,7 +343,6 @@ export class StatisticsService extends BaseService {
 			const changePercent = {
 				revenue: calculatePercentage(thisMonthRevenue, lastMonthRevenue),
 				product: calculatePercentage(thisMonthProducts.length, lastMonthProducts.length),
-				user: calculatePercentage(thisMonthUsers.length, lastMonthUsers.length),
 				order: calculatePercentage(thisMonthOrders.length, lastMonthOrders.length),
 			};
 
@@ -350,37 +351,61 @@ export class StatisticsService extends BaseService {
 			const count = {
 				revenue,
 				product: productsCount,
-				user: usersCount,
 				order: allOrders.length,
 			};
 
-			const orderMonthCounts = new Array(6).fill(0);
-			const orderMonthlyRevenue = new Array(6).fill(0);
+			const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 
-			lastSixMonthOrders.forEach((order) => {
+			type OrdersByMonth = {
+				[monthYear: string]: {
+					month: string;
+					year: number;
+					orderCount: number;
+					revenue: number;
+				};
+			};
+
+			const ordersByMonth: OrdersByMonth = {};
+
+			lastTwelveMonthOrders.forEach((order) => {
 				const creationDate = new Date(order.created_at);
-				const monthDiff = (today.getFullYear() - creationDate.getFullYear()) * 12 + today.getMonth() - creationDate.getMonth();
+				const monthYear = `${creationDate.getFullYear()}-${creationDate.getMonth()}`;
 
-				if (monthDiff < 6) {
-					orderMonthCounts[5 - monthDiff] += 1;
-					orderMonthlyRevenue[5 - monthDiff] += order.totalPrice;
+				if (!ordersByMonth[monthYear]) {
+					ordersByMonth[monthYear] = {
+						month: months[creationDate.getMonth()],
+						year: creationDate.getFullYear(),
+						orderCount: 0,
+						revenue: 0,
+					};
 				}
+
+				ordersByMonth[monthYear].orderCount += 1;
+				ordersByMonth[monthYear].revenue += order.totalPrice;
 			});
 
-			let userCount = 0;
-			let vendorCount = 0;
+			// Ensure all months in the past year are represented
+			for (let i = 0; i < 12; i++) {
+				const date = new Date(today.getFullYear(), today.getMonth() - i, 1);
+				const monthYear = `${date.getFullYear()}-${date.getMonth()}`;
 
-			userTypeCounts.forEach((item) => {
-				if (item._id === 'User') {
-					userCount = item.count;
-				} else if (item._id === 'Vendor') {
-					vendorCount = item.count;
+				if (!ordersByMonth[monthYear]) {
+					ordersByMonth[monthYear] = {
+						month: months[date.getMonth()],
+						year: date.getFullYear(),
+						orderCount: 0,
+						revenue: 0,
+					};
 				}
-			});
+			}
 
-			const totalUsersAndVendors = userCount + vendorCount;
-			const userRatio = totalUsersAndVendors ? (userCount / totalUsersAndVendors) * 100 : 0;
-			const vendorRatio = totalUsersAndVendors ? (vendorCount / totalUsersAndVendors) * 100 : 0;
+			const chartData = Object.values(ordersByMonth)
+				.map((data) => ({
+					month: `${data.month} ${data.year}`,
+					order: data.orderCount,
+					revenue: data.revenue,
+				}))
+				.sort((a, b) => new Date(`${a.month} 1`).getTime() - new Date(`${b.month} 1`).getTime());
 
 			const modifiedLatestTransaction = latestTransaction.map((i) => ({
 				_id: i._id,
@@ -389,19 +414,49 @@ export class StatisticsService extends BaseService {
 				status: i.status,
 			}));
 
-			const stats: any = {
+			let specificMonthData: any[] = [];
+			if (specificDate instanceof Date && !isNaN(specificDate.getTime())) {
+				// Specific month data based on provided date
+				const specificMonthOrders = await Order.find({
+					created_at: { $gte: specificMonthStart, $lte: specificMonthEnd }
+				});
+
+				const specificMonthProducts = await Product.find({
+					created_at: { $gte: specificMonthStart, $lte: specificMonthEnd },
+					isVerified:true,
+				});
+
+				const daysInSpecificMonth = specificMonthEnd.getDate();
+				specificMonthData = Array.from({ length: daysInSpecificMonth }, (_, i) => {
+					const day = i + 1;
+					const dayDate = new Date(specificDate.getFullYear(), specificDate.getMonth(), day);
+					return {
+						day: dayDate.toISOString().slice(0, 10), // Format as YYYY-MM-DD
+						orderCount: 0,
+						revenue: 0,
+						productCount: 0,
+					};
+				});
+
+				specificMonthOrders.forEach((order) => {
+					const day = new Date(order.created_at).getDate() - 1;
+					specificMonthData[day].orderCount += 1;
+					specificMonthData[day].revenue += order.totalPrice;
+				});
+
+				specificMonthProducts.forEach((product) => {
+					const day = new Date(product.created_at).getDate() - 1;
+					specificMonthData[day].productCount += 1;
+				});
+			}
+
+			const stats = {
 				categoryCount,
 				changePercent,
 				count,
-				chart: {
-					order: orderMonthCounts,
-					revenue: orderMonthlyRevenue,
-				},
-				userRatio: {
-					user: userRatio,
-					vendor: vendorRatio,
-				},
+				chart: chartData,
 				latestTransaction: modifiedLatestTransaction,
+				specificMonthData,
 			};
 
 			return stats;
@@ -410,9 +465,9 @@ export class StatisticsService extends BaseService {
 			throw new AppError('Failed to fetch dashboard statistics', null, 500);
 		}
 	}
+
 async  getVenderDashboard(id: any, date?: any, headers:any=null) {
 	try {
-		console.log(date);
 		const userId = String(id);
 
 		// Extract date if it's provided as an object
@@ -448,9 +503,9 @@ async  getVenderDashboard(id: any, date?: any, headers:any=null) {
 
 		const [thisMonthProducts, lastMonthProducts, thisMonthOrders, lastMonthOrders, productsCount, allOrders, lastTwelveMonthOrders, latestTransaction, categoryCount] = await Promise.all([
 			Product.find({ created_at: { $gte: thisMonthStart, $lte: thisMonthEnd }, user_id: id }),
-			Product.find({ created_at: { $gte: lastMonthStart, $lte: lastMonthEnd }, user_id: id }),
-			Order.find({ created_at: { $gte: thisMonthStart, $lte: thisMonthEnd }, 'cart.user_id': userId }),
-			Order.find({ created_at: { $gte: lastMonthStart, $lte: lastMonthEnd }, 'cart.user_id': userId }),
+			Product.find({ created_at: { $gte: lastMonthStart, $lte: lastMonthEnd }}),
+			Order.find({ created_at: { $gte: thisMonthStart, $lte: thisMonthEnd }}),
+			Order.find({ created_at: { $gte: lastMonthStart, $lte: lastMonthEnd }}),
 			Product.countDocuments({ user_id: userId }),
 			Order.find({ 'cart.user_id': userId }).select('totalPrice'),
 			Order.find({ created_at: { $gte: oneYearAgo, $lte: today }, 'cart.user_id': userId }),
