@@ -10,7 +10,7 @@ interface ICoupon extends IBase {
 const couponSchema = new Schema({
 	discount: { type: Number, required: true },
 	expirationDate: { type: Date, required: true },
-	code: { type: String, required: true, unique: true },
+	code: { type: String, required: true },
 	category: {
 		type: mongoose.Schema.Types.ObjectId,
 		ref: 'Category',
@@ -20,7 +20,7 @@ const couponSchema = new Schema({
 	updated_at: { type: Date },
 	is_active: { type: Boolean },
 	is_deleted: { type: Boolean },
-	unique_id: { type: String, required: true },
+	unique_id: { type: String },
 });
 couponSchema.methods.isValid = function () {
 	return this.expirationDate > new Date();
