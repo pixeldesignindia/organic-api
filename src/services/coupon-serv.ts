@@ -16,6 +16,7 @@ export class CouponService extends BaseService {
 			}
 			if (coupon.expirationDate <= new Date()) {
 				coupon.is_active = false;
+				coupon.is_deleted= true;
 				await coupon.save();
 				return new AppError('Coupon is expired', null, 400);
 			}
@@ -30,7 +31,7 @@ export class CouponService extends BaseService {
 			return await Coupon.find().sort({ created_at: 1 });
 		} catch (error) {
 			console.log(error);
-			return new AppError('Failed to get coupon', null, 400);
+			return new AppError('Failed to get all coupon', null, 400);
 		}
 	}
 	async store(data: any, headers: any) {
