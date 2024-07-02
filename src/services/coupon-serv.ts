@@ -10,9 +10,9 @@ export class CouponService extends BaseService {
 
 	async find(data: any, headers: any = null) {
 		try {
-			const coupon = await Coupon.findOne({ code: data.code, is_deleted: false });
+			const coupon = await Coupon.findOne({ code: data.code, is_active: true });
 			if (!coupon) {
-				return new AppError('Cart not found', null, 404);
+				return new AppError('Coupon not found', null, 404);
 			}
 			if (coupon.expirationDate <= new Date()) {
 				coupon.is_active = false;
@@ -83,7 +83,7 @@ export class CouponService extends BaseService {
 	}
 	async findByCategory(categoryId: string): Promise<ICoupon[]> {
 		try {
-			const coupons = await Coupon.find({ category: categoryId, is_deleted: false }).exec();
+			const coupons = await Coupon.find({ category: categoryId, is_active: true }).exec();
 			return coupons;
 		} catch (error) {
 			console.error('Error finding coupons by category:', error);

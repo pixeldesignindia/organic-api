@@ -565,7 +565,7 @@ export class UserService {
         if (data.user_type)
             where.user_type = data.user_type;
         else
-            where.user_type = { '$in': [constants.USER_TYPES.ADMINISTRATOR, constants.USER_TYPES.USER] };
+            where.user_type = { '$in': [constants.USER_TYPES.ADMINISTRATOR, constants.USER_TYPES.USER,] };
 
         return await User.find(where);
     }
