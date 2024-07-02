@@ -82,8 +82,8 @@ export default class CouponController extends BaseController {
 	}
 
 	private updateRecord(req: Request, res: Response, that: any) {
-		const { code, updates } = req.body;
-		that.service.updateCoupon(code, updates).then(
+		const { id, updates } = req.body;
+		that.service.updateCoupon(id, updates).then(
 			(result: any) => {
 				that.responseUtil.sendReadResponse(req, res, result, 200);
 			},

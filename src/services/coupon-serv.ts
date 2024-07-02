@@ -54,9 +54,9 @@ export class CouponService extends BaseService {
 			throw new Error('Failed to check coupon expiration');
 		}
 	}
-	async updateCoupon(code: string, updates: Partial<ICoupon>): Promise<ICoupon | AppError> {
+	async updateCoupon(id: string, updates: Partial<ICoupon>): Promise<ICoupon | AppError> {
 		try {
-			const coupon = await Coupon.findOne({ code, is_deleted: false }).exec();
+			const coupon = await Coupon.findById(id).exec();
 			if (!coupon) {
 				return new AppError('Coupon not found', null, 404);
 			}
