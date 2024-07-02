@@ -130,6 +130,7 @@ class App {
 					'login',
 					'search',
 					'status',
+                    'coupon',
 					'verify',
 					'register',
 					'category',

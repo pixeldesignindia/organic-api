@@ -8,9 +8,14 @@ interface ICoupon extends IBase {
 }
 
 const couponSchema = new Schema({
-    discount: { type: Number, required: true },
+	discount: { type: Number, required: true },
 	expirationDate: { type: Date, required: true },
 	code: { type: String, required: true, unique: true },
+	category: {
+		type: mongoose.Schema.Types.ObjectId,
+		ref: 'Category',
+	},
+
 	created_at: { type: Date },
 	updated_at: { type: Date },
 	is_active: { type: Boolean },
