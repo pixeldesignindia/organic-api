@@ -58,7 +58,7 @@ export default class CouponController extends BaseController {
 	}
 
 	private findAllRecord(req: Request, res: Response, that: any) {
-		that.service.find(req.params.id, req.headers).then(
+		that.service.findAll(req.headers).then(
 			(result: any) => {
 				that.responseUtil.sendReadResponse(req, res, result, 200);
 			},
