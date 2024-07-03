@@ -4,16 +4,24 @@ interface ICoupon extends IBase {
 	code: string;
 	discount: number;
 	expirationDate: Date;
+	minimumPurchased: number;
+	category: mongoose.Schema.Types.ObjectId;
+	productId: mongoose.Schema.Types.ObjectId;
 	isValid: () => boolean;
 }
 
 const couponSchema = new Schema({
 	discount: { type: Number, required: true },
+	minimumPurchased: { type: Number, required: true },
 	expirationDate: { type: Date, required: true },
 	code: { type: String, required: true },
 	category: {
 		type: mongoose.Schema.Types.ObjectId,
 		ref: 'Category',
+	},
+	productId:{
+		type: mongoose.Schema.Types.ObjectId,
+		ref: 'Product',
 	},
 
 	created_at: { type: Date },

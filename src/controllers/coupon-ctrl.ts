@@ -11,7 +11,6 @@ export default class CouponController extends BaseController {
 		this.initializeRoutes();
 	}
 
-
 	public initializeRoutes() {
 		this.router.post(constants.API.V1 + constants.API.APP.COUPON, (req, res) => {
 			this.storeRecord(req, res, this);
@@ -30,6 +29,9 @@ export default class CouponController extends BaseController {
 		});
 		this.router.get(constants.API.V1 + constants.API.APP.COUPON + '/category/:categoryId', (req, res) => {
 			this.findByCategory(req, res, this);
+		});
+		this.router.get(constants.API.V1 + constants.API.APP.COUPON + '/product/:productId', (req, res) => {
+			this.findByProduct(req, res, this);
 		});
 	}
 
@@ -103,6 +105,17 @@ export default class CouponController extends BaseController {
 			(err: any) => {
 				LoggerUtil.log('error', { message: 'Error in finding coupons by category', location: 'coupon-ctrl => findByCategory', error: err });
 				that.responseUtil.sendFailureResponse(req, res, err, { fileName: 'coupon-ctrl', methodName: 'findByCategory' }, 200);
+			}
+		);
+	}
+	private findByProduct(req: Request, res: Response, that: any) {
+		that.service.findByCategory(req.params.productId).then(
+			(result: any) => {
+				that.responseUtil.sendReadResponse(req, res, result, 200);
+			},
+			(err: any) => {
+				LoggerUtil.log('error', { message: 'Error in finding coupons by product', location: 'coupon-ctrl => findByProduct', error: err });
+				that.responseUtil.sendFailureResponse(req, res, err, { fileName: 'coupon-ctrl', methodName: 'findByProduct' }, 200);
 			}
 		);
 	}
