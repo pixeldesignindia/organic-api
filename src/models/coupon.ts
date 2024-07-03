@@ -4,6 +4,8 @@ interface ICoupon extends IBase {
 	code: string;
 	discount: number;
 	expirationDate: Date;
+	category: mongoose.Schema.Types.ObjectId;
+	productId: mongoose.Schema.Types.ObjectId;
 	isValid: () => boolean;
 }
 
@@ -14,6 +16,10 @@ const couponSchema = new Schema({
 	category: {
 		type: mongoose.Schema.Types.ObjectId,
 		ref: 'Category',
+	},
+	productId:{
+		type: mongoose.Schema.Types.ObjectId,
+		ref: 'Product',
 	},
 
 	created_at: { type: Date },

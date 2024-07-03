@@ -16,7 +16,7 @@ export class CouponService extends BaseService {
 			}
 			if (coupon.expirationDate <= new Date()) {
 				coupon.is_active = false;
-				coupon.is_deleted= true;
+				coupon.is_deleted = true;
 				await coupon.save();
 				return new AppError('Coupon is expired', null, 400);
 			}
@@ -89,6 +89,15 @@ export class CouponService extends BaseService {
 		} catch (error) {
 			console.error('Error finding coupons by category:', error);
 			throw new Error('Failed to find coupons by category');
+		}
+	}
+	async findByProduct(productId: string): Promise<ICoupon[]> {
+		try {
+			const coupons = await Coupon.find({ productId: productId, is_active: true }).exec();
+			return coupons;
+		} catch (error) {
+			console.error('Error finding coupons by product:', error);
+			throw new Error('Failed to find coupons by product');
 		}
 	}
 }
