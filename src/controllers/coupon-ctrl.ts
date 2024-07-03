@@ -109,7 +109,7 @@ export default class CouponController extends BaseController {
 		);
 	}
 	private findByProduct(req: Request, res: Response, that: any) {
-		that.service.findByCategory(req.params.productId).then(
+		that.service.findByProduct(req.params.productId).then(
 			(result: any) => {
 				that.responseUtil.sendReadResponse(req, res, result, 200);
 			},

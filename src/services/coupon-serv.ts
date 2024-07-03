@@ -93,8 +93,8 @@ export class CouponService extends BaseService {
 	}
 	async findByProduct(productId: string): Promise<ICoupon[]> {
 		try {
-			const coupons = await Coupon.find({ productId: productId, is_active: true }).exec();
-			return coupons;
+			return await Coupon.findOne({ productId: productId, is_active: true })
+			
 		} catch (error) {
 			console.error('Error finding coupons by product:', error);
 			throw new Error('Failed to find coupons by product');
