@@ -4,16 +4,18 @@ export interface IConfiguration extends IBase {
 	cgst: number;
 	sgst: number;
 	codLimit: number;
+	shippingCost: number;
 	cartQuantityPerOrder: number;
 	productLimitPerOrder: number;
 }
 
 const configurationSchema = new Schema({
-	cgst: { type: Number, required: true },
-	sgst: { type: Number, required: true },
-	codLimit: { type: Number, required: true },
-	cartQuantityPerOrder: { type: Number, required: true },
-	productLimitPerOrder: { type: Number, required: true },
+	cgst: { type: Number },
+	sgst: { type: Number },
+	codLimit: { type: Number },
+	shippingCost:{ type: Number},
+	cartQuantityPerOrder: { type: Number },
+	productLimitPerOrder: { type: Number },
 
 	created_at: { type: Date },
 	updated_at: { type: Date },
