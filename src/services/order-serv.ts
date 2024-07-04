@@ -148,7 +148,7 @@ export class OrderService extends BaseService {
 
 	async updateProductStockService(data:any, quantity: number) {
 try {
-        const product = await Product.findById(data.productId);
+        const product = await Product.findById(data.productId).populate('cart.productId');
 
         if (!product) {
             throw new AppError('Product not found with this id', null, 404);
@@ -194,7 +194,7 @@ try {
 	}
 	async find(id: string, headers: any) {
 		try {
-			const order = await Order.findById(id);
+			const order = await Order.findById(id).populate('cart.productId');
 			if (!order) {
 				return { success: false, message: 'Order not found' };
 			}
