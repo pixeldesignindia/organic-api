@@ -22,6 +22,7 @@ import CategoryController from './controllers/category-ctrl';
 import wishlistController from './controllers/wishlist-cntrl';
 import StatisticsController from './controllers/statistics-cntrl';
 import RegistrationController from './controllers/registration-ctrl';
+import ConfigurationController from './controllers/admin-config-ctrl';
 
 
 const app = new App(
@@ -44,7 +45,8 @@ const app = new App(
         new CategoryController(),
         new wishlistController(),
         new StatisticsController(),
-        new RegistrationController()
+        new RegistrationController(),
+        new ConfigurationController()
     ]
 );
 

@@ -35,6 +35,7 @@ const constants: any = {
 			CART: '/cart',
 			ORDER: '/order',
 			LOGIN: '/login',
+			CONFIG: '/config',
 			SEARCH: '/search',
 			STATUS: '/status',
 			COUPON:	'/coupon',
