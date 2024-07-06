@@ -133,7 +133,12 @@ export class OrderService extends BaseService {
 			if (data.newStatus === 'Delivered') {
 				order.deliveredAt = new Date();
 				order.paymentInfo.status = 'Succeeded';
-				const serviceCharge = order.totalPrice * 0.1;
+				let serviceCharge
+				if(data.percentage){
+				serviceCharge = order.totalPrice * data.percentage;
+				}else{
+                serviceCharge = order.totalPrice * 0.1;
+                }
 				await this.updateVendorBalanceService(order.user_id, order.totalPrice - serviceCharge);
 			}
 
