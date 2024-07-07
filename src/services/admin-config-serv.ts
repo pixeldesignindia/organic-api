@@ -41,6 +41,7 @@ export class ConfigurationService extends BaseService {
 			if (updates.sgst !== undefined) config.sgst = updates.sgst;
 			if (updates.codLimit !== undefined) config.codLimit = updates.codLimit;
             if (updates.shippingCost !== undefined) config.shippingCost = updates.shippingCost ;
+			if (updates.profitPercent !== undefined) config.profitPercent = updates.profitPercent;
 			if (updates.cartQuantityPerOrder !== undefined) config.cartQuantityPerOrder = updates.cartQuantityPerOrder;
 			if (updates.productLimitPerOrder !== undefined) config.productLimitPerOrder = updates.productLimitPerOrder;
 

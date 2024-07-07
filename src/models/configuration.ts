@@ -5,6 +5,7 @@ export interface IConfiguration extends IBase {
 	sgst: number;
 	codLimit: number;
 	shippingCost: number;
+	profitPercent: number;
 	cartQuantityPerOrder: number;
 	productLimitPerOrder: number;
 }
@@ -14,6 +15,9 @@ const configurationSchema = new Schema({
 	sgst: { type: Number },
 	codLimit: { type: Number },
 	shippingCost:{ type: Number},
+	profitPercent:{
+		type : Number,
+	},
 	cartQuantityPerOrder: { type: Number },
 	productLimitPerOrder: { type: Number },
 
