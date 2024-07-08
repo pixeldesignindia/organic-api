@@ -44,10 +44,10 @@ interface IOrder extends IBase {
 	is_active: boolean;
 	totalPrice: number;
 	is_deleted: boolean;
-	shippingCharge:number;
+	shippingCharge: number;
 	paymentInfo: PaymentInfo;
 	shippingAddress: ShippingAddress;
-
+	delivery_partner_id: string;
 }
 
 const OrderSchema = new Schema({
@@ -94,6 +94,7 @@ const OrderSchema = new Schema({
 	totalPrice: { type: Number, required: true },
 	shippingCharge: { type: Number, default: 0 },
 	created_at: { type: Date, default: Date.now() },
+	delivery_partner_id:{type: Schema.Types.ObjectId,ref: 'User'},
 });
 
 const Order = mongoose.model<IOrder>('Order', OrderSchema);

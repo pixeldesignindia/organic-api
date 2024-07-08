@@ -32,6 +32,10 @@ export class VenderController extends BaseController {
 		this.router.post(constants.API.V1 + constants.API.APP.VENDER + '/check', (req, res) => {
 			this.checkStatusRecord(req, res, this);
 		});
+
+		this.router.get(constants.API.V1 + constants.API.APP.VENDER + '/user/:id', (req, res) => {
+			this.findOneRecords(req, res, this);
+		});
 	}
 
 	private createRecord(req: Request, res: Response, that: any) {
@@ -54,6 +58,17 @@ export class VenderController extends BaseController {
 			},
 			(err: any) => {
 				LoggerUtil.log('error', { message: 'Error in filtering roles', location: 'crud-ctrl => filter', data: err });
+				that.responseUtil.sendFailureResponse(req, res, err, { fileName: 'crud-ctrl', methodName: 'filter' }, 200);
+			}
+		);
+	}
+	private findOneRecords(req: Request, res: Response, that: any) {
+		that.service.find(req.params.id, req.headers).then(
+			(result: any) => {
+				that.responseUtil.sendReadResponse(req, res, result, 200);
+			},
+			(err: any) => {
+				LoggerUtil.log('error', { message: 'Error in filtering roles', location: 'vendor-ctrl => findOne', data: err });
 				that.responseUtil.sendFailureResponse(req, res, err, { fileName: 'crud-ctrl', methodName: 'filter' }, 200);
 			}
 		);
