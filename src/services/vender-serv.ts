@@ -22,27 +22,38 @@ export class VenderService extends BaseService {
 			return Promise.reject(new AppError('Error finding category', error, 500));
 		}
 	}
-
-	async findAll( data:any, headers: any = null) {
-          const { queryPageIndex = 1, queryPageSize = constants.MAX_PAGED_RECORDS_TO_LOAD, queryPageFilter, queryPageSortBy = [{ id: '_id', desc: false }] } = data;
-		    let where: any = {};
-            let sortBy: any= queryPageSortBy[0].id;
-			let sortOrder :any= queryPageSortBy[0].desc ? -1 : 1;
-            if (queryPageFilter) {
-								let searchRegex = new RegExp(queryPageFilter, 'i');
-										where = {
-											$or: [{ firm_name: searchRegex }],
-										};
-								}
+	async findByUserId(id: string, headers: any = null) {
 		try {
-			    let getVenders;
+			const vender = await Vender.findOne({user_id:id}).populate('user_id');
+			if (!vender) {
+				return Promise.reject(new AppError('vender not found', null, 404));
+			}
+			return vender;
+		} catch (error) {
+			return Promise.reject(new AppError('Error finding category', error, 500));
+		}
+	}
 
-					getVenders = await Vender.find(where)
-						.populate('user_id')
-						.sort({ [sortBy]: sortOrder })
-						.limit(parseInt(queryPageSize))
-						.skip((parseInt(queryPageIndex) - 1) * parseInt(queryPageSize))
-						.exec();
+	async findAll(data: any, headers: any = null) {
+		const { queryPageIndex = 1, queryPageSize = constants.MAX_PAGED_RECORDS_TO_LOAD, queryPageFilter, queryPageSortBy = [{ id: '_id', desc: false }] } = data;
+		let where: any = {};
+		let sortBy: any = queryPageSortBy[0].id;
+		let sortOrder: any = queryPageSortBy[0].desc ? -1 : 1;
+		if (queryPageFilter) {
+			let searchRegex = new RegExp(queryPageFilter, 'i');
+			where = {
+				$or: [{ firm_name: searchRegex }],
+			};
+		}
+		try {
+			let getVenders;
+
+			getVenders = await Vender.find(where)
+				.populate('user_id')
+				.sort({ [sortBy]: sortOrder })
+				.limit(parseInt(queryPageSize))
+				.skip((parseInt(queryPageIndex) - 1) * parseInt(queryPageSize))
+				.exec();
 			return getVenders;
 		} catch (error) {
 			return Promise.reject(new AppError('Error finding vender', error, 500));
@@ -51,18 +62,18 @@ export class VenderService extends BaseService {
 	async applyVender(data: any, headers: any = null) {
 		try {
 			const vender = new Vender();
-            vender.GST = data.GST;
+			vender.GST = data.GST;
 			vender.is_active = true;
-            vender.city = data.city;
-            vender.state = data.state;
-            vender.phone = data.phone;
-            vender.email = data.email;
-            vender.country =data.country;
-            vender.pinCode = data.pinCode;
+			vender.city = data.city;
+			vender.state = data.state;
+			vender.phone = data.phone;
+			vender.email = data.email;
+			vender.country = data.country;
+			vender.pinCode = data.pinCode;
 			vender.firm_name = data.firm_name;
-            vender.created_at = data.created_at;
+			vender.created_at = data.created_at;
 			vender.user_id = headers.loggeduserid;
-            vender.firm_address = data.firm_address;
+			vender.firm_address = data.firm_address;
 			vender.unique_id = this.genericUtil.getUniqueId();
 			const checkUniqueness = await Vender.findOne({ firm_name: data.firm_name });
 			if (checkUniqueness) {
@@ -81,19 +92,18 @@ export class VenderService extends BaseService {
 				throw new AppError('Invalid input data', null, 400);
 			}
 
-			const  vender= await Vender.findById(id);
+			const vender = await Vender.findById(id);
 			if (!vender) {
 				return new AppError(constants.MESSAGES.ERRORS.NOT_FOUND, null, 404);
 			}
 
-			 if (data.status === 'SUCCESS') {
-					await User.findOneAndUpdate({ _id: vender.user_id }, { user_type: constants.USER_TYPES.VENDER }, { new: true });
-				} else if (data.status === 'REJECTED') {
-					await User.findOneAndUpdate({ _id: vender.user_id }, {user_type :constants.USER_TYPES.USER }, { new: true });
-				}
+			if (data.status === 'SUCCESS') {
+				await User.findOneAndUpdate({ _id: vender.user_id }, { user_type: constants.USER_TYPES.VENDER }, { new: true });
+			} else if (data.status === 'REJECTED') {
+				await User.findOneAndUpdate({ _id: vender.user_id }, { user_type: constants.USER_TYPES.USER }, { new: true });
+			}
 
-				await Vender.findByIdAndUpdate({ _id:id}, { status: data.status }, { new: true });
-
+			await Vender.findByIdAndUpdate({ _id: id }, { status: data.status }, { new: true });
 
 			return vender;
 		} catch (error) {
@@ -102,7 +112,7 @@ export class VenderService extends BaseService {
 		}
 	}
 
-	async checkStatus( headers: any = null) {
+	async checkStatus(headers: any = null) {
 		try {
 			const applyDetails = await Vender.findOne({ user_id: headers.loggeduserid }).select({ status: 1, id: 1 });
 			if (!applyDetails) {
@@ -110,7 +120,7 @@ export class VenderService extends BaseService {
 			}
 			return applyDetails;
 		} catch (error) {
-			console.log(error)
+			console.log(error);
 			return Promise.reject(new AppError('Error checking vendor status', error, 500));
 		}
 	}

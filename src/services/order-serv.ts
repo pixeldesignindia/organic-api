@@ -221,4 +221,16 @@ try {
 			return { success: false, message: error.message || 'Failed to fetch address' };
 		}
 	}
+
+	async assignOrder (data:any, headers: any) {
+		try {
+            const order = await Order.findByIdAndUpdate(data.orderId, { delivery_partner_id: data.deliveryPartnerId }, { new: true });
+            if (!order) {
+                return { success: false, message: 'Order not found' };
+            }
+            return { success: true, order };
+        } catch (error) {
+            return { success: false, message: error.message || 'Failed to update order' };
+        }
+	}
 }
