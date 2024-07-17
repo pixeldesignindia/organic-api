@@ -85,16 +85,18 @@ export class ProductService {
 				},
 				{
 					$project: {
+						skus: 1,
 						name: 1,
+						liked: 1,
+						isGlobal:1,
 						category: 1,
 						is_active: 1,
 						is_deleted: 1,
 						is_private: 1,
 						created_at: 1,
-						description: 1,
-						skus: 1,
-						liked: 1,
 						bookmarked: 1,
+						description: 1,
+						availablePinCode:1,
 						// Filter nested arrays where is_active is true
 						images: {
 							$filter: {
@@ -201,7 +203,7 @@ export class ProductService {
 
 		if (data.skus && Array.isArray(data.skus) && data.skus.length > 0) {
 			product.skus = data.skus.map((skuData: any) => ({
-				name: skuData.name ,
+				name: skuData.name,
 				originalPrice: skuData.originalPrice,
 				discountPrice: skuData.discountPrice,
 				size: skuData.size,
@@ -212,6 +214,19 @@ export class ProductService {
 				message: constants.MESSAGES.ERRORS.NOT_FOUND,
 			});
 		}
+
+		if (data.availablePinCode === 'AllPinCode') {
+			product.isGlobal = true;
+			product.availablePinCode = [];
+		} else if (Array.isArray(data.availablePinCode)) {
+			product.isGlobal = false;
+			product.availablePinCode = data.availablePinCode;
+		} else {
+			return Promise.reject({
+				message: 'Invalid available pin code data',
+			});
+		}
+
 		product.images = [];
 		product.is_active = true;
 		product.name = data.name;
@@ -277,6 +292,17 @@ export class ProductService {
 					}
 				});
 			}
+			 if (data.availablePinCode === 'AllPinCode') {
+					productDataToUpdate.isGlobal = true;
+					productDataToUpdate.availablePinCode = [];
+				} else if (Array.isArray(data.availablePinCode)) {
+					productDataToUpdate.isGlobal = false;
+					productDataToUpdate.availablePinCode = data.availablePinCode;
+				} else if (data.hasOwnProperty('availablePinCode')) {
+					return Promise.reject({
+						message: 'Invalid available pin code data',
+					});
+				}
 
 			await Product.updateOne({ _id: new mongoose.Types.ObjectId(id) }, productDataToUpdate);
 			return {
@@ -426,9 +452,9 @@ export class ProductService {
 		if (data.user_id) {
 			where.user_id = new mongoose.Types.ObjectId(data.user_id);
 		}
-			if (data.hasOwnProperty('isVerified')) {
-				where.isVerified = false
-			}
+		if (data.hasOwnProperty('isVerified')) {
+			where.isVerified = false;
+		}
 
 		let sort: any = { name: 1 };
 		if (data.latest) {
@@ -501,8 +527,9 @@ export class ProductService {
 				$project: {
 					// Specify fields to include
 					name: 1,
-					skus:1, // Example: Including the product name
+					skus: 1, // Example: Including the product name
 					user_id: 1,
+					isGlobal:1,
 					category: 1,
 					is_active: 1,
 					isVerified: 1,
@@ -576,7 +603,7 @@ export class ProductService {
 
 		return await this.filter(data, headers);
 	}
-	async getUnVerifiedProducts(data: any, headers: any){
+	async getUnVerifiedProducts(data: any, headers: any) {
 		data.isVerified = false;
 		return await this.filter(data, headers);
 	}
