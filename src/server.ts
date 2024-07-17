@@ -2,9 +2,9 @@ const mongoose = require('mongoose');
 
 import App from './app';
 import config from './config/app-config';
-
 import CDNController from './controllers/cdn-ctrl';
 import LogController from './controllers/log-ctrl';
+import AuthController from './controllers/auth-ctrl';
 import CrudController from './controllers/crud-ctrl';
 import RoleController from './controllers/role-ctrl';
 import CartController from './controllers/cart-ctrl';
@@ -33,6 +33,7 @@ const app = new App(
         new RoleController(),
         new CartController(),
         new UserController(),
+        new AuthController(),
         new LoginController(),
         new OrderController(),
         new VenderController(),
