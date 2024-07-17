@@ -24,7 +24,7 @@ export class StatisticsController extends BaseController {
 		this.router.get(constants.API.V1 + constants.API.APP.STATISTICS + '/business', (req, res) => {
 			this.getBusinessRecord(req, res, this);
 		});
-		this.router.get(constants.API.V1 + constants.API.APP.STATISTICS + '/dashboard', (req, res) => {
+		this.router.post(constants.API.V1 + constants.API.APP.STATISTICS + '/dashboard', (req, res) => {
 			this.getDashboardRecord(req, res, this);
 		});
 		this.router.get(constants.API.V1 + constants.API.APP.STATISTICS + '/venderDashboard/:id', (req, res) => {

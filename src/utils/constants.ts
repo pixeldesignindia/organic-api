@@ -31,6 +31,7 @@ const constants: any = {
 			CDN: '/cdn',
 			LOG: '/log',
 			ROLE: '/role',
+			AUTH: '/auth',
 			USER: '/user',
 			CART: '/cart',
 			ORDER: '/order',

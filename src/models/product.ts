@@ -51,8 +51,10 @@ interface IProduct extends IBase {
 	name: string;
 	user_id: string;
 	made_for: string;
+	isGlobal:boolean;
 	category: string;
 	description: string;
+	availablePinCode: [];
 	product_image_name: string;
 	product_image_saved_name: string;
 
@@ -66,7 +68,7 @@ interface IProduct extends IBase {
 
 	slip: string;
 	template: string;
-	skus:ISku[],
+	skus: ISku[];
 	tags: ITag[];
 	likes: ILike[];
 	ratings: IRating[];
@@ -199,6 +201,13 @@ const ProductSchema = new Schema({
 		type: Boolean,
 		default: false,
 	},
+	availablePinCode:[
+			{type:String}
+		],
+		isGlobal:{
+			type: Boolean,
+            default: false,
+		},
 	skus: [
 		{
 			name:{
@@ -223,6 +232,7 @@ const ProductSchema = new Schema({
 			updated_at: { type: Date },
 			is_deleted: { type: Boolean },
 		},
+		
 	],
 
 	tags: [TagSchema],
