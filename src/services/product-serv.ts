@@ -215,7 +215,7 @@ export class ProductService {
 			});
 		}
 
-		if (data.availablePinCode === 'AllPinCodes') {
+		if (data.availablePinCode.length ===0) {
 			product.isGlobal = true;
 			product.availablePinCode = [];
 		} else if (Array.isArray(data.availablePinCode)) {
@@ -292,7 +292,7 @@ export class ProductService {
 					}
 				});
 			}
-			if (data.availablePinCode === 'AllPinCodes') {
+			if (data.availablePinCode.length=== 0) {
 				productDataToUpdate.isGlobal = true;
 				productDataToUpdate.availablePinCode = [];
 			} else if (Array.isArray(data.availablePinCode)) {
