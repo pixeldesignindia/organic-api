@@ -292,8 +292,14 @@ export class ProductService {
 					}
 				});
 			}
-		    if (Array.isArray(data.availablePinCode)) {
+		   if (!Array.isArray(product.availablePinCode)) {
+					product.availablePinCode = [];
+				}
+
+				if (Array.isArray(data.availablePinCode)) {
+					console.log(data.availablePinCode);
 					if (data.availablePinCode.length === 0) {
+						console.log(true);
 						productDataToUpdate.isGlobal = true;
 						productDataToUpdate.availablePinCode = [];
 					} else {
@@ -311,7 +317,6 @@ export class ProductService {
 						message: 'Invalid available pin code data',
 					});
 				}
-
 
 			await Product.updateOne({ _id: new mongoose.Types.ObjectId(id) }, productDataToUpdate);
 			return {
@@ -538,7 +543,8 @@ export class ProductService {
 					name: 1,
 					skus: 1, // Example: Including the product name
 					user_id: 1,
-					isGlobal:1,
+
+					isGlobal: 1,
 					category: 1,
 					is_active: 1,
 					isVerified: 1,
@@ -546,6 +552,8 @@ export class ProductService {
 					is_private: 1,
 					created_at: 1,
 					description: 1,
+					availablePinCode: 1,
+
 					liked: 1,
 					bookmarked: 1,
 					// Filter nested arrays where is_active is true
