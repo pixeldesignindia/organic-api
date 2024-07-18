@@ -215,7 +215,7 @@ export class ProductService {
 			});
 		}
 
-		if (data.availablePinCode === 'AllPinCode') {
+		if (data.availablePinCode.length ===0) {
 			product.isGlobal = true;
 			product.availablePinCode = [];
 		} else if (Array.isArray(data.availablePinCode)) {
@@ -292,17 +292,24 @@ export class ProductService {
 					}
 				});
 			}
-			 if (data.availablePinCode === 'AllPinCode') {
-					productDataToUpdate.isGlobal = true;
-					productDataToUpdate.availablePinCode = [];
-				} else if (Array.isArray(data.availablePinCode)) {
-					productDataToUpdate.isGlobal = false;
-					productDataToUpdate.availablePinCode = data.availablePinCode;
-				} else if (data.hasOwnProperty('availablePinCode')) {
-					return Promise.reject({
-						message: 'Invalid available pin code data',
-					});
-				}
+			if (data.availablePinCode.length=== 0) {
+				productDataToUpdate.isGlobal = true;
+				productDataToUpdate.availablePinCode = [];
+			} else if (Array.isArray(data.availablePinCode)) {
+				productDataToUpdate.isGlobal = false;
+				const uniquePinCodes = [...new Set(data.availablePinCode)];
+				productDataToUpdate.availablePinCode = product.availablePinCode.filter((pincode: string) => uniquePinCodes.includes(pincode));
+				uniquePinCodes.forEach((pincode: string) => {
+					if (!productDataToUpdate.availablePinCode.includes(pincode)) {
+						productDataToUpdate.availablePinCode.push(pincode);
+					}
+				});
+			} else if (data.hasOwnProperty('availablePinCode')) {
+				return Promise.reject({
+					message: 'Invalid available pin code data',
+				});
+			}
+
 
 			await Product.updateOne({ _id: new mongoose.Types.ObjectId(id) }, productDataToUpdate);
 			return {
