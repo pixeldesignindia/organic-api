@@ -238,4 +238,16 @@ try {
             return { success: false, message: error.message || 'Failed to update order' };
         }
 	}
+	async deliveredOrder (data:any, headers: any) {
+		try {
+            const order = await Order.findByIdAndUpdate(data.orderId, { deliveredBy:data.delivered}, { new: true });
+            if (!order) {
+                return { success: false, message: 'Order not found' };
+            }
+            return { success: true, order };
+        } catch (error) {
+            return { success: false, message: error.message || 'Failed to update order' };
+        }
+	}
+
 }
