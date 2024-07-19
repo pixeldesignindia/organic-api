@@ -26,7 +26,8 @@ export class OrderService extends BaseService {
 				description: cartItem.description,
 				originalPrice: cartItem.originalPrice,
 				discountPrice: cartItem.discountPrice,
-				productSkuName: cartItem.productSkuName
+				productSkuName: cartItem.productSkuName,
+				productCommissionAmount:cartItem.productCommissionAmount
 			};
 		});
 		order.paymentInfo = {
@@ -133,12 +134,16 @@ export class OrderService extends BaseService {
 			if (data.newStatus === 'Delivered') {
 				order.deliveredAt = new Date();
 				order.paymentInfo.status = 'Succeeded';
-				let serviceCharge
-				if(data.percentage){
-				serviceCharge = order.totalPrice * data.percentage;
-				}else{
-                serviceCharge = order.totalPrice * 0.1;
-                }
+				 let serviceCharge = 0;
+				 const commissionAmount = order.cart.reduce((total, item) => total + item.quantity * item.productCommissionAmount, 0);
+					if (order.deliveredBy === 'Vendor') {
+						serviceCharge = commissionAmount;
+					} else if (order.deliveredBy === 'Admin') {
+						
+						serviceCharge = order.shippingCharge + commissionAmount;
+					}
+            
+				
 				await this.updateVendorBalanceService(order.user_id, order.totalPrice - serviceCharge);
 			}
 

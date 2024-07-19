@@ -26,6 +26,7 @@ interface ISku extends IBase {
 	stock: number;
 	originalPrice: number;
 	discountPrice: number;
+	commissionAmount:number;
 
     
 }
@@ -228,6 +229,11 @@ const ProductSchema = new Schema({
 			size: {
 				type: String,
 			},
+			commissionAmount:{
+				type:Number,
+
+			},
+
 			created_at: { type: Date },
 			updated_at: { type: Date },
 			is_deleted: { type: Boolean },
