@@ -685,4 +685,7 @@ export class UserService {
     async remove(id: any, headers: any = null) {
         return await User.deleteOne({ _id: id });
     }
+    async venderShippingUser (data:any,headers:any=null){
+        return User.find({venderId:data.venderId})
+    }
 }
