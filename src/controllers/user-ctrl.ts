@@ -35,9 +35,12 @@ export default class UserController extends BaseController {
 		this.router.post(constants.API.V1 + constants.API.APP.USER + '/remove-following', (req, res) => {
 			this.removeFollowing(req, res, this);
 		});
+		this.router.post(constants.API.V1 + constants.API.APP.USER + '/shippingUser', (req, res) => {
+			this.shippingUserByVender(req, res, this);
+		});
 	}
 	private getUpdate(req: Request, res: Response, that: any) {
-		that.service.update(req.params.id,req.body, req.headers).then(
+		that.service.update(req.params.id, req.body, req.headers).then(
 			(result: any) => {
 				that.responseUtil.sendReadResponse(req, res, result, 200);
 			},
@@ -104,6 +107,17 @@ export default class UserController extends BaseController {
 			(err: any) => {
 				LoggerUtil.log('error', { message: 'Error in getting following', location: 'user-ctrl => getFollowing', error: err });
 				that.responseUtil.sendFailureResponse(req, res, err, { fileName: 'user-ctrl', methodName: 'getFollowing' }, 200);
+			}
+		);
+	}
+	private shippingUserByVender(req: Request, res: Response, that: any) {
+		that.service.venderShippingUser(req.body, req.headers).then(
+			(result: any) => {
+				that.responseUtil.sendReadResponse(req, res, result, 200);
+			},
+			(err: any) => {
+				LoggerUtil.log('error', { message: 'Error in getting VenderShipping User', location: 'user-ctrl => shippingUserByVender', error: err });
+				that.responseUtil.sendFailureResponse(req, res, err, { fileName: 'user-ctrl', methodName: 'shippingUserByVender' }, 200);
 			}
 		);
 	}
