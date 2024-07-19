@@ -38,6 +38,9 @@ export class OrderController extends BaseController {
 		this.router.put(constants.API.V1 + constants.API.APP.ORDER + '/assign', (req, res) => {
 			this.assignRecord(req, res, this);
 		});
+		this.router.put(constants.API.V1 + constants.API.APP.ORDER + '/deliveredBy', (req, res) => {
+			this.deliveredRecord(req, res, this);
+		});
 	}
 
 	private createRecord(req: Request, res: Response, that: any) {
@@ -136,7 +139,7 @@ export class OrderController extends BaseController {
 		);
 	}
 	private assignRecord(req: Request, res: Response, that: any) {
-		that.service.assignOrder( req.body, req.headers).then(
+		that.service.assignOrder(req.body, req.headers).then(
 			(result: any) => {
 				if (result) {
 					that.responseUtil.sendUpdateResponse(req, res, result, constants.HTTP_STATUS.UPDATED);
@@ -150,7 +153,21 @@ export class OrderController extends BaseController {
 			}
 		);
 	}
-	
+	private deliveredRecord(req: Request, res: Response, that: any) {
+		that.service.assignOrder(req.body, req.headers).then(
+			(result: any) => {
+				if (result) {
+					that.responseUtil.sendUpdateResponse(req, res, result, constants.HTTP_STATUS.UPDATED);
+				} else {
+					that.responseUtil.sendReadResponse(req, res, result, constants.HTTP_STATUS.NOT_FOUND);
+				}
+			},
+			(err: any) => {
+				LoggerUtil.log('error', { message: 'Error in updating role', location: 'order-ctrl => assign', data: err });
+				that.responseUtil.sendFailureResponse(req, res, err, { fileName: 'order-ctrl', methodName: 'assign' }, 200);
+			}
+		);
+	}
 }
 
 export default OrderController;

@@ -29,6 +29,7 @@ interface Product {
 	originalPrice: number;
 	discountPrice: number;
 	productSkuName: string;
+	productCommissionAmount:number;
 }
 
 interface IOrder extends IBase {
@@ -48,6 +49,7 @@ interface IOrder extends IBase {
 	paymentInfo: PaymentInfo;
 	shippingAddress: ShippingAddress;
 	delivery_partner_id: string;
+	deliveredBy:string
 }
 
 const OrderSchema = new Schema({
@@ -66,6 +68,7 @@ const OrderSchema = new Schema({
 			description: { type: String, required: true },
 			discountPrice: { type: Number, required: true },
 			originalPrice: { type: Number, required: true },
+			productCommissionAmount:{type:Number,required:true}
 		},
 	],
 	user_id: {
@@ -95,6 +98,11 @@ const OrderSchema = new Schema({
 	shippingCharge: { type: Number, default: 0 },
 	created_at: { type: Date, default: Date.now() },
 	delivery_partner_id:{type: Schema.Types.ObjectId,ref: 'User'},
+	deliveredBy:{
+		type:String,
+		required:true,
+		default:"Admin"
+	}
 });
 
 const Order = mongoose.model<IOrder>('Order', OrderSchema);

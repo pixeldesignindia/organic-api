@@ -267,11 +267,12 @@ export class ProductService {
 						// Update existing SKU with new data
 						return {
 							...existingSKU,
-							originalPrice: updatedSKU.originalPrice,
-							discountPrice: updatedSKU.discountPrice,
 							size: updatedSKU.size,
 							stock: updatedSKU.stock,
 							updated_at: data.updated_at,
+							originalPrice: updatedSKU.originalPrice,
+							discountPrice: updatedSKU.discountPrice,
+							commissonAmount:updatedSKU.commissionAmount,
 						};
 					}
 
