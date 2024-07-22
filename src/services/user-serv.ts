@@ -109,6 +109,7 @@ export class UserService {
 
         if (data.fcm_token)
             user.fcm_token = data.fcm_token;
+          if (data.vender_id) user.venderId = data.vender_id;
 
         user.is_active = true;
         user.gender = data.gender;
@@ -686,6 +687,6 @@ export class UserService {
         return await User.deleteOne({ _id: id });
     }
     async venderShippingUser (data:any,headers:any=null){
-        return User.find({venderId:data.venderId})
+        return User.find({venderId:data.vender_id})
     }
 }
