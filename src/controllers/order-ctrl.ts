@@ -35,7 +35,7 @@ export class OrderController extends BaseController {
 		this.router.get(constants.API.V1 + constants.API.APP.ORDER + '/:id', (req, res) => {
 			this.findOneRecord(req, res, this);
 		});
-		this.router.put(constants.API.V1 + constants.API.APP.ORDER + '/assign', (req, res) => {
+		this.router.post(constants.API.V1 + constants.API.APP.ORDER + '/assign', (req, res) => {
 			this.assignRecord(req, res, this);
 		});
 		this.router.put(constants.API.V1 + constants.API.APP.ORDER + '/deliveredBy', (req, res) => {
@@ -144,15 +144,12 @@ export class OrderController extends BaseController {
 	private assignRecord(req: Request, res: Response, that: any) {
 		that.service.assignOrder(req.body, req.headers).then(
 			(result: any) => {
-				if (result) {
-					that.responseUtil.sendUpdateResponse(req, res, result, constants.HTTP_STATUS.UPDATED);
-				} else {
-					that.responseUtil.sendReadResponse(req, res, result, constants.HTTP_STATUS.NOT_FOUND);
-				}
+				that.responseUtil.sendUpdateResponse(req, res, result, 200);
 			},
 			(err: any) => {
-				LoggerUtil.log('error', { message: 'Error in updating role', location: 'order-ctrl => assign', data: err });
-				that.responseUtil.sendFailureResponse(req, res, err, { fileName: 'order-ctrl', methodName: 'assign' }, 200);
+				constants.error(err);
+				LoggerUtil.log('error', { message: 'Error in creating role', location: 'crud-ctrl => create', data: err });
+				that.responseUtil.sendFailureResponse(req, res, err, { fileName: 'crud-ctrl', methodName: 'create' }, 200);
 			}
 		);
 	}

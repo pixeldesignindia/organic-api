@@ -116,7 +116,7 @@ export class UserService {
         user.last_name = data.last_name;
         user.first_name = data.first_name;
         user.created_at = data.created_at;
-        user.user_type = constants.USER_TYPES.USER||data.user_type;
+        user.user_type = data.user_type || constants.USER_TYPES.USER;
         user.unique_id = this.genericUtil.getUniqueId();
         user.role_id = await this.roleService.getCustomerRoleId()||data.role_id;
         user.password = this.encryptionUtil.encryptWithBcrypt(password);
