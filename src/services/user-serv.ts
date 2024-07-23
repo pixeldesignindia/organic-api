@@ -109,7 +109,7 @@ export class UserService {
 
         if (data.fcm_token)
             user.fcm_token = data.fcm_token;
-          if (data.vender_id) user.venderId = data.vender_id;
+        if (data.vender_id) user.venderId = data.vender_id;
 
         user.is_active = true;
         user.gender = data.gender;
@@ -502,6 +502,7 @@ export class UserService {
 
         if (data.hasOwnProperty('is_active')) userDataToUpdate.is_active = data.is_active;
         if (data.hasOwnProperty('is_deleted')) userDataToUpdate.is_deleted = data.is_deleted;
+        if (data.hasOwnProperty('deliveredBy')) userDataToUpdate.deliveredBy = data.deliveredBy;
 
         return userDataToUpdate;
     }

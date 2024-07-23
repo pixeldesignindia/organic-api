@@ -98,7 +98,8 @@ export class VenderService extends BaseService {
 			}
 
 			if (data.status === 'SUCCESS') {
-				await User.findOneAndUpdate({ _id: vender.user_id }, { user_type: constants.USER_TYPES.VENDER }, { new: true });
+				await User.findOneAndUpdate({ _id: vender.user_id }, { user_type: constants.USER_TYPES.VENDER ,deliveredBy:vender.deliveredBy}, { new: true });
+				
 			} else if (data.status === 'REJECTED') {
 				await User.findOneAndUpdate({ _id: vender.user_id }, { user_type: constants.USER_TYPES.USER }, { new: true });
 			}

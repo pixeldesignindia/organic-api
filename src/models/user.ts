@@ -15,7 +15,7 @@ interface IUser extends IBase {
 	gender: string;
 	mobile: string;
 	role_id: string;
-	venderId:string;
+	venderId: string;
 	password: string;
 	username: string;
 	last_name: string;
@@ -23,6 +23,7 @@ interface IUser extends IBase {
 	user_type: string;
 	image_file: string;
 	first_name: string;
+	deliveredBy: string;
 	availableBalance: number;
 
 	role: any;
@@ -103,6 +104,9 @@ const userSchema = new Schema(
             type: mongoose.Schema.Types.ObjectId,
             ref: 'User',
         },
+        deliveredBy: {
+            type: String,
+        },
 
         password_resets: [PasswordResetSchema],
 
@@ -111,6 +115,7 @@ const userSchema = new Schema(
             type: Number,
             default: 0
         },
+
 
         created_at: { type: Date },
         updated_at: { type: Date },
