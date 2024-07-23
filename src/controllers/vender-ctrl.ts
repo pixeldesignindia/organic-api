@@ -63,7 +63,7 @@ export class VenderController extends BaseController {
 		);
 	}
 	private findOneRecords(req: Request, res: Response, that: any) {
-		that.service.find(req.params.id, req.headers).then(
+		that.service.findByUserId(req.params.id, req.headers).then(
 			(result: any) => {
 				that.responseUtil.sendReadResponse(req, res, result, 200);
 			},
