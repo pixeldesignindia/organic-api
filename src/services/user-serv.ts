@@ -109,14 +109,14 @@ export class UserService {
 
         if (data.fcm_token)
             user.fcm_token = data.fcm_token;
-          if (data.vender_id) user.venderId = data.vender_id;
+        if (data.vender_id) user.venderId = data.vender_id;
 
         user.is_active = true;
         user.gender = data.gender;
         user.last_name = data.last_name;
         user.first_name = data.first_name;
         user.created_at = data.created_at;
-        user.user_type = constants.USER_TYPES.USER||data.user_type;
+        user.user_type = data.user_type || constants.USER_TYPES.USER;
         user.unique_id = this.genericUtil.getUniqueId();
         user.role_id = await this.roleService.getCustomerRoleId()||data.role_id;
         user.password = this.encryptionUtil.encryptWithBcrypt(password);
@@ -502,6 +502,7 @@ export class UserService {
 
         if (data.hasOwnProperty('is_active')) userDataToUpdate.is_active = data.is_active;
         if (data.hasOwnProperty('is_deleted')) userDataToUpdate.is_deleted = data.is_deleted;
+        if (data.hasOwnProperty('deliveredBy')) userDataToUpdate.deliveredBy = data.deliveredBy;
 
         return userDataToUpdate;
     }

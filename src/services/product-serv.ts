@@ -95,6 +95,7 @@ export class ProductService {
 						is_private: 1,
 						created_at: 1,
 						bookmarked: 1,
+						deliveredBy:1,
 						description: 1,
 						availablePinCode:1,
 						// Filter nested arrays where is_active is true
@@ -236,6 +237,7 @@ export class ProductService {
 		product.is_private = data.is_private;
 		product.created_at = data.created_at;
 		product.description = data.description;
+		product.deliveredBy = data.deliveredBy;
 		product.unique_id = this.genericUtil.getUniqueId();
 
 		try {
@@ -552,6 +554,7 @@ export class ProductService {
 					is_deleted: 1,
 					is_private: 1,
 					created_at: 1,
+					deliveredBy:1,
 					description: 1,
 					availablePinCode: 1,
 

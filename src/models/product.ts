@@ -58,6 +58,7 @@ interface IProduct extends IBase {
 	availablePinCode: [];
 	product_image_name: string;
 	product_image_saved_name: string;
+	deliveredBy:string;
 
 	end_date: Date;
 	start_date: Date;
@@ -202,6 +203,10 @@ const ProductSchema = new Schema({
 		type: Boolean,
 		default: false,
 	},
+	deliveredBy:{
+		type:String,
+		default: 'Admin',
+	},
 	availablePinCode:[
 			{type:String}
 		],
@@ -209,6 +214,7 @@ const ProductSchema = new Schema({
 			type: Boolean,
             default: false,
 		},
+
 	skus: [
 		{
 			name:{
