@@ -205,10 +205,11 @@ export class ProductService {
 		if (data.skus && Array.isArray(data.skus) && data.skus.length > 0) {
 			product.skus = data.skus.map((skuData: any) => ({
 				name: skuData.name,
-				originalPrice: skuData.originalPrice,
-				discountPrice: skuData.discountPrice,
 				size: skuData.size,
 				stock: skuData.stock,
+				originalPrice: skuData.originalPrice,
+				discountPrice: skuData.discountPrice,
+				commissionAmount:skuData.commissionAmount,
 			}));
 		} else {
 			return Promise.reject({
@@ -274,7 +275,7 @@ export class ProductService {
 							updated_at: data.updated_at,
 							originalPrice: updatedSKU.originalPrice,
 							discountPrice: updatedSKU.discountPrice,
-							commissonAmount:updatedSKU.commissionAmount,
+							commissionAmount: updatedSKU.commissionAmount,
 						};
 					}
 
@@ -287,10 +288,11 @@ export class ProductService {
 					if (!product.skus.find((existingSKU: any) => existingSKU.name === newSKU.name)) {
 						productDataToUpdate.skus.push({
 							name: newSKU.name,
-							originalPrice: newSKU.originalPrice,
-							discountPrice: newSKU.discountPrice,
 							size: newSKU.size,
 							stock: newSKU.stock,
+							originalPrice: newSKU.originalPrice,
+							discountPrice: newSKU.discountPrice,
+							commissionAmount: newSKU.commissionAmount,
 						});
 					}
 				});
