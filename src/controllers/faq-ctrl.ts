@@ -30,8 +30,8 @@ export class FAQController extends BaseController {
 		this.router.delete(constants.API.V1 + constants.API.APP.FAQ + '/:id', (req, res) => {
 			this.removeRecord(req, res, this);
 		});
-		this.router.get(constants.API.V1 + constants.API.APP.FAQ+'/find', (req, res) => {
-			this.filterRecords(req, res, this);
+		this.router.post(constants.API.V1 + constants.API.APP.FAQ+'/find', (req, res) => {
+			this.findAllRecords(req, res, this);
 		});
 	
 	}
@@ -49,8 +49,8 @@ export class FAQController extends BaseController {
 		);
 	}
 
-	private filterRecords(req: Request, res: Response, that: any) {
-		that.service.findAll(req.query, req.headers).then(
+	private findAllRecords(req: Request, res: Response, that: any) {
+		that.service.findAll( req.headers).then(
 			(result: any) => {
 				that.responseUtil.sendReadResponse(req, res, result, 200);
 			},
