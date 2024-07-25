@@ -14,8 +14,8 @@ const FAQSchema = new Schema({
 	created_at: { type: Date },
 	updated_at: { type: Date },
 	is_active: { type: Boolean },
-	is_deleted: { type: Boolean },
-});
+	is_deleted: { type: Boolean ,default:false},
+},{timestamps:true});
 
 const FAQ = mongoose.model<IFaq>('FAQs', FAQSchema);
 
