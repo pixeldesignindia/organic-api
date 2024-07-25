@@ -128,7 +128,7 @@ export class BannerService extends BaseService {
 
 				if (uploadResponse) {
 					try {
-						await Banner.updateOne({ _id: data.categoryId }, { image_file: saved_file_name });
+						await Banner.updateOne({ _id: data.banner_id }, { image_file: saved_file_name });
 
 						LoggerUtil.log('info', { message: `banner image added.` });
 
