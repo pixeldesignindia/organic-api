@@ -467,6 +467,9 @@ export class ProductService {
 		if (data.name) {
 			where.name = data.name;
 		}
+		if (data.category) {
+			where.category = data.category;
+		}
 
 		if (data.user_id) {
 			where.user_id = new mongoose.Types.ObjectId(data.user_id);
