@@ -26,6 +26,9 @@ export default class CDNController extends BaseController {
 		this.router.get(constants.API.V1 + constants.API.APP.CDN + '/product-image/:file', (req, res) => {
 			this.getProductImage(req, res, this);
 		});
+		this.router.get(constants.API.V1 + constants.API.APP.CDN + '/category-image/:file', (req, res) => {
+			this.getBannerImage(req, res, this);
+		});
 	}
 
 	private getUserImage(req: Request, res: Response, that: any) {
@@ -53,6 +56,17 @@ export default class CDNController extends BaseController {
 	}
 	private getCategoryImage(req: Request, res: Response, that: any) {
 		this.service.getCategoryImage(req.params, req.headers).then(
+			(result: any) => {
+				that.responseUtil.sendTextResponse(req, res, result, 200);
+			},
+			(err: any) => {
+				LoggerUtil.log('error', { message: 'Error in getting user image', location: 'cdn-ctrl => getUserImage', data: err });
+				that.responseUtil.sendFailureResponse(req, res, err, { fileName: 'cdn-ctrl', methodName: 'getUserImage' }, 200);
+			}
+		);
+	}
+	private getBannerImage(req: Request, res: Response, that: any) {
+		this.service.getBannerImage(req.params, req.headers).then(
 			(result: any) => {
 				that.responseUtil.sendTextResponse(req, res, result, 200);
 			},
