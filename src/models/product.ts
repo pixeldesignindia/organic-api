@@ -49,6 +49,7 @@ interface IProductImage extends IBase {
 
 interface IProduct extends IBase {
 	_id: any;
+	brand:string;
 	name: string;
 	user_id: string;
 	made_for: string;
@@ -183,6 +184,7 @@ const ProductImageSchema = new Schema({
 });
 
 const ProductSchema = new Schema({
+	brand: { type: String, required: true },
 	name: { type: String, required: true },
 	slip: { type: String },
 	template: { type: String },
@@ -203,23 +205,21 @@ const ProductSchema = new Schema({
 		type: Boolean,
 		default: false,
 	},
-	deliveredBy:{
-		type:String,
+	deliveredBy: {
+		type: String,
 		default: 'Admin',
 	},
-	availablePinCode:[
-			{type:String}
-		],
-		isGlobal:{
-			type: Boolean,
-            default: false,
-		},
+	availablePinCode: [{ type: String }],
+	isGlobal: {
+		type: Boolean,
+		default: false,
+	},
 
 	skus: [
 		{
-			name:{
+			name: {
 				type: String,
-                required: [true, 'Please enter your product name!'],
+				required: [true, 'Please enter your product name!'],
 			},
 			originalPrice: {
 				type: Number,
@@ -235,16 +235,14 @@ const ProductSchema = new Schema({
 			size: {
 				type: String,
 			},
-			commissionAmount:{
-				type:Number,
-
+			commissionAmount: {
+				type: Number,
 			},
 
 			created_at: { type: Date },
 			updated_at: { type: Date },
 			is_deleted: { type: Boolean },
 		},
-		
 	],
 
 	tags: [TagSchema],
