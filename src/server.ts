@@ -3,6 +3,7 @@ const mongoose = require('mongoose');
 import App from './app';
 import config from './config/app-config';
 import CDNController from './controllers/cdn-ctrl';
+import FAQController from './controllers/faq-ctrl';
 import LogController from './controllers/log-ctrl';
 import AuthController from './controllers/auth-ctrl';
 import CrudController from './controllers/crud-ctrl';
@@ -29,6 +30,7 @@ import ConfigurationController from './controllers/admin-config-ctrl';
 const app = new App(
     [
         new CDNController(),
+        new FAQController(),
         new LogController(),
         new CrudController(),
         new RoleController(),

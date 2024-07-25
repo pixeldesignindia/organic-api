@@ -30,6 +30,7 @@ const constants: any = {
 		APP: {
 			CDN: '/cdn',
 			LOG: '/log',
+			FAQ: '/faq',
 			ROLE: '/role',
 			AUTH: '/auth',
 			USER: '/user',

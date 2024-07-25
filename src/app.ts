@@ -134,6 +134,7 @@ class App {
 					'coupon',
 					'verify',
                     'banner',
+                    'faq/find',
 					'register',
 					'category',
 					'statistics',
