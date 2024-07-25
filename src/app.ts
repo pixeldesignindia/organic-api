@@ -133,6 +133,7 @@ class App {
 					'config',
 					'coupon',
 					'verify',
+                    'banner',
 					'register',
 					'category',
 					'statistics',
