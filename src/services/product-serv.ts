@@ -1278,6 +1278,9 @@ export class ProductService {
 
 	async addComment(data: any, headers: any) {
 		try {
+			if(!headers.loggeduserid) Promise.reject({
+				message: 'Invalid product',
+			}); 
 			let product: any = await this.find(data.product_id, headers);
 
 			if (product) {
