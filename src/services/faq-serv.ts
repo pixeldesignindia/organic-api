@@ -25,11 +25,11 @@ export class FAQService extends BaseService {
 	async findAll(data: any, headers: any = null) {
 		try {
 			// Fetch the latest 5 banners, sorted by creation date in descending order
-			const banners = await FAQ.find().sort({ createdAt: -1 })
-			if (!banners || banners.length === 0) {
+			const faqs = await FAQ.find({is_deleted:false}).sort({ createdAt: -1 })
+			if (!faqs || faqs.length === 0) {
 				throw new AppError('No faqs found', null, 404);
 			}
-			return banners;
+			return faqs;
 		} catch (error) {
 			throw new AppError('Error finding banners', error, 500);
 		}
