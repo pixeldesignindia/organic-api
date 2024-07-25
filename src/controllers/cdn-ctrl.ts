@@ -26,7 +26,7 @@ export default class CDNController extends BaseController {
 		this.router.get(constants.API.V1 + constants.API.APP.CDN + '/product-image/:file', (req, res) => {
 			this.getProductImage(req, res, this);
 		});
-		this.router.get(constants.API.V1 + constants.API.APP.CDN + '/category-image/:file', (req, res) => {
+		this.router.get(constants.API.V1 + constants.API.APP.CDN + '/banner-image/:file', (req, res) => {
 			this.getBannerImage(req, res, this);
 		});
 	}
