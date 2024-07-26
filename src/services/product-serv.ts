@@ -1902,4 +1902,31 @@ export class ProductService {
 			});
 		}
 	}
+	async getLatestProductsWithVideo(headers: any = null) {
+		try {
+			let products = await Product.find({
+				video_file: { $ne: '' },
+			})
+				.sort({ updated_at: -1 }) // Sort by the most recently updated
+				.limit(20); // Limit to the latest 20
+
+			if (products && products.length > 0) {
+				return {
+					success: true,
+					data: products,
+				};
+			} else {
+				return {
+					success: false,
+					message: 'No products with video files found',
+				};
+			}
+		} catch (err) {
+			LoggerUtil.log('error', { message: 'Error in fetching products with video: ' + err?.toString(), location: 'product-serv => getLatestProductsWithVideo' });
+			return {
+				success: false,
+				message: err ? err.toString() : 'Error in fetching products with video',
+			};
+		}
+	}
 }

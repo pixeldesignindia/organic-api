@@ -96,6 +96,9 @@ export default class ProductController extends BaseController {
 		this.router.post(constants.API.V1 + constants.API.APP.PRODUCT + '/remove-video', (req, res) => {
 			this.removeVideo(req, res, this);
 		});
+		this.router.post(constants.API.V1 + constants.API.APP.PRODUCT + '/latest-video', (req, res) => {
+			this.getLatestVideoProduct(req, res, this);
+		});
 	}
 
 	private getRecentProducts(req: Request, res: Response, that: any) {
@@ -386,6 +389,17 @@ export default class ProductController extends BaseController {
 			(err: any) => {
 				LoggerUtil.log('error', { message: 'Error in adding video', location: 'product-ctrl => addVideo', error: err });
 				that.responseUtil.sendFailureResponse(req, res, err, { fileName: 'product-ctrl', methodName: 'addVideo' }, 200);
+			}
+		);
+	}
+	private getLatestVideoProduct(req: Request, res: Response, that: any) {
+		that.service.addVideo(req.body, req.headers).then(
+			(result: any) => {
+				that.responseUtil.sendReadResponse(req, res, result, 200);
+			},
+			(err: any) => {
+				LoggerUtil.log('error', { message: 'Error in getting  videos in product', location: 'product-ctrl => getLatestVideoProduct', error: err });
+				that.responseUtil.sendFailureResponse(req, res, err, { fileName: 'product-ctrl', methodName: 'getLatestVideoProduct' }, 200);
 			}
 		);
 	}
