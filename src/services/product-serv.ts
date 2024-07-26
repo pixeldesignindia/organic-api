@@ -1907,7 +1907,7 @@ export class ProductService {
 			let products = await Product.find({
 				video_file: { $exists: true, $ne: '' }, // Ensure the video_file field exists and is not an empty string
 			})
-				.select({ video_file: 1, _id: 1, name: 1, skus:1 })
+				.select({ video_file: 1, _id: 1, name: 1, skus:1,images:1 })
 				.sort({ updated_at: -1 }) // Sort by the most recently updated
 				.limit(20); // Limit to the latest 20
 
