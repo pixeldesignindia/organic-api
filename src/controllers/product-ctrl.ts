@@ -90,6 +90,12 @@ export default class ProductController extends BaseController {
 		this.router.post(constants.API.V1 + constants.API.APP.PRODUCT + '/notVerified', (req, res) => {
 			this.getUnVerifiedProducts(req, res, this);
 		});
+		this.router.post(constants.API.V1 + constants.API.APP.PRODUCT + '/add-video', (req, res) => {
+			this.addVideo(req, res, this);
+		});
+		this.router.post(constants.API.V1 + constants.API.APP.PRODUCT + '/remove-video', (req, res) => {
+			this.removeVideo(req, res, this);
+		});
 	}
 
 	private getRecentProducts(req: Request, res: Response, that: any) {
@@ -358,6 +364,28 @@ export default class ProductController extends BaseController {
 			(err: any) => {
 				LoggerUtil.log('error', { message: 'Error in getting product likes', location: 'product-ctrl => getLikes', error: err });
 				that.responseUtil.sendFailureResponse(req, res, err, { fileName: 'product-ctrl', methodName: 'getLikes' }, 200);
+			}
+		);
+	}
+	private removeVideo(req: Request, res: Response, that: any) {
+		that.service.removeVideo(req.body, req.headers).then(
+			(result: any) => {
+				that.responseUtil.sendReadResponse(req, res, result, 200);
+			},
+			(err: any) => {
+				LoggerUtil.log('error', { message: 'Error in remove video', location: 'product-ctrl => removeVideo', error: err });
+				that.responseUtil.sendFailureResponse(req, res, err, { fileName: 'product-ctrl', methodName: 'removeVideo' }, 200);
+			}
+		);
+	}
+	private addVideo(req: Request, res: Response, that: any) {
+		that.service.addVideo(req.body, req.headers).then(
+			(result: any) => {
+				that.responseUtil.sendReadResponse(req, res, result, 200);
+			},
+			(err: any) => {
+				LoggerUtil.log('error', { message: 'Error in adding video', location: 'product-ctrl => addVideo', error: err });
+				that.responseUtil.sendFailureResponse(req, res, err, { fileName: 'product-ctrl', methodName: 'addVideo' }, 200);
 			}
 		);
 	}
