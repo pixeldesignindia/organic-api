@@ -393,7 +393,7 @@ export default class ProductController extends BaseController {
 		);
 	}
 	private getLatestVideoProduct(req: Request, res: Response, that: any) {
-		that.service.addVideo(req.body, req.headers).then(
+		that.service.getLatestProductsWithVideo(req.body, req.headers).then(
 			(result: any) => {
 				that.responseUtil.sendReadResponse(req, res, result, 200);
 			},
