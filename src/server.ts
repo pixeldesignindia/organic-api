@@ -7,6 +7,7 @@ import FAQController from './controllers/faq-ctrl';
 import LogController from './controllers/log-ctrl';
 import AuthController from './controllers/auth-ctrl';
 import CrudController from './controllers/crud-ctrl';
+import IntroController from './controllers/intro-ctrl';
 import RoleController from './controllers/role-ctrl';
 import CartController from './controllers/cart-ctrl';
 import UserController from './controllers/user-ctrl';
@@ -39,6 +40,7 @@ const app = new App(
         new AuthController(),
         new LoginController(),
         new OrderController(),
+        new IntroController(),
         new VenderController(),
         new BannerController(),
         new SearchController(),

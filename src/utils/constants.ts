@@ -32,6 +32,7 @@ const constants: any = {
 			LOG: '/log',
 			FAQ: '/faq',
 			ROLE: '/role',
+			INTRO:'/intro',
 			AUTH: '/auth',
 			USER: '/user',
 			CART: '/cart',

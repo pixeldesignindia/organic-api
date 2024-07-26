@@ -138,6 +138,7 @@ class App {
 					'register',
 					'category',
 					'statistics',
+                    'intro/video',
 					'product/filter',
 					'product/recent',
 					'product/detail',
