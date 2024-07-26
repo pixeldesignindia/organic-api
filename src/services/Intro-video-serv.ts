@@ -27,7 +27,7 @@ export class IntroService extends BaseService {
 
 			const base64Data = data.video.base64.replace(/^data:video\/\w+;base64,/, '');
 			let fileContent = Buffer.from(base64Data, 'base64');
-			let uploadResponse: any = await this.awsS3Service.uploadFile('product-video/' + saved_file_name, fileContent, config.AWS.S3_IMAGE_BUCKET);
+			let uploadResponse: any = await this.awsS3Service.uploadFile('intro-video/' + saved_file_name, fileContent, config.AWS.S3_IMAGE_BUCKET);
 
 			if (uploadResponse) {
 				try {
