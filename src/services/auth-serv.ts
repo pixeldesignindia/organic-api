@@ -10,8 +10,8 @@ export class AuthService extends BaseService {
     }
 
     async getRefreshToken(params: any, headers: any = null) {
+      
         let result: any = await this.jwtUtil.verifyRefreshToken(params.refreshToken);
-
         if (result.valid) {
             let token = this.jwtUtil.generateJWTToken(result.id.toString() + new Date().getTime(), result.id);
             let refreshToken = this.jwtUtil.generateRefreshToken(result.id.toString() + new Date().getTime(), result.id);

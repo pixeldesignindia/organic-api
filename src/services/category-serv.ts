@@ -148,7 +148,7 @@ export class CategoryService extends BaseService {
 					try {
 						await Category.updateOne({ _id: data.categoryId }, { image_file: saved_file_name });
 
-						LoggerUtil.log('info', { message: `User image added.` });
+						LoggerUtil.log('info', { message: `Category image added.` });
 
 						return {
 							success: true,

@@ -16,7 +16,7 @@ export class OrderController extends BaseController {
 		this.router.post(constants.API.V1 + constants.API.APP.ORDER, (req, res) => {
 			this.createRecord(req, res, this);
 		});
-		this.router.get(constants.API.V1 + constants.API.APP.ORDER + '/find', (req, res) => {
+		this.router.post(constants.API.V1 + constants.API.APP.ORDER + '/find', (req, res) => {
 			this.findRecord(req, res, this);
 		});
 		this.router.put(constants.API.V1 + constants.API.APP.ORDER + '/:id', (req, res) => {
@@ -35,9 +35,15 @@ export class OrderController extends BaseController {
 		this.router.get(constants.API.V1 + constants.API.APP.ORDER + '/:id', (req, res) => {
 			this.findOneRecord(req, res, this);
 		});
-		this.router.put(constants.API.V1 + constants.API.APP.ORDER + '/assign', (req, res) => {
+		this.router.post(constants.API.V1 + constants.API.APP.ORDER + '/assign', (req, res) => {
 			this.assignRecord(req, res, this);
 		});
+		this.router.put(constants.API.V1 + constants.API.APP.ORDER + '/deliveredBy', (req, res) => {
+			this.deliveredRecord(req, res, this);
+		});
+			this.router.post(constants.API.V1 + constants.API.APP.ORDER + '/assignedOrder', (req, res) => {
+				this.shippingUserOrderRecord(req, res, this);
+			});
 	}
 
 	private createRecord(req: Request, res: Response, that: any) {
@@ -136,7 +142,19 @@ export class OrderController extends BaseController {
 		);
 	}
 	private assignRecord(req: Request, res: Response, that: any) {
-		that.service.assignOrder( req.body, req.headers).then(
+		that.service.assignOrder(req.body, req.headers).then(
+			(result: any) => {
+				that.responseUtil.sendUpdateResponse(req, res, result, 200);
+			},
+			(err: any) => {
+				constants.error(err);
+				LoggerUtil.log('error', { message: 'Error in creating role', location: 'crud-ctrl => create', data: err });
+				that.responseUtil.sendFailureResponse(req, res, err, { fileName: 'crud-ctrl', methodName: 'create' }, 200);
+			}
+		);
+	}
+	private deliveredRecord(req: Request, res: Response, that: any) {
+		that.service.assignOrder(req.body, req.headers).then(
 			(result: any) => {
 				if (result) {
 					that.responseUtil.sendUpdateResponse(req, res, result, constants.HTTP_STATUS.UPDATED);
@@ -150,7 +168,21 @@ export class OrderController extends BaseController {
 			}
 		);
 	}
-	
+	private shippingUserOrderRecord(req: Request, res: Response, that: any) {
+		that.service.getAllOrdersAssignUser(req.body, req.headers).then(
+			(result: any) => {
+				if (result) {
+					that.responseUtil.sendReadResponse(req, res, result, constants.HTTP_STATUS.OK);
+				} else {
+					that.responseUtil.sendReadResponse(req, res, result, constants.HTTP_STATUS.NOT_FOUND);
+				}
+			},
+			(err: any) => {
+				LoggerUtil.log('error', { message: 'Error in finding role', location: 'crud-ctrl => find', data: err });
+				that.responseUtil.sendFailureResponse(req, res, err, { fileName: 'crud-ctrl', methodName: 'find' }, 200);
+			}
+		);
+	}
 }
 
 export default OrderController;

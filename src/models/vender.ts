@@ -4,7 +4,7 @@ interface IVender extends IBase {
 	GST: string;
 	city: string;
 	state: string;
-	status:string;
+	status: string;
 	phone: number;
 	email: string;
 	country: string;
@@ -16,6 +16,7 @@ interface IVender extends IBase {
 	unique_id: string;
 	firm_name: string;
 	is_active: boolean;
+	deliveredBy:string;
 	is_deleted: boolean;
 	firm_address: string;
 }
@@ -55,6 +56,9 @@ const VenderSchema = new Schema({
 	phone: {
 		type: Number,
 		required: [true, 'phone number must be provided'],
+	},
+	deliveredBy: {
+		type: String,
 	},
 	created_at: { type: Date },
 	updated_at: { type: Date },

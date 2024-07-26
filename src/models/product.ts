@@ -26,6 +26,7 @@ interface ISku extends IBase {
 	stock: number;
 	originalPrice: number;
 	discountPrice: number;
+	commissionAmount:number;
 
     
 }
@@ -48,13 +49,17 @@ interface IProductImage extends IBase {
 
 interface IProduct extends IBase {
 	_id: any;
+	brand:string;
 	name: string;
 	user_id: string;
 	made_for: string;
+	isGlobal:boolean;
 	category: string;
 	description: string;
+	availablePinCode: [];
 	product_image_name: string;
 	product_image_saved_name: string;
+	deliveredBy:string;
 
 	end_date: Date;
 	start_date: Date;
@@ -66,7 +71,7 @@ interface IProduct extends IBase {
 
 	slip: string;
 	template: string;
-	skus:ISku[],
+	skus: ISku[];
 	tags: ITag[];
 	likes: ILike[];
 	ratings: IRating[];
@@ -179,6 +184,7 @@ const ProductImageSchema = new Schema({
 });
 
 const ProductSchema = new Schema({
+	brand: { type: String, required: true },
 	name: { type: String, required: true },
 	slip: { type: String },
 	template: { type: String },
@@ -199,11 +205,21 @@ const ProductSchema = new Schema({
 		type: Boolean,
 		default: false,
 	},
+	deliveredBy: {
+		type: String,
+		default: 'Admin',
+	},
+	availablePinCode: [{ type: String }],
+	isGlobal: {
+		type: Boolean,
+		default: false,
+	},
+
 	skus: [
 		{
-			name:{
+			name: {
 				type: String,
-                required: [true, 'Please enter your product name!'],
+				required: [true, 'Please enter your product name!'],
 			},
 			originalPrice: {
 				type: Number,
@@ -219,6 +235,10 @@ const ProductSchema = new Schema({
 			size: {
 				type: String,
 			},
+			commissionAmount: {
+				type: Number,
+			},
+
 			created_at: { type: Date },
 			updated_at: { type: Date },
 			is_deleted: { type: Boolean },

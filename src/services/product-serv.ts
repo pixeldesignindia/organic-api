@@ -85,16 +85,19 @@ export class ProductService {
 				},
 				{
 					$project: {
+						skus: 1,
 						name: 1,
+						liked: 1,
+						isGlobal: 1,
 						category: 1,
 						is_active: 1,
 						is_deleted: 1,
 						is_private: 1,
 						created_at: 1,
-						description: 1,
-						skus: 1,
-						liked: 1,
 						bookmarked: 1,
+						deliveredBy: 1,
+						description: 1,
+						availablePinCode: 1,
 						// Filter nested arrays where is_active is true
 						images: {
 							$filter: {
@@ -201,17 +204,31 @@ export class ProductService {
 
 		if (data.skus && Array.isArray(data.skus) && data.skus.length > 0) {
 			product.skus = data.skus.map((skuData: any) => ({
-				name: skuData.name ,
-				originalPrice: skuData.originalPrice,
-				discountPrice: skuData.discountPrice,
+				name: skuData.name,
 				size: skuData.size,
 				stock: skuData.stock,
+				originalPrice: skuData.originalPrice,
+				discountPrice: skuData.discountPrice,
+				commissionAmount: skuData.commissionAmount,
 			}));
 		} else {
 			return Promise.reject({
 				message: constants.MESSAGES.ERRORS.NOT_FOUND,
 			});
 		}
+
+		if (data.availablePinCode.length === 0) {
+			product.isGlobal = true;
+			product.availablePinCode = [];
+		} else if (Array.isArray(data.availablePinCode)) {
+			product.isGlobal = false;
+			product.availablePinCode = data.availablePinCode;
+		} else {
+			return Promise.reject({
+				message: 'Invalid available pin code data',
+			});
+		}
+
 		product.images = [];
 		product.is_active = true;
 		product.name = data.name;
@@ -221,6 +238,7 @@ export class ProductService {
 		product.is_private = data.is_private;
 		product.created_at = data.created_at;
 		product.description = data.description;
+		product.deliveredBy = data.deliveredBy;
 		product.unique_id = this.genericUtil.getUniqueId();
 
 		try {
@@ -252,11 +270,12 @@ export class ProductService {
 						// Update existing SKU with new data
 						return {
 							...existingSKU,
-							originalPrice: updatedSKU.originalPrice,
-							discountPrice: updatedSKU.discountPrice,
 							size: updatedSKU.size,
 							stock: updatedSKU.stock,
 							updated_at: data.updated_at,
+							originalPrice: updatedSKU.originalPrice,
+							discountPrice: updatedSKU.discountPrice,
+							commissionAmount: updatedSKU.commissionAmount,
 						};
 					}
 
@@ -269,12 +288,38 @@ export class ProductService {
 					if (!product.skus.find((existingSKU: any) => existingSKU.name === newSKU.name)) {
 						productDataToUpdate.skus.push({
 							name: newSKU.name,
-							originalPrice: newSKU.originalPrice,
-							discountPrice: newSKU.discountPrice,
 							size: newSKU.size,
 							stock: newSKU.stock,
+							originalPrice: newSKU.originalPrice,
+							discountPrice: newSKU.discountPrice,
+							commissionAmount: newSKU.commissionAmount,
 						});
 					}
+				});
+			}
+			if (!Array.isArray(product.availablePinCode)) {
+				product.availablePinCode = [];
+			}
+
+			if (Array.isArray(data.availablePinCode)) {
+				console.log(data.availablePinCode);
+				if (data.availablePinCode.length === 0) {
+					console.log(true);
+					productDataToUpdate.isGlobal = true;
+					productDataToUpdate.availablePinCode = [];
+				} else {
+					productDataToUpdate.isGlobal = false;
+					const uniquePinCodes = [...new Set(data.availablePinCode)];
+					productDataToUpdate.availablePinCode = product.availablePinCode.filter((pincode: string) => uniquePinCodes.includes(pincode));
+					uniquePinCodes.forEach((pincode: string) => {
+						if (!productDataToUpdate.availablePinCode.includes(pincode)) {
+							productDataToUpdate.availablePinCode.push(pincode);
+						}
+					});
+				}
+			} else if (data.hasOwnProperty('availablePinCode')) {
+				return Promise.reject({
+					message: 'Invalid available pin code data',
 				});
 			}
 
@@ -422,34 +467,83 @@ export class ProductService {
 		if (data.name) {
 			where.name = data.name;
 		}
+		
+		if (data.brand) {
+			where.brand = data.brand;
+		}
+		if (data.category) {
+			where.category = new mongoose.Types.ObjectId(data.category);
+		}
 
 		if (data.user_id) {
 			where.user_id = new mongoose.Types.ObjectId(data.user_id);
 		}
-			if (data.hasOwnProperty('isVerified')) {
-				where.isVerified = false
-			}
+		if (data.hasOwnProperty('isVerified')) {
+			where.isVerified = false;
+		}
 
 		let sort: any = { name: 1 };
 		if (data.latest) {
 			sort = { created_at: -1 };
 		}
-		const products = await Product.aggregate([
+
+		const pipeline: any[] = [{ $match: where }, { $unwind: '$skus' }];
+
+		const priceRangeMatch: any = {};
+		if (data.minPrice) {
+			priceRangeMatch['skus.originalPrice'] = { $gte: parseFloat(data.minPrice) };
+		}
+		if (data.maxPrice) {
+			if (priceRangeMatch['skus.originalPrice']) {
+				priceRangeMatch['skus.originalPrice']['$lte'] = parseFloat(data.maxPrice);
+			} else {
+				priceRangeMatch['skus.originalPrice'] = { $lte: parseFloat(data.maxPrice) };
+			}
+		}
+
+		console.log(priceRangeMatch);
+
+		if (data.minPrice || data.maxPrice) {
+			pipeline.push({ $match: priceRangeMatch });
+		}
+
+		pipeline.push(
+			{ $sort: sort },
+			{ $skip: skip },
+			{ $limit: pageSize },
 			{
-				$match: where,
-			},
-			{
-				$sort: sort,
-			},
-			{
-				$skip: skip,
-			},
-			{
-				$limit: pageSize,
+				$group: {
+					_id: '$_id',
+					brand: { $first: '$brand' },
+					name: { $first: '$name' },
+					user_id: { $first: '$user_id' },
+					made_for: { $first: '$made_for' },
+					isGlobal: { $first: '$isGlobal' },
+					category: { $first: '$category' },
+					description: { $first: '$description' },
+					availablePinCode: { $first: '$availablePinCode' },
+					product_image_name: { $first: '$product_image_name' },
+					product_image_saved_name: { $first: '$product_image_saved_name' },
+					deliveredBy: { $first: '$deliveredBy' },
+					end_date: { $first: '$end_date' },
+					start_date: { $first: '$start_date' },
+					isVerified: { $first: '$isVerified' },
+					is_private: { $first: '$is_private' },
+					liked: { $first: '$liked' },
+					bookmarked: { $first: '$bookmarked' },
+					slip: { $first: '$slip' },
+					template: { $first: '$template' },
+					tags: { $first: '$tags' },
+					likes: { $first: '$likes' },
+					ratings: { $first: '$ratings' },
+					comments: { $first: '$comments' },
+					bookmarks: { $first: '$bookmarks' },
+					images: { $first: '$images' },
+					skus: { $push: '$skus' },
+				},
 			},
 			{
 				$addFields: {
-					// check if passed user liked the product
 					liked: {
 						$cond: {
 							if: data.user_id,
@@ -472,7 +566,6 @@ export class ProductService {
 							else: false,
 						},
 					},
-					// check if passed user bookmarked the product
 					bookmarked: {
 						$cond: {
 							if: data.user_id,
@@ -499,20 +592,22 @@ export class ProductService {
 			},
 			{
 				$project: {
-					// Specify fields to include
+					brand:1,
 					name: 1,
-					skus:1, // Example: Including the product name
+					skus: 1,
 					user_id: 1,
+					isGlobal: 1,
 					category: 1,
 					is_active: 1,
 					isVerified: 1,
 					is_deleted: 1,
 					is_private: 1,
 					created_at: 1,
+					deliveredBy: 1,
 					description: 1,
+					availablePinCode: 1,
 					liked: 1,
 					bookmarked: 1,
-					// Filter nested arrays where is_active is true
 					images: {
 						$filter: {
 							input: '$images',
@@ -565,9 +660,10 @@ export class ProductService {
 						},
 					},
 				},
-			},
-		]);
+			}
+		);
 
+		const products = await Product.aggregate(pipeline);
 		return products;
 	}
 
@@ -576,7 +672,7 @@ export class ProductService {
 
 		return await this.filter(data, headers);
 	}
-	async getUnVerifiedProducts(data: any, headers: any){
+	async getUnVerifiedProducts(data: any, headers: any) {
 		data.isVerified = false;
 		return await this.filter(data, headers);
 	}
@@ -1228,6 +1324,10 @@ export class ProductService {
 
 	async addComment(data: any, headers: any) {
 		try {
+			if (!headers.loggeduserid)
+				Promise.reject({
+					message: 'Invalid product',
+				});
 			let product: any = await this.find(data.product_id, headers);
 
 			if (product) {

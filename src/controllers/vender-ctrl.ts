@@ -45,8 +45,8 @@ export class VenderController extends BaseController {
 			},
 			(err: any) => {
 				constants.error(err);
-				LoggerUtil.log('error', { message: 'Error in creating role', location: 'crud-ctrl => create', data: err });
-				that.responseUtil.sendFailureResponse(req, res, err, { fileName: 'crud-ctrl', methodName: 'create' }, 200);
+				LoggerUtil.log('error', { message: 'Error in creating vendor', location: 'vendor-ctrl => create', data: err });
+				that.responseUtil.sendFailureResponse(req, res, err, { fileName: 'vendor-ctrl', methodName: 'create' }, 200);
 			}
 		);
 	}
@@ -57,19 +57,19 @@ export class VenderController extends BaseController {
 				that.responseUtil.sendReadResponse(req, res, result, 200);
 			},
 			(err: any) => {
-				LoggerUtil.log('error', { message: 'Error in filtering roles', location: 'crud-ctrl => filter', data: err });
-				that.responseUtil.sendFailureResponse(req, res, err, { fileName: 'crud-ctrl', methodName: 'filter' }, 200);
+				LoggerUtil.log('error', { message: 'Error in finding vendor', location: 'vendor-ctrl => find', data: err });
+				that.responseUtil.sendFailureResponse(req, res, err, { fileName: 'vendor-ctrl', methodName: 'find' }, 200);
 			}
 		);
 	}
 	private findOneRecords(req: Request, res: Response, that: any) {
-		that.service.find(req.params.id, req.headers).then(
+		that.service.findByUserId(req.params.id, req.headers).then(
 			(result: any) => {
 				that.responseUtil.sendReadResponse(req, res, result, 200);
 			},
 			(err: any) => {
-				LoggerUtil.log('error', { message: 'Error in filtering roles', location: 'vendor-ctrl => findOne', data: err });
-				that.responseUtil.sendFailureResponse(req, res, err, { fileName: 'crud-ctrl', methodName: 'filter' }, 200);
+				LoggerUtil.log('error', { message: 'Error in findOne vendor', location: 'vendor-ctrl => findOne', data: err });
+				that.responseUtil.sendFailureResponse(req, res, err, { fileName: 'vendor-ctrl', methodName: 'findOne' }, 200);
 			}
 		);
 	}
@@ -84,8 +84,8 @@ export class VenderController extends BaseController {
 				}
 			},
 			(err: any) => {
-				LoggerUtil.log('error', { message: 'Error in finding role', location: 'crud-ctrl => find', data: err });
-				that.responseUtil.sendFailureResponse(req, res, err, { fileName: 'crud-ctrl', methodName: 'find' }, 200);
+				LoggerUtil.log('error', { message: 'Error in update vendor', location: 'vender-ctrl => update', data: err });
+				that.responseUtil.sendFailureResponse(req, res, err, { fileName: 'vender-ctrl', methodName: 'update' }, 200);
 			}
 		);
 	}
@@ -95,8 +95,8 @@ export class VenderController extends BaseController {
 				that.responseUtil.sendUpdateResponse(req, res, result, 200);
 			},
 			(err: any) => {
-				LoggerUtil.log('error', { message: 'Error in removing role', location: 'crud-ctrl => remove', data: err });
-				that.responseUtil.sendFailureResponse(req, res, err, { fileName: 'crud-ctrl', methodName: 'remove' }, 200);
+				LoggerUtil.log('error', { message: 'Error in find All Vendor', location: 'vender-controller => findAll', data: err });
+				that.responseUtil.sendFailureResponse(req, res, err, { fileName: 'vender-ctrl', methodName: 'findAll' }, 200);
 			}
 		);
 	}
@@ -106,8 +106,8 @@ export class VenderController extends BaseController {
 				that.responseUtil.sendReadResponse(req, res, result, 200);
 			},
 			(err: any) => {
-				LoggerUtil.log('error', { message: 'Error in filtering roles', location: 'crud-ctrl => filter', data: err });
-				that.responseUtil.sendFailureResponse(req, res, err, { fileName: 'crud-ctrl', methodName: 'filter' }, 200);
+				LoggerUtil.log('error', { message: 'Error in checking Status Of Vendor', location: 'vender-ctrl => checkStatusRecord', data: err });
+				that.responseUtil.sendFailureResponse(req, res, err, { fileName: 'vender-ctrl', methodName: 'checkStatusRecord' }, 200);
 			}
 		);
 	}

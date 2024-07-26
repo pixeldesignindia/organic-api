@@ -26,7 +26,8 @@ export class OrderService extends BaseService {
 				description: cartItem.description,
 				originalPrice: cartItem.originalPrice,
 				discountPrice: cartItem.discountPrice,
-				productSkuName: cartItem.productSkuName
+				productSkuName: cartItem.productSkuName,
+				productCommissionAmount: cartItem.productCommissionAmount,
 			};
 		});
 		order.paymentInfo = {
@@ -133,12 +134,14 @@ export class OrderService extends BaseService {
 			if (data.newStatus === 'Delivered') {
 				order.deliveredAt = new Date();
 				order.paymentInfo.status = 'Succeeded';
-				let serviceCharge
-				if(data.percentage){
-				serviceCharge = order.totalPrice * data.percentage;
-				}else{
-                serviceCharge = order.totalPrice * 0.1;
-                }
+				let serviceCharge = 0;
+				const commissionAmount = order.cart.reduce((total, item) => total + item.quantity * item.productCommissionAmount, 0);
+				if (order.deliveredBy === 'Vendor') {
+					serviceCharge = commissionAmount;
+				} else if (order.deliveredBy === 'Admin') {
+					serviceCharge = order.shippingCharge + commissionAmount;
+				}
+
 				await this.updateVendorBalanceService(order.user_id, order.totalPrice - serviceCharge);
 			}
 
@@ -151,36 +154,36 @@ export class OrderService extends BaseService {
 		}
 	}
 
-	async updateProductStockService(data:any, quantity: number) {
-try {
-        const product = await Product.findById(data.productId).populate('cart.productId');
+	async updateProductStockService(data: any, quantity: number) {
+		try {
+			const product = await Product.findById(data.productId).populate('cart.productId');
 
-        if (!product) {
-            throw new AppError('Product not found with this id', null, 404);
-        }
+			if (!product) {
+				throw new AppError('Product not found with this id', null, 404);
+			}
 
-        // Find the SKU by name
-        const skuToUpdate = product.skus.find(sku => sku.name === data.skuName);
+			// Find the SKU by name
+			const skuToUpdate = product.skus.find((sku) => sku.name === data.skuName);
 
-        if (!skuToUpdate) {
-            throw new AppError(` not found for this product`, null, 404);
-        }
+			if (!skuToUpdate) {
+				throw new AppError(` not found for this product`, null, 404);
+			}
 
-        // Check if there is enough stock
-        if (skuToUpdate.stock < quantity) {
-            throw new AppError(`Not enough stock `,null, 404);
-        }
+			// Check if there is enough stock
+			if (skuToUpdate.stock < quantity) {
+				throw new AppError(`Not enough stock `, null, 404);
+			}
 
-        // Update the stock
-        skuToUpdate.stock -= quantity;
+			// Update the stock
+			skuToUpdate.stock -= quantity;
 
-        await product.save();
+			await product.save();
 
-        return { success: true };
-    } catch (error) {
-        throw error;
-    }
-}
+			return { success: true };
+		} catch (error) {
+			throw error;
+		}
+	}
 
 	async updateVendorBalanceService(userId: string, amount: number) {
 		try {
@@ -208,11 +211,11 @@ try {
 			return { success: false, message: error.message || 'Failed to fetch address' };
 		}
 	}
-	async filter(data:any, headers: any) {
+	async filter(data: any, headers: any) {
 		try {
-			let where:any = {};
-			if(data.status){
-				where.status = data.status
+			let where: any = {};
+			if (data.status) {
+				where.status = data.status;
 			}
 			// populate products  on order cart
 			const order = await Order.find(where).populate('cart.productId').sort({ created_at: 1 });
@@ -222,15 +225,35 @@ try {
 		}
 	}
 
-	async assignOrder (data:any, headers: any) {
+	async assignOrder(data: any, headers: any) {
 		try {
-            const order = await Order.findByIdAndUpdate(data.orderId, { delivery_partner_id: data.deliveryPartnerId }, { new: true });
-            if (!order) {
-                return { success: false, message: 'Order not found' };
-            }
-            return { success: true, order };
-        } catch (error) {
-            return { success: false, message: error.message || 'Failed to update order' };
-        }
+			const order = await Order.findByIdAndUpdate(data.orderId, { delivery_partner_id: data.deliveryPartnerId }, { new: true });
+			if (!order) {
+				return { success: false, message: 'Order not found' };
+			}
+			return { success: true, order };
+		} catch (error) {
+			return { success: false, message: error.message || 'Failed to update order' };
+		}
+	}
+	async deliveredOrder(data: any, headers: any) {
+		try {
+			const order = await Order.findByIdAndUpdate(data.orderId, { deliveredBy: data.delivered }, { new: true });
+			if (!order) {
+				return { success: false, message: 'Order not found' };
+			}
+			return { success: true, order };
+		} catch (error) {
+			return { success: false, message: error.message || 'Failed to update order' };
+		}
+	}
+	async getAllOrdersAssignUser(data: any, headers: any) {
+		try {
+			const orders = await Order.find({ delivery_partner_id: headers.loggeduserid }).populate('cart.productId').sort({created_at:1});
+
+			return { success: true, orders };
+		} catch (error) {
+			return { success: false, message: error.message || 'Failed to fetch orders' };
+		}
 	}
 }

@@ -2,15 +2,17 @@ const mongoose = require('mongoose');
 
 import App from './app';
 import config from './config/app-config';
-
 import CDNController from './controllers/cdn-ctrl';
+import FAQController from './controllers/faq-ctrl';
 import LogController from './controllers/log-ctrl';
+import AuthController from './controllers/auth-ctrl';
 import CrudController from './controllers/crud-ctrl';
 import RoleController from './controllers/role-ctrl';
 import CartController from './controllers/cart-ctrl';
 import UserController from './controllers/user-ctrl';
 import LoginController from './controllers/login-ctrl';
 import OrderController  from './controllers/order-ctrl';
+import BannerController from './controllers/banner-ctrl';
 import CouponController from './controllers/coupon-ctrl';
 import VenderController from './controllers/vender-ctrl';
 import SearchController from './controllers/search-ctrl';
@@ -28,14 +30,17 @@ import ConfigurationController from './controllers/admin-config-ctrl';
 const app = new App(
     [
         new CDNController(),
+        new FAQController(),
         new LogController(),
         new CrudController(),
         new RoleController(),
         new CartController(),
         new UserController(),
+        new AuthController(),
         new LoginController(),
         new OrderController(),
         new VenderController(),
+        new BannerController(),
         new SearchController(),
         new StatusController(),
         new CouponController(),
