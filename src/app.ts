@@ -143,6 +143,7 @@ class App {
 					'product/recent',
 					'product/detail',
 					'forgot-password',
+                    'business/reviews',
 					'product/comments',
 					'product/has-liked',
 					'product/latest-video',

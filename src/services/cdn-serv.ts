@@ -43,8 +43,14 @@ export class CDNService extends BaseService {
 
 		return await this.awsS3Service.getImage(data, headers);
 	}
-		async getIntroVideo(data: any, headers: any) {
+	async getIntroVideo(data: any, headers: any) {
 		data.folder = 'intro-video';
+		data.bucketName = config.AWS.S3_IMAGE_BUCKET;
+
+		return await this.awsS3Service.getImage(data, headers);
+	}
+	async getBusinessImage(data: any, headers: any) {
+		data.folder = 'business-image';
 		data.bucketName = config.AWS.S3_IMAGE_BUCKET;
 
 		return await this.awsS3Service.getImage(data, headers);

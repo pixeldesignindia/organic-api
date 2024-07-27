@@ -24,38 +24,38 @@ import AddressController from './controllers/address-ctrl';
 import CategoryController from './controllers/category-ctrl';
 import wishlistController from './controllers/wishlist-cntrl';
 import StatisticsController from './controllers/statistics-cntrl';
+import BusinessController from './controllers/business-review-ctrl';
 import RegistrationController from './controllers/registration-ctrl';
 import ConfigurationController from './controllers/admin-config-ctrl';
 
 
-const app = new App(
-    [
-        new CDNController(),
-        new FAQController(),
-        new LogController(),
-        new CrudController(),
-        new RoleController(),
-        new CartController(),
-        new UserController(),
-        new AuthController(),
-        new LoginController(),
-        new OrderController(),
-        new IntroController(),
-        new VenderController(),
-        new BannerController(),
-        new SearchController(),
-        new StatusController(),
-        new CouponController(),
-        new ProductController(),
-        new SummaryController(),
-        new AddressController(),
-        new CategoryController(),
-        new wishlistController(),
-        new StatisticsController(),
-        new RegistrationController(),
-        new ConfigurationController()
-    ]
-);
+const app = new App([
+	new CDNController(),
+	new FAQController(),
+	new LogController(),
+	new CrudController(),
+	new RoleController(),
+	new CartController(),
+	new UserController(),
+	new AuthController(),
+	new LoginController(),
+	new OrderController(),
+	new IntroController(),
+	new VenderController(),
+	new SearchController(),
+	new StatusController(),
+	new CouponController(),
+	new BannerController(),
+	new ProductController(),
+	new SummaryController(),
+	new AddressController(),
+	new BusinessController(),
+	new CategoryController(),
+	new wishlistController(),
+	new StatisticsController(),
+	new RegistrationController(),
+	new ConfigurationController(),
+]);
 
 if (isValidEnvironment()) {
     /* 

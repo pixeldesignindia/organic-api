@@ -45,6 +45,7 @@ const constants: any = {
 			COUPON:	'/coupon',
 			VENDER:	'/vendor',
 			ADDRESS: '/address',
+			BUSINESS:'/business',
 			PRODUCT: '/product',
 			SUMMARY: '/summary',
 			CATEGORY: '/category',
