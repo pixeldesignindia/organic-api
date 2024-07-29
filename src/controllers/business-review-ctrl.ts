@@ -21,9 +21,9 @@ export class BusinessController extends BaseController {
 		this.router.post(constants.API.V1 + constants.API.APP.BUSINESS, (req, res) => {
 			this.createRecord(req, res, this);
 		});
-		this.router.post(constants.API.V1 + constants.API.APP.BUSINESS + '/:id', (req, res) => {
-			this.findRecord(req, res, this);
-		});
+		// this.router.post(constants.API.V1 + constants.API.APP.BUSINESS + '/:id', (req, res) => {
+		// 	this.findRecord(req, res, this);
+		// });
 		this.router.put(constants.API.V1 + constants.API.APP.BUSINESS + '/:id', (req, res) => {
 			this.updateRecord(req, res, this);
 		});
