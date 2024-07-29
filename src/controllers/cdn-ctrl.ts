@@ -38,6 +38,9 @@ export default class CDNController extends BaseController {
 		this.router.get(constants.API.V1 + constants.API.APP.CDN + '/vender-image/:file', (req, res) => {
 			this.getVenderImage(req, res, this);
 		});
+		this.router.get(constants.API.V1 + constants.API.APP.CDN + '/review-image/:file', (req, res) => {
+			this.getReviewImage(req, res, this);
+		});
 	}
 
 	private getUserImage(req: Request, res: Response, that: any) {
@@ -108,6 +111,17 @@ export default class CDNController extends BaseController {
 		);
 	}
 	private getVenderImage(req: Request, res: Response, that: any) {
+		this.service.getVenderImage(req.params, req.headers).then(
+			(result: any) => {
+				that.responseUtil.sendTextResponse(req, res, result, 200);
+			},
+			(err: any) => {
+				LoggerUtil.log('error', { message: 'Error in getting product video', location: 'cdn-ctrl => getProductVideo', data: err });
+				that.responseUtil.sendFailureResponse(req, res, err, { fileName: 'cdn-ctrl', methodName: 'getProductVideo' }, 200);
+			}
+		);
+	}
+	private getReviewImage(req: Request, res: Response, that: any) {
 		this.service.getVenderImage(req.params, req.headers).then(
 			(result: any) => {
 				that.responseUtil.sendTextResponse(req, res, result, 200);
