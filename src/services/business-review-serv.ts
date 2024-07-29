@@ -21,7 +21,7 @@ export class BusinessReviewService extends BaseService {
 			}
 			return business;
 		} catch (error) {
-			throw new AppError('Error finding category', error, 500);
+			throw new AppError('Error finding reviews', error, 500);
 		}
 	}
 	async findAll(data: any, headers: any = null) {
