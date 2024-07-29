@@ -36,7 +36,7 @@ export class VenderController extends BaseController {
 		this.router.get(constants.API.V1 + constants.API.APP.VENDER + '/user/:id', (req, res) => {
 			this.findOneRecords(req, res, this);
 		});
-		this.router.post(constants.API.V1 + constants.API.APP.BANNER + '/update-image', (req, res) => {
+		this.router.post(constants.API.V1 + constants.API.APP.VENDER + '/update-image', (req, res) => {
 			this.updateImage(req, res, this);
 		});
 	}

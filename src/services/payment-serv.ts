@@ -1,4 +1,6 @@
-import AwsS3Service from './aws-s3-serv';
+import axios from 'axios';
+import crypto from 'crypto';
+
 import { BaseService } from './base-serv';
 import config from '../config/app-config';
 import constants from '../utils/constants';
@@ -7,10 +9,9 @@ import { LoggerUtil } from '../utils/logger-util';
 import { Payment } from '../models/payments';
 
 export class BannerService extends BaseService {
-	private awsS3Service: AwsS3Service;
+	
 	constructor() {
 		super(Payment);
-		this.awsS3Service = new AwsS3Service();
 	}
 	async find(id: string, headers: any = null) {
 		try {
@@ -31,14 +32,69 @@ export class BannerService extends BaseService {
 		}
 	}
 
-	async create(data: any, headers: any = null) {
-		try {
-		
-		} catch (error) {
-			return error;
-		}
-	}
+ async create(data: any, headers: any = null) {
+    try {
+      // Create a new Payment instance
+      const payment = new Payment();
+      payment.merchantId = config.PHONEPAY.SANDBOX_MERCHANT_ID;
+      payment.customerId = data.customerId;
+      payment.amount = data.amount;
+      payment.orderId = data.orderId;
+      payment.transactionId = this.genericUtil.getUniqueId();
+      payment.created_at = data.created_at;
 
+      // Construct the payment data payload
+      const paymentData = {
+        merchantId: payment.merchantId,
+        merchantTransactionId: payment.transactionId,
+        merchantUserId: data.customerId,
+        amount: data.amount, // Ensure the amount is passed correctly
+        redirectUrl: data.redirectUrl,
+        redirectMode: 'REDIRECT',
+        mobileNumber: data.phoneNumber,
+        paymentInstrument: {
+          type: 'PAY_PAGE',
+        },
+      };
+
+      // Convert the payload to base64
+      const payload = JSON.stringify(paymentData);
+      const payloadMain = Buffer.from(payload).toString('base64');
+
+      // Construct the string to hash
+      const stringToHash = payloadMain + constants.API.V1 + constants.API.APP.PAYMENT + config.PHONEPAY.SANDBOX_API_KEY;
+	
+      // Generate the checksum
+      const SHA256 = crypto.createHash('sha256').update(stringToHash).digest('hex');
+      const checksum = SHA256;
+      
+      // API URL for PhonePe (Sandbox/Production based on config)
+      const apiURL = config.PHONEPAY.SANDBOX_MODE
+        ? 'https://api.sandbox.phonepe.com/apis/hermes/payments/initiate'
+        : 'https://api.phonepe.com/apis/hermes/payments/initiate';
+
+      // Prepare headers for the API request
+	  const options ={
+		method:"POST",
+		url:apiURL,
+		 headers :{
+			accept:'application/json',
+        	'Content-Type': 'application/json',
+        	'X-VERIFY': `${checksum}###${config.PHONEPAY.SANDBOX_API_KEYINDEX}`,
+      },
+	  data:{
+		request:payloadMain
+	  }
+ }
+const response = axios.request(options)
+
+await payment.save();
+
+return response;
+    } catch (error) {
+      return error;
+    }
+  }
 	async update(id: any, data: any, headers: any = null) {
 		try {
 		
