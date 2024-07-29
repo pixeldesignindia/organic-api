@@ -122,7 +122,7 @@ export default class CDNController extends BaseController {
 		);
 	}
 	private getReviewImage(req: Request, res: Response, that: any) {
-		this.service.getVenderImage(req.params, req.headers).then(
+		this.service.getReviewImage(req.params, req.headers).then(
 			(result: any) => {
 				that.responseUtil.sendTextResponse(req, res, result, 200);
 			},
