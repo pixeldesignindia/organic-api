@@ -15,6 +15,7 @@ interface IVender extends IBase {
 	deleted_at: Date;
 	unique_id: string;
 	firm_name: string;
+	image_file:string;
 	is_active: boolean;
 	deliveredBy:string;
 	is_deleted: boolean;
@@ -62,6 +63,7 @@ const VenderSchema = new Schema({
 	},
 	created_at: { type: Date },
 	updated_at: { type: Date },
+	image_file: { type: String},
 	is_active: { type: Boolean },
 	is_deleted: { type: Boolean },
 	unique_id: { type: String, required: true },
