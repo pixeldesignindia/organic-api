@@ -44,6 +44,7 @@ const constants: any = {
 			STATUS: '/status',
 			COUPON:	'/coupon',
 			VENDER:	'/vendor',
+			PAYMENT:'/payment',
 			ADDRESS: '/address',
 			BUSINESS:'/business',
 			PRODUCT: '/product',
