@@ -90,6 +90,14 @@ const config: any = {
 		PROFILE_NAME: process.env.AWS_PROFILE_NAME || 'default',
 		S3_IMAGE_BUCKET: process.env.AWS_S3_IMAGE_BUCKET || 'organic-product-image',
 	},
+	PHONEPAY:{
+		API_KEY: process.env.PHONEPAY_API_KEY,
+        SANDBOX_API_KEY: process.env.PHONEPAY_SANDBOX_API_KEY,
+        API_SECRET: process.env.PHONEPAY_API_SECRET,
+        SANDBOX_API_SECRET: process.env.PHONEPAY_SANDBOX_API_SECRET,
+        SANDBOX_MODE: process.env.PHONEPAY_SANDBOX_MODE || false,
+        SANDBOX_MERCHANT_ID: process.env.PHONEPAY_SANDBOX_MERCHANT_ID,
+	}
 };
 
 export default config;

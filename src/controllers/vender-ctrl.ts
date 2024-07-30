@@ -36,6 +36,9 @@ export class VenderController extends BaseController {
 		this.router.get(constants.API.V1 + constants.API.APP.VENDER + '/user/:id', (req, res) => {
 			this.findOneRecords(req, res, this);
 		});
+		this.router.post(constants.API.V1 + constants.API.APP.VENDER + '/update-image', (req, res) => {
+			this.updateImage(req, res, this);
+		});
 	}
 
 	private createRecord(req: Request, res: Response, that: any) {
@@ -108,6 +111,17 @@ export class VenderController extends BaseController {
 			(err: any) => {
 				LoggerUtil.log('error', { message: 'Error in checking Status Of Vendor', location: 'vender-ctrl => checkStatusRecord', data: err });
 				that.responseUtil.sendFailureResponse(req, res, err, { fileName: 'vender-ctrl', methodName: 'checkStatusRecord' }, 200);
+			}
+		);
+	}
+	private updateImage(req: Request, res: Response, that: any) {
+		that.service.updateImage(req.body, req.headers).then(
+			(result: any) => {
+				that.responseUtil.sendReadResponse(req, res, result, 200);
+			},
+			(err: any) => {
+				LoggerUtil.log('error', { message: 'Error in adding image', location: 'vender-ctrl => updateImage', error: err });
+				that.responseUtil.sendFailureResponse(req, res, err, { fileName: 'vender-ctrl', methodName: 'updateImage' }, 200);
 			}
 		);
 	}

@@ -29,6 +29,18 @@ export default class CDNController extends BaseController {
 		this.router.get(constants.API.V1 + constants.API.APP.CDN + '/banner-image/:file', (req, res) => {
 			this.getBannerImage(req, res, this);
 		});
+		this.router.get(constants.API.V1 + constants.API.APP.CDN + '/product-video/:file', (req, res) => {
+			this.getProductVideo(req, res, this);
+		});
+		this.router.get(constants.API.V1 + constants.API.APP.CDN + '/intro-video/:file', (req, res) => {
+			this.getIntroVideo(req, res, this);
+		});
+		this.router.get(constants.API.V1 + constants.API.APP.CDN + '/vender-image/:file', (req, res) => {
+			this.getVenderImage(req, res, this);
+		});
+		this.router.get(constants.API.V1 + constants.API.APP.CDN + '/review-image/:file', (req, res) => {
+			this.getReviewImage(req, res, this);
+		});
 	}
 
 	private getUserImage(req: Request, res: Response, that: any) {
@@ -73,6 +85,50 @@ export default class CDNController extends BaseController {
 			(err: any) => {
 				LoggerUtil.log('error', { message: 'Error in getting user image', location: 'cdn-ctrl => getUserImage', data: err });
 				that.responseUtil.sendFailureResponse(req, res, err, { fileName: 'cdn-ctrl', methodName: 'getUserImage' }, 200);
+			}
+		);
+	}
+	private getProductVideo(req: Request, res: Response, that: any) {
+		this.service.getProductVideo(req.params, req.headers).then(
+			(result: any) => {
+				that.responseUtil.sendTextResponse(req, res, result, 200);
+			},
+			(err: any) => {
+				LoggerUtil.log('error', { message: 'Error in getting product video', location: 'cdn-ctrl => getProductVideo', data: err });
+				that.responseUtil.sendFailureResponse(req, res, err, { fileName: 'cdn-ctrl', methodName: 'getProductVideo' }, 200);
+			}
+		);
+	}
+	private getIntroVideo(req: Request, res: Response, that: any) {
+		this.service.getIntroVideo(req.params, req.headers).then(
+			(result: any) => {
+				that.responseUtil.sendTextResponse(req, res, result, 200);
+			},
+			(err: any) => {
+				LoggerUtil.log('error', { message: 'Error in getting product video', location: 'cdn-ctrl => getProductVideo', data: err });
+				that.responseUtil.sendFailureResponse(req, res, err, { fileName: 'cdn-ctrl', methodName: 'getProductVideo' }, 200);
+			}
+		);
+	}
+	private getVenderImage(req: Request, res: Response, that: any) {
+		this.service.getVenderImage(req.params, req.headers).then(
+			(result: any) => {
+				that.responseUtil.sendTextResponse(req, res, result, 200);
+			},
+			(err: any) => {
+				LoggerUtil.log('error', { message: 'Error in getting product video', location: 'cdn-ctrl => getProductVideo', data: err });
+				that.responseUtil.sendFailureResponse(req, res, err, { fileName: 'cdn-ctrl', methodName: 'getProductVideo' }, 200);
+			}
+		);
+	}
+	private getReviewImage(req: Request, res: Response, that: any) {
+		this.service.getReviewImage(req.params, req.headers).then(
+			(result: any) => {
+				that.responseUtil.sendTextResponse(req, res, result, 200);
+			},
+			(err: any) => {
+				LoggerUtil.log('error', { message: 'Error in getting product video', location: 'cdn-ctrl => getProductVideo', data: err });
+				that.responseUtil.sendFailureResponse(req, res, err, { fileName: 'cdn-ctrl', methodName: 'getProductVideo' }, 200);
 			}
 		);
 	}

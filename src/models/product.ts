@@ -49,17 +49,18 @@ interface IProductImage extends IBase {
 
 interface IProduct extends IBase {
 	_id: any;
-	brand:string;
+	brand: string;
 	name: string;
 	user_id: string;
 	made_for: string;
-	isGlobal:boolean;
+	isGlobal: boolean;
 	category: string;
+	video_file:string;
 	description: string;
 	availablePinCode: [];
 	product_image_name: string;
 	product_image_saved_name: string;
-	deliveredBy:string;
+	deliveredBy: string;
 
 	end_date: Date;
 	start_date: Date;
@@ -184,6 +185,7 @@ const ProductImageSchema = new Schema({
 });
 
 const ProductSchema = new Schema({
+	video_file: { type: String },
 	brand: { type: String, required: true },
 	name: { type: String, required: true },
 	slip: { type: String },

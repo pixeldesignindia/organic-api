@@ -467,7 +467,7 @@ export class ProductService {
 		if (data.name) {
 			where.name = data.name;
 		}
-		
+
 		if (data.brand) {
 			where.brand = data.brand;
 		}
@@ -592,7 +592,7 @@ export class ProductService {
 			},
 			{
 				$project: {
-					brand:1,
+					brand: 1,
 					name: 1,
 					skus: 1,
 					user_id: 1,
@@ -1807,6 +1807,127 @@ export class ProductService {
 			return Promise.reject({
 				message: error ? error.toString() : 'Cannot read product ratings',
 			});
+		}
+	}
+	async addVideo(data: any, headers: any = null) {
+		if (!data.video) {
+			return Promise.reject(new AppError('video not uploaded', 'production-serv => addVideo', constants.HTTP_STATUS.BAD_REQUEST));
+		}
+
+		let product: any = Product.findById({ _id: data.product_id });
+
+		if (product) {
+			if (data.video) {
+				let file_name = data.video.file_name;
+				let saved_file_name = this.dateUtil.getCurrentEpoch() + '_' + file_name;
+
+				const base64Data = data.video.base64.replace(/^data:video\/\w+;base64,/, '');
+				let fileContent = Buffer.from(base64Data, 'base64');
+				let uploadResponse: any = await this.awsS3Service.uploadFile('product-video/' + saved_file_name, fileContent, config.AWS.S3_IMAGE_BUCKET);
+
+				if (uploadResponse) {
+					try {
+						await Product.updateOne({ _id: data.product_id }, { video_file: saved_file_name });
+
+						LoggerUtil.log('info', { message: ` product video  added.` });
+
+						return {
+							success: true,
+						};
+					} catch (error) {
+						LoggerUtil.log('error', { message: 'Error in adding product video:' + error?.toString(), location: 'user-sev => updateImage' });
+						return {
+							error: true,
+							success: false,
+							message: error ? error.toString() : null,
+						};
+					}
+				} else {
+					return {
+						error: true,
+						success: false,
+						message: 'Could not upload prodcut video to storage',
+					};
+				}
+			} else {
+				return {
+					error: true,
+					success: false,
+					message: 'Product video not provided',
+				};
+			}
+		} else {
+			return null;
+		}
+	}
+	async removeVideo(data: any, headers: any = null) {
+		try {
+			let product: any = await Product.findOne({
+				_id: new mongoose.Types.ObjectId(data.product_id),
+			});
+
+			if (product) {
+				let result: any = await Product.updateOne(
+					{
+						_id: new mongoose.Types.ObjectId(data.product_id),
+					},
+					{
+						$set: {
+							video_file: '', // Set the video_file field to an empty string
+							updated_at: data.updated_at, // Update the updated_at field
+						},
+					}
+				);
+
+				if (result && result.modifiedCount == 1) {
+					LoggerUtil.log('info', { message: 'Product video removed.' });
+					return {
+						success: true,
+					};
+				} else {
+					return {
+						success: false,
+						message: 'Failed to remove product video',
+					};
+				}
+			} else {
+				return Promise.reject({
+					message: 'Invalid product',
+				});
+			}
+		} catch (err) {
+			LoggerUtil.log('error', { message: 'Error in removing product video: ' + err?.toString(), location: 'product-serv => removeVideo' });
+			return Promise.reject({
+				message: err ? err.toString() : 'Error in removing video',
+			});
+		}
+	}
+	async getLatestProductsWithVideo(headers: any = null) {
+		try {
+			let products = await Product.find({
+				video_file: { $exists: true, $ne: '' }, // Ensure the video_file field exists and is not an empty string
+			})
+				.select({ video_file: 1, _id: 1, name: 1, skus:1,images:1 })
+				.sort({ updated_at: -1 }) // Sort by the most recently updated
+				.limit(20); // Limit to the latest 20
+
+			if (products && products.length > 0) {
+				return {
+					success: true,
+					data: products,
+				};
+			} else {
+				return {
+					success: false,
+					message: 'No products with video files found',
+				};
+			}
+		} catch (err) {
+			LoggerUtil.log('error', { message: 'Error in fetching products with video: ' + err?.toString(), location: 'product-serv => getLatestProductsWithVideo' });
+			return {
+				success: false,
+				message: err ? err.toString() : 'Error in fetching products with video',
+			};
 		}
 	}
 }

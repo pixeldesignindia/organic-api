@@ -1,14 +1,20 @@
 import mongoose from 'mongoose';
-import { User } from '../models/user';
+import AwsS3Service from './aws-s3-serv';
 import { BaseService } from './base-serv';
-import { Vender } from '../models/vender';
+import config from '../config/app-config';
 import constants from '../utils/constants';
 import { AppError } from '../models/app-error';
+import { LoggerUtil } from '../utils/logger-util';
+import { User } from '../models/user';
+import { Vender } from '../models/vender';
+
 
 
 export class VenderService extends BaseService {
+	private awsS3Service: AwsS3Service;
 	constructor() {
 		super(Vender);
+		this.awsS3Service = new AwsS3Service();
 	}
 
 	async find(id: string, headers: any = null) {
@@ -24,7 +30,7 @@ export class VenderService extends BaseService {
 	}
 	async findByUserId(id: string, headers: any = null) {
 		try {
-			const vender = await Vender.findOne({user_id:id}).populate('user_id');
+			const vender = await Vender.findOne({ user_id: id }).populate('user_id');
 			if (!vender) {
 				return Promise.reject(new AppError('vender not found', null, 404));
 			}
@@ -98,8 +104,7 @@ export class VenderService extends BaseService {
 			}
 
 			if (data.status === 'SUCCESS') {
-				await User.findOneAndUpdate({ _id: vender.user_id }, { user_type: constants.USER_TYPES.VENDER ,deliveredBy:vender.deliveredBy}, { new: true });
-				
+				await User.findOneAndUpdate({ _id: vender.user_id }, { user_type: constants.USER_TYPES.VENDER, deliveredBy: vender.deliveredBy }, { new: true });
 			} else if (data.status === 'REJECTED') {
 				await User.findOneAndUpdate({ _id: vender.user_id }, { user_type: constants.USER_TYPES.USER }, { new: true });
 			}
@@ -123,6 +128,57 @@ export class VenderService extends BaseService {
 		} catch (error) {
 			console.log(error);
 			return Promise.reject(new AppError('Error checking vendor status', error, 500));
+		}
+	}
+	async updateImage(data: any, headers: any = null) {
+		if (!data.image) {
+			return Promise.reject(new AppError('Image not uploaded', 'vender-serv => updateImage', constants.HTTP_STATUS.BAD_REQUEST));
+		}
+
+		let vender: any = Vender.findById({ _id: data.vender_id });
+
+		if (vender) {
+			if (data.image) {
+				let file_name = data.image.file_name;
+				let saved_file_name = this.dateUtil.getCurrentEpoch() + '_' + file_name;
+
+				const base64Data = data.image.base64.replace(/^data:image\/\w+;base64,/, '');
+				let fileContent = Buffer.from(base64Data, 'base64');
+				let uploadResponse: any = await this.awsS3Service.uploadFile('vender-image/' + saved_file_name, fileContent, config.AWS.S3_IMAGE_BUCKET);
+
+				if (uploadResponse) {
+					try {
+						await Vender.updateOne({ _id: data.vender_id }, { image_file: saved_file_name });
+
+						LoggerUtil.log('info', { message: `vender logo image added.` });
+
+						return {
+							success: true,
+						};
+					} catch (error) {
+						LoggerUtil.log('error', { message: 'Error in adding vender image:' + error?.toString(), location: 'user-sev => updateImage' });
+						return {
+							error: true,
+							success: false,
+							message: error ? error.toString() : null,
+						};
+					}
+				} else {
+					return {
+						error: true,
+						success: false,
+						message: 'Could not upload image to storage',
+					};
+				}
+			} else {
+				return {
+					error: true,
+					success: false,
+					message: 'Image not provided',
+				};
+			}
+		} else {
+			return null;
 		}
 	}
 }

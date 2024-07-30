@@ -37,4 +37,34 @@ export class CDNService extends BaseService {
 
 		return await this.awsS3Service.getImage(data, headers);
 	}
+	async getProductVideo(data: any, headers: any) {
+		data.folder = 'product-video';
+		data.bucketName = config.AWS.S3_IMAGE_BUCKET;
+
+		return await this.awsS3Service.getImage(data, headers);
+	}
+	async getIntroVideo(data: any, headers: any) {
+		data.folder = 'intro-video';
+		data.bucketName = config.AWS.S3_IMAGE_BUCKET;
+
+		return await this.awsS3Service.getImage(data, headers);
+	}
+	async getBusinessImage(data: any, headers: any) {
+		data.folder = 'business-image';
+		data.bucketName = config.AWS.S3_IMAGE_BUCKET;
+
+		return await this.awsS3Service.getImage(data, headers);
+	}
+	async getVenderImage(data: any, headers: any) {
+		data.folder = 'vender-image';
+		data.bucketName = config.AWS.S3_IMAGE_BUCKET;
+
+		return await this.awsS3Service.getImage(data, headers);
+	}
+	async getReviewImage(data: any, headers: any) {
+		data.folder = 'business-image';
+		data.bucketName = config.AWS.S3_IMAGE_BUCKET;
+
+		return await this.awsS3Service.getImage(data, headers);
+	}
 }
