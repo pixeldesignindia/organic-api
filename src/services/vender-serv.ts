@@ -14,6 +14,7 @@ export class VenderService extends BaseService {
 	private awsS3Service: AwsS3Service;
 	constructor() {
 		super(Vender);
+		this.awsS3Service = new AwsS3Service();
 	}
 
 	async find(id: string, headers: any = null) {
