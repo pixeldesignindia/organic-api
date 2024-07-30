@@ -8,7 +8,7 @@ import { AppError } from '../models/app-error';
 import { LoggerUtil } from '../utils/logger-util';
 import { Payment } from '../models/payments';
 
-export class BannerService extends BaseService {
+export class PaymentService extends BaseService {
 	constructor() {
 		super(Payment);
 	}

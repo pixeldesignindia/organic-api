@@ -47,7 +47,6 @@ export class JwtUtil {
 					try {
 						decryptedToken = this.encryptionUtil.decryptWithCrypto(refreshToken);
 					} catch (err) {
-						console.error('Error decrypting token:', err);
 						resolve({
 							valid: false,
 							message: 'Failed to decrypt token.',
@@ -97,7 +96,7 @@ export class JwtUtil {
 				try {
 					decryptedToken = this.encryptionUtil.decryptWithCrypto(token);
 				} catch (err) {
-					console.error('Error decrypting token:', err);
+				
 					resolve({
 						valid: false,
 						message: 'Failed to decrypt token.',
@@ -107,7 +106,6 @@ export class JwtUtil {
 
 				jwt.verify(decryptedToken, secretKey, function (err: any, decoded: any) {
 					if (err) {
-						console.error('Error verifying token:', err);
 						resolve({
 							valid: false,
 							message: 'Failed to verify token.',
