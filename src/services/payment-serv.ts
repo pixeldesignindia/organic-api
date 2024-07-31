@@ -63,7 +63,7 @@ export class PaymentService extends BaseService {
 			const payloadMain = Buffer.from(payload).toString('base64');
 
 			// Construct the string to hash
-			const stringToHash = payloadMain + constants.API.V1 + constants.API.APP.PAYMENT + config.PHONEPAY.SANDBOX_API_KEY;
+			const stringToHash = payloadMain + constants.API.V1 + constants.API.APP.PAYMENT + config.PHONEPAY.SALT_KEY;
 
 			// Generate the checksum
 			const SHA256 = crypto.createHash('sha256').update(stringToHash).digest('hex');
@@ -71,7 +71,6 @@ export class PaymentService extends BaseService {
 
 			// API URL for PhonePe (Sandbox/Production based on config)
 			const apiURL = config.PHONEPAY.SANDBOX_MODE ? 'https://api.sandbox.phonepe.com/apis/hermes/payments/initiate' : 'https://api.phonepe.com/apis/hermes/payments/initiate';
-
 			// Prepare headers for the API request
 			const options = {
 				method: 'POST',
@@ -79,7 +78,7 @@ export class PaymentService extends BaseService {
 				headers: {
 					accept: 'application/json',
 					'Content-Type': 'application/json',
-					'X-VERIFY': `${checksum}###${config.PHONEPAY.SANDBOX_API_KEYINDEX}`,
+					'X-VERIFY': `${checksum}###${config.PHONEPAY.SALT_INDEX}`,
 				},
 				data: {
 					request: payloadMain,
