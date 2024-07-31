@@ -232,6 +232,7 @@ export class ProductService {
 		product.images = [];
 		product.is_active = true;
 		product.name = data.name;
+		product.brand= data.brand;
 		product.is_deleted = false;
 		product.user_id = data.user_id;
 		product.category = data.category;
