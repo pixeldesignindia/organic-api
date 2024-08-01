@@ -2,18 +2,20 @@ import mongoose, { Schema } from 'mongoose';
 
 
  interface IPayment extends IBase {
-		transactionId: string;
-		orderId: string;
-		customerId: string;
-		merchantId: string;
-		amount: number;
-		status: string;
-		created_at: Date;
-		updated_at: Date;
- }
+	 amount: number;
+	 status: string;
+	 created_at: Date;
+	 updated_at: Date;
+	 orderId: string;
+	 customerId: string;
+	 merchantId: string;
+	 transactionId: string;
+	 refundTransactionId:string;
+	}
 
 const PaymentSchema: Schema = new Schema({
 	transactionId: { type: String, required: true, unique: true },
+	refundTransactionId:{type: String, },
 	orderId: { type: String, required: true },
 	merchantId: { type: String, required: true },
 	customerId: { type: String, required: true },

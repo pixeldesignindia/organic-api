@@ -28,6 +28,9 @@ export class PaymentController extends BaseController {
 		this.router.post(constants.API.V1 + constants.API.APP.PAYMENT + '/check-status', (req, res) => {
 			this.checkPaymentStatus(req, res, this);
 		});
+		this.router.post(constants.API.V1 + constants.API.APP.PAYMENT + '/refund', (req, res) => {
+			this.refund(req, res, this);
+		});
 	}
 
 	private createPayment(req: Request, res: Response, that: any) {
@@ -75,6 +78,17 @@ export class PaymentController extends BaseController {
 			(err: any) => {
 				LoggerUtil.log('error', { message: 'Error in checking payment status', location: 'payment-ctrl => checkPaymentStatus', data: err });
 				that.responseUtil.sendFailureResponse(req, res, err, { fileName: 'payment-ctrl', methodName: 'checkPaymentStatus' }, constants.HTTP_STATUS.BAD_REQUEST);
+			}
+		);
+	}
+	private refund(req: Request, res: Response, that: any) {
+		that.service.refund(req.body, req.headers).then(
+			(result: any) => {
+				that.responseUtil.sendReadResponse(req, res, result, constants.HTTP_STATUS.OK);
+			},
+			(err: any) => {
+				LoggerUtil.log('error', { message: 'Error in refunding payment', location: 'payment-ctrl => refund', data: err });
+				that.responseUtil.sendFailureResponse(req, res, err, { fileName: 'payment-ctrl', methodName: 'refund' }, constants.HTTP_STATUS.BAD_REQUEST);
 			}
 		);
 	}

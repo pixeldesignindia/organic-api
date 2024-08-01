@@ -129,4 +129,70 @@ export class PaymentService extends BaseService {
 			throw new AppError('Error checking payment status', error, 500);
 		}
 	}
+	async refund(data: any, headers: any = null) {
+		try {
+			// Create the refund payload
+			const refundData = {
+				merchantId: config.PHONEPAY.SANDBOX_MERCHANT_ID,
+				merchantUserId: data.merchantUserId,
+				originalTransactionId: data.originalTransactionId,
+				merchantTransactionId: this.genericUtil.getUniqueId(), // Unique refund transaction ID
+				amount: data.amount,
+				callbackUrl: data.callbackUrl,
+			};
+
+			// Convert the payload to base64
+			const payload = JSON.stringify(refundData);
+			const payloadMain = Buffer.from(payload).toString('base64');
+
+			// Construct the string to hash
+			const stringToHash = payloadMain + constants.API.V1 + constants.API.APP.REFUND + config.PHONEPAY.SALT_KEY;
+
+			// Generate the checksum
+			const SHA256 = crypto.createHash('sha256').update(stringToHash).digest('hex');
+			const checksum = SHA256;
+
+			// API URL for PhonePe refund (Sandbox/Production based on config)
+			const apiURL = config.PHONEPAY.SANDBOX_MODE
+				? 'https://api.sandbox.phonepe.com/apis/hermes/refunds/initiate'
+				: 'https://api-preprod.phonepe.com/apis/pg-sandbox/pg/v1/refund';
+
+			// Prepare headers for the API request
+			const options = {
+				method: 'POST',
+				url: apiURL,
+				headers: {
+					accept: 'application/json',
+					'Content-Type': 'application/json',
+					'X-VERIFY': `${checksum}###${config.PHONEPAY.SALT_INDEX}`,
+				},
+				data: {
+					request: payloadMain,
+				},
+			};
+
+			// Send the request to the PhonePe API
+			const response = await axios.request(options);
+
+			// Handle response and update payment status
+			if (response.data.success) {
+				// Find the payment record in the database
+				const payment = await Payment.findOne({ transactionId: data.originalTransactionId });
+				if (!payment) {
+					throw new AppError('Original payment not found', null, 404);
+				}
+
+				// Update the payment record with the refund details
+				payment.status = response.data.data.status;
+				payment.refundTransactionId = refundData.merchantTransactionId;
+
+				await payment.save();
+			}
+
+			return response.data;
+		} catch (error) {
+			LoggerUtil.log('error', { message: 'Error processing refund:' + error?.toString(), location: 'PaymentService => refund' });
+			throw new AppError('Error processing refund', error, 500);
+		}
+	}
 }
