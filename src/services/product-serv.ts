@@ -232,7 +232,7 @@ export class ProductService {
 		product.images = [];
 		product.is_active = true;
 		product.name = data.name;
-		product.brand= data.brand;
+		product.brand = data.brand;
 		product.is_deleted = false;
 		product.user_id = data.user_id;
 		product.category = data.category;
@@ -1908,7 +1908,7 @@ export class ProductService {
 			let products = await Product.find({
 				video_file: { $exists: true, $ne: '' }, // Ensure the video_file field exists and is not an empty string
 			})
-				.select({ video_file: 1, _id: 1, name: 1, skus:1,images:1 })
+				.select({ video_file: 1, _id: 1, name: 1, skus: 1, images: 1 })
 				.sort({ updated_at: -1 }) // Sort by the most recently updated
 				.limit(20); // Limit to the latest 20
 
@@ -1929,6 +1929,19 @@ export class ProductService {
 				success: false,
 				message: err ? err.toString() : 'Error in fetching products with video',
 			};
+		}
+	}
+	async deleteAll(headers: any = null) {
+		try {
+			const result = await Product.deleteMany({});
+			if (result.deletedCount === 0) {
+				throw new AppError('No products to delete', null, 404);
+			}
+			return {
+				message: `Deleted ${result.deletedCount} products`,
+			};
+		} catch (error) {
+			throw new AppError('Error deleting all products', error, 500);
 		}
 	}
 }

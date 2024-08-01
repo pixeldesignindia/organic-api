@@ -99,6 +99,9 @@ export default class ProductController extends BaseController {
 		this.router.post(constants.API.V1 + constants.API.APP.PRODUCT + '/latest-video', (req, res) => {
 			this.getLatestVideoProduct(req, res, this);
 		});
+		this.router.delete(constants.API.V1 + constants.API.APP.PRODUCT, (req, res) => {
+			this.deleteRecord(req, res, this);
+		});
 	}
 
 	private getRecentProducts(req: Request, res: Response, that: any) {
@@ -400,6 +403,17 @@ export default class ProductController extends BaseController {
 			(err: any) => {
 				LoggerUtil.log('error', { message: 'Error in getting  videos in product', location: 'product-ctrl => getLatestVideoProduct', error: err });
 				that.responseUtil.sendFailureResponse(req, res, err, { fileName: 'product-ctrl', methodName: 'getLatestVideoProduct' }, 200);
+			}
+		);
+	}
+	private deleteRecord(req: Request, res: Response, that: any) {
+		that.service.deleteAll( req.headers).then(
+			(result: any) => {
+				that.responseUtil.sendUpdateResponse(req, res, result, 200);
+			},
+			(err: any) => {
+				LoggerUtil.log('error', { message: 'Error in removing all categories', location: 'category-ctrl => delete All', data: err });
+				that.responseUtil.sendFailureResponse(req, res, err, { fileName: 'category-ctrl', methodName: 'delete' }, 200);
 			}
 		);
 	}
