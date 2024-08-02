@@ -488,8 +488,6 @@ export class ProductService {
 			sort = { created_at: -1 };
 		}
 
-		const pipeline: any[] = [{ $match: where }, { $unwind: '$skus' }];
-
 		const priceRangeMatch: any = {};
 		if (data.minPrice) {
 			priceRangeMatch['skus.originalPrice'] = { $gte: parseFloat(data.minPrice) };
@@ -502,7 +500,25 @@ export class ProductService {
 			}
 		}
 
-		console.log(priceRangeMatch);
+		// Count total matching documents
+		const totalCountPipeline: any[] = [{ $match: where }, { $unwind: '$skus' }];
+
+		if (data.minPrice || data.maxPrice) {
+			totalCountPipeline.push({ $match: priceRangeMatch });
+		}
+
+		totalCountPipeline.push({
+			$group: {
+				_id: null,
+				count: { $sum: 1 },
+			},
+		});
+
+		const totalCountResult = await Product.aggregate(totalCountPipeline);
+		const totalCount = totalCountResult.length > 0 ? totalCountResult[0].count : 0;
+		const totalPages = Math.ceil(totalCount / pageSize);
+
+		const pipeline: any[] = [{ $match: where }, { $unwind: '$skus' }];
 
 		if (data.minPrice || data.maxPrice) {
 			pipeline.push({ $match: priceRangeMatch });
@@ -665,7 +681,7 @@ export class ProductService {
 		);
 
 		const products = await Product.aggregate(pipeline);
-		return products;
+		return { products, totalPages };
 	}
 
 	async getRecentProducts(data: any, headers: any = null) {
