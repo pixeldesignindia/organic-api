@@ -19,8 +19,11 @@ export class PaymentController extends BaseController {
 		this.router.post(constants.API.V1 + constants.API.APP.PAYMENT, (req, res) => {
 			this.createPayment(req, res, this);
 		});
-		this.router.get(constants.API.V1 + constants.API.APP.PAYMENT + '/:id', (req, res) => {
+		this.router.post(constants.API.V1 + constants.API.APP.PAYMENT + '/transactionId', (req, res) => {
 			this.findPayment(req, res, this);
+		});
+		this.router.post(constants.API.V1 + constants.API.APP.PAYMENT + '/order', (req, res) => {
+			this.findPaymentByOrderId(req, res, this);
 		});
 		this.router.get(constants.API.V1 + constants.API.APP.PAYMENT, (req, res) => {
 			this.findAllPayments(req, res, this);
@@ -47,7 +50,18 @@ export class PaymentController extends BaseController {
 	}
 
 	private findPayment(req: Request, res: Response, that: any) {
-		that.service.find(req.params.id, req.headers).then(
+		that.service.find(req.body, req.headers).then(
+			(result: any) => {
+				that.responseUtil.sendReadResponse(req, res, result, constants.HTTP_STATUS.OK);
+			},
+			(err: any) => {
+				LoggerUtil.log('error', { message: 'Error in finding payment', location: 'payment-ctrl => findPayment', data: err });
+				that.responseUtil.sendFailureResponse(req, res, err, { fileName: 'payment-ctrl', methodName: 'findPayment' }, constants.HTTP_STATUS.BAD_REQUEST);
+			}
+		);
+	}
+	private findPaymentByOrderId(req: Request, res: Response, that: any) {
+		that.service.find(req.body, req.headers).then(
 			(result: any) => {
 				that.responseUtil.sendReadResponse(req, res, result, constants.HTTP_STATUS.OK);
 			},

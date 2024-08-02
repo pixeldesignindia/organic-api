@@ -13,9 +13,20 @@ export class PaymentService extends BaseService {
 		super(Payment);
 	}
 
-	async find(id: string, headers: any = null) {
+	async find(data:any, headers: any = null) {
 		try {
-			const payment = await Payment.findById(id);
+			const payment = await Payment.findById({ transactionId: data.transactionId });
+			if (!payment) {
+				throw new AppError('payment not found', null, 404);
+			}
+			return payment;
+		} catch (error) {
+			throw new AppError('Error finding payment', error, 500);
+		}
+	}
+	async findOne(data:any, headers: any = null) {
+		try {
+			const payment = await Payment.findOne({ orderId:data.orderId });
 			if (!payment) {
 				throw new AppError('payment not found', null, 404);
 			}
@@ -153,9 +164,7 @@ export class PaymentService extends BaseService {
 			const checksum = SHA256;
 
 			// API URL for PhonePe refund (Sandbox/Production based on config)
-			const apiURL = config.PHONEPAY.SANDBOX_MODE
-				? 'https://api.sandbox.phonepe.com/apis/hermes/refunds/initiate'
-				: 'https://api-preprod.phonepe.com/apis/pg-sandbox/pg/v1/refund';
+			const apiURL = config.PHONEPAY.SANDBOX_MODE ? 'https://api.sandbox.phonepe.com/apis/hermes/refunds/initiate' : 'https://api-preprod.phonepe.com/apis/pg-sandbox/pg/v1/refund';
 
 			// Prepare headers for the API request
 			const options = {
