@@ -127,6 +127,19 @@ export class CategoryService extends BaseService {
 			throw new AppError('Error deleting category', error, 500);
 		}
 	}
+	async deleteAll(headers: any = null) {
+		try {
+			const result = await Category.deleteMany({});
+			if (result.deletedCount === 0) {
+				throw new AppError('No categories to delete', null, 404);
+			}
+			return {
+				message: `Deleted ${result.deletedCount} categories`,
+			};
+		} catch (error) {
+			throw new AppError('Error deleting all categories', error, 500);
+		}
+	}
 
 	async updateImage(data: any, headers: any = null) {
 		if (!data.image) {

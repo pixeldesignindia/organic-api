@@ -63,12 +63,12 @@ const OrderSchema = new Schema({
 				type: Schema.Types.ObjectId,
 				ref: 'Product',
 			},
-			size: { type: String, required: true},
-			productSkuName: { type: String, required: true},
+			size: { type: String, required: true },
+			productSkuName: { type: String, required: true },
 			description: { type: String, required: true },
 			discountPrice: { type: Number, required: true },
 			originalPrice: { type: Number, required: true },
-			productCommissionAmount:{type:Number,required:true}
+			productCommissionAmount: { type: Number, required: true },
 		},
 	],
 	user_id: {
@@ -79,7 +79,18 @@ const OrderSchema = new Schema({
 	status: {
 		type: String,
 		default: 'placed',
-		enum: ['placed', 'Transferred to delivery partner', 'processing', 'shipped', 'delivered', 'cancelled'],
+		enum: [
+			'placed',
+			'Transferred to delivery partner', 
+			'processing',
+			'shipped',
+			'delivered',
+			'cancelled',
+			'return product',
+			'pickup from user',
+			'received product by vendor',
+			'returned'
+		],
 	},
 	paymentInfo: {
 		id: { type: String },
@@ -97,12 +108,12 @@ const OrderSchema = new Schema({
 	totalPrice: { type: Number, required: true },
 	shippingCharge: { type: Number, default: 0 },
 	created_at: { type: Date, default: Date.now() },
-	delivery_partner_id:{type: Schema.Types.ObjectId,ref: 'User'},
-	deliveredBy:{
-		type:String,
-		required:true,
-		default:"Admin"
-	}
+	delivery_partner_id: { type: Schema.Types.ObjectId, ref: 'User' },
+	deliveredBy: {
+		type: String,
+		required: true,
+		default: 'Admin',
+	},
 });
 
 const Order = mongoose.model<IOrder>('Order', OrderSchema);

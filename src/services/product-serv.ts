@@ -232,6 +232,7 @@ export class ProductService {
 		product.images = [];
 		product.is_active = true;
 		product.name = data.name;
+		product.brand = data.brand;
 		product.is_deleted = false;
 		product.user_id = data.user_id;
 		product.category = data.category;
@@ -487,8 +488,6 @@ export class ProductService {
 			sort = { created_at: -1 };
 		}
 
-		const pipeline: any[] = [{ $match: where }, { $unwind: '$skus' }];
-
 		const priceRangeMatch: any = {};
 		if (data.minPrice) {
 			priceRangeMatch['skus.originalPrice'] = { $gte: parseFloat(data.minPrice) };
@@ -501,7 +500,25 @@ export class ProductService {
 			}
 		}
 
-		console.log(priceRangeMatch);
+		// Count total matching documents
+		const totalCountPipeline: any[] = [{ $match: where }, { $unwind: '$skus' }];
+
+		if (data.minPrice || data.maxPrice) {
+			totalCountPipeline.push({ $match: priceRangeMatch });
+		}
+
+		totalCountPipeline.push({
+			$group: {
+				_id: null,
+				count: { $sum: 1 },
+			},
+		});
+
+		const totalCountResult = await Product.aggregate(totalCountPipeline);
+		const totalCount = totalCountResult.length > 0 ? totalCountResult[0].count : 0;
+		const totalPages = Math.ceil(totalCount / pageSize);
+
+		const pipeline: any[] = [{ $match: where }, { $unwind: '$skus' }];
 
 		if (data.minPrice || data.maxPrice) {
 			pipeline.push({ $match: priceRangeMatch });
@@ -664,7 +681,7 @@ export class ProductService {
 		);
 
 		const products = await Product.aggregate(pipeline);
-		return products;
+		return { products, totalPages };
 	}
 
 	async getRecentProducts(data: any, headers: any = null) {
@@ -1907,7 +1924,7 @@ export class ProductService {
 			let products = await Product.find({
 				video_file: { $exists: true, $ne: '' }, // Ensure the video_file field exists and is not an empty string
 			})
-				.select({ video_file: 1, _id: 1, name: 1, skus:1,images:1 })
+				.select({ video_file: 1, _id: 1, name: 1, skus: 1, images: 1 })
 				.sort({ updated_at: -1 }) // Sort by the most recently updated
 				.limit(20); // Limit to the latest 20
 
@@ -1928,6 +1945,19 @@ export class ProductService {
 				success: false,
 				message: err ? err.toString() : 'Error in fetching products with video',
 			};
+		}
+	}
+	async deleteAll(headers: any = null) {
+		try {
+			const result = await Product.deleteMany({});
+			if (result.deletedCount === 0) {
+				throw new AppError('No products to delete', null, 404);
+			}
+			return {
+				message: `Deleted ${result.deletedCount} products`,
+			};
+		} catch (error) {
+			throw new AppError('Error deleting all products', error, 500);
 		}
 	}
 }

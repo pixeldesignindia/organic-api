@@ -39,6 +39,9 @@ export class CategoryController extends BaseController {
 		this.router.post(constants.API.V1 + constants.API.APP.CATEGORY + '/update-image', (req, res) => {
 			this.updateImage(req, res, this);
 		});
+		this.router.delete(constants.API.V1 + constants.API.APP.CATEGORY, (req, res) => {
+			this.deleteRecord(req, res, this);
+		});
 	}
 
 	private createRecord(req: Request, res: Response, that: any) {
@@ -129,6 +132,17 @@ export class CategoryController extends BaseController {
 			(err: any) => {
 				LoggerUtil.log('error', { message: 'Error in adding image', location: 'category-ctrl => updateImage', error: err });
 				that.responseUtil.sendFailureResponse(req, res, err, { fileName: 'category-ctrl', methodName: 'updateImage' }, 200);
+			}
+		);
+	}
+	private deleteRecord(req: Request, res: Response, that: any) {
+		that.service.deleteAll(req.params.id, req.headers).then(
+			(result: any) => {
+				that.responseUtil.sendUpdateResponse(req, res, result, 200);
+			},
+			(err: any) => {
+				LoggerUtil.log('error', { message: 'Error in removing all categories', location: 'category-ctrl => delete All', data: err });
+				that.responseUtil.sendFailureResponse(req, res, err, { fileName: 'category-ctrl', methodName: 'delete' }, 200);
 			}
 		);
 	}

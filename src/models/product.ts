@@ -186,7 +186,7 @@ const ProductImageSchema = new Schema({
 
 const ProductSchema = new Schema({
 	video_file: { type: String },
-	brand: { type: String, required: true },
+	brand: { type: String},
 	name: { type: String, required: true },
 	slip: { type: String },
 	template: { type: String },
