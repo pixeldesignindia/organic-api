@@ -31,7 +31,7 @@ export class IntroService extends BaseService {
 
 			if (uploadResponse) {
 				try {
-					await Intro.create({ video_file: saved_file_name });
+					await Intro.create({ video_file: saved_file_name ,created_at:data.created_at});
 
 					LoggerUtil.log('info', { message: ` Intro video  added.` });
 
@@ -76,7 +76,7 @@ export class IntroService extends BaseService {
 	}
 	async getVideo(data: any, headers: any = null) {
 		try {
-		return await Intro.findOne();
+		return await Intro.findOne().sort({ created_at: -1 });
 			 
 		} catch (err) {
 			LoggerUtil.log('error', { message: 'Error in getting  video: ' + err?.toString(), location: 'product-serv => removeVideo' });
