@@ -25,15 +25,12 @@ export class FAQService extends BaseService {
 	async findAll(data: any, headers: any = null) {
 		try {
 			// Fetch the latest 5 banners, sorted by creation date in descending order
-			const faqs = await FAQ.find({is_deleted:false}).sort({createAt:-1})
-		
-			if (!faqs || faqs.length === 0) {
-				throw new AppError('No faqs found', null, 404);
-			}
+			const faqs = await FAQ.find({is_active:true}).sort({createAt:-1})
+
 			return faqs;
 		} catch (error) {
 	
-			return new  AppError('Error finding banners', error, 500);
+			return new  AppError('Error finding FAQ', error, 500);
 		}
 	}
 
@@ -41,6 +38,7 @@ export class FAQService extends BaseService {
 		try {
 			const faq = new FAQ();
 			faq.is_active = true;
+			faq.is_deleted = false;
 			faq.answer = data.answer;
 			faq.question = data.question;
 
@@ -64,7 +62,7 @@ export class FAQService extends BaseService {
 				return new AppError(constants.MESSAGES.ERRORS.NOT_FOUND, null, 404);
 			}
 		} catch (error) {
-			return new AppError('Error updating category', error, 500);
+			return new AppError('Error updating FAQ', error, 500);
 		}
 	}
 
