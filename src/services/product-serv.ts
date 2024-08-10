@@ -454,12 +454,12 @@ export class ProductService {
 			pageNumber = data.pageNumber;
 		}
 		if (data.pageSize) {
-			pageSize = data.pageSize;
+			
+			pageSize = parseInt(data.pageSize);
 		}
 		 if (data && data.type === 'video_file') {
 			where.video_file = { $ne: null };
 		}
-
 		const skip = (pageNumber - 1) * pageSize;
 
 		if (data.hasOwnProperty('is_active')) {
