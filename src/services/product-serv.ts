@@ -91,12 +91,14 @@ export class ProductService {
 						isGlobal: 1,
 						category: 1,
 						is_active: 1,
+						video_file:1,
 						is_deleted: 1,
 						is_private: 1,
 						created_at: 1,
 						bookmarked: 1,
 						deliveredBy: 1,
 						description: 1,
+						short_description:1,
 						availablePinCode: 1,
 						// Filter nested arrays where is_active is true
 						images: {
@@ -239,6 +241,7 @@ export class ProductService {
 		product.is_private = data.is_private;
 		product.created_at = data.created_at;
 		product.description = data.description;
+		product.short_description = data.short_description;
 		product.deliveredBy = data.deliveredBy;
 		product.unique_id = this.genericUtil.getUniqueId();
 
@@ -342,6 +345,7 @@ export class ProductService {
 		if (data.hasOwnProperty('isVerified')) productDataToUpdate.isVerified = data.isVerified;
 		if (data.hasOwnProperty('is_private')) productDataToUpdate.is_private = data.is_private;
 		if (data.hasOwnProperty('description')) productDataToUpdate.description = data.description;
+		if (data.hasOwnProperty('short_description')) productDataToUpdate.short_description = data.short_description;
 		if (data.hasOwnProperty('product_stage')) {
 			data.product_stage.updated_at = null;
 			data.product_stage.user_id = user_id;
@@ -450,9 +454,12 @@ export class ProductService {
 			pageNumber = data.pageNumber;
 		}
 		if (data.pageSize) {
-			pageSize = data.pageSize;
+			
+			pageSize = parseInt(data.pageSize);
 		}
-
+		 if (data && data.type === 'video_file') {
+			where.video_file = { $ne: null };
+		}
 		const skip = (pageNumber - 1) * pageSize;
 
 		if (data.hasOwnProperty('is_active')) {
@@ -531,13 +538,15 @@ export class ProductService {
 			{
 				$group: {
 					_id: '$_id',
-					brand: { $first: '$brand' },
 					name: { $first: '$name' },
+					brand: { $first: '$brand' },
 					user_id: { $first: '$user_id' },
+					video_file: { $first: '$video_file' },
 					made_for: { $first: '$made_for' },
 					isGlobal: { $first: '$isGlobal' },
 					category: { $first: '$category' },
 					description: { $first: '$description' },
+					short_description: { $first: '$short_description' },
 					availablePinCode: { $first: '$availablePinCode' },
 					product_image_name: { $first: '$product_image_name' },
 					product_image_saved_name: { $first: '$product_image_saved_name' },
@@ -615,6 +624,7 @@ export class ProductService {
 					user_id: 1,
 					isGlobal: 1,
 					category: 1,
+					video_file: 1,
 					is_active: 1,
 					isVerified: 1,
 					is_deleted: 1,
@@ -622,6 +632,7 @@ export class ProductService {
 					created_at: 1,
 					deliveredBy: 1,
 					description: 1,
+					short_description: 1,
 					availablePinCode: 1,
 					liked: 1,
 					bookmarked: 1,

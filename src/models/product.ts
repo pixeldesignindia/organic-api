@@ -55,9 +55,10 @@ interface IProduct extends IBase {
 	made_for: string;
 	isGlobal: boolean;
 	category: string;
-	video_file:string;
+	video_file: string;
 	description: string;
 	availablePinCode: [];
+	short_description:string;
 	product_image_name: string;
 	product_image_saved_name: string;
 	deliveredBy: string;
@@ -167,6 +168,7 @@ const ProductImageSchema = new Schema({
 	file_type: { type: String, required: true },
 	file_name: { type: String, required: true },
 	description: { type: String },
+	
 	file_extension: { type: String, required: true },
 	saved_file_name: { type: String, required: true },
 
@@ -191,6 +193,7 @@ const ProductSchema = new Schema({
 	slip: { type: String },
 	template: { type: String },
 	description: { type: String },
+	short_description:{type:String},
 	category: {
 		type: mongoose.Schema.Types.ObjectId,
 		ref: 'Category',

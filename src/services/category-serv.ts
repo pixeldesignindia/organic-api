@@ -25,22 +25,32 @@ export class CategoryService extends BaseService {
 	}
 
 	async filter(data: any = null, headers: any = null) {
-		try {
-			let where: any = {};
-			if (data && data.name) {
-				where.name = {
-					$regex: new RegExp(data.name, 'i'),
-				};
-			}
-			const categories = await Category.find(where);
-			if (categories.length === 0) {
-				throw new AppError('No categories found', null, 404);
-			}
-			return categories;
-		} catch (error) {
-			// Throw the error to be caught by the caller
-			throw new AppError('Error finding categories', error, 500);
+	try {
+		let where: any = {};
+		
+		if (data && data.name) {
+			where.name = {
+				$regex: new RegExp(data.name, 'i'),
+			};
 		}
+		if (data && data.type === 'category') {
+			where.parent_id = null;
+		} else if (data && data.type === 'subcategory') {
+			where.parent_id = { $ne: null };
+		}
+		const sortOrder = data && data.sortOrder === 'asc' ? 1 : -1;
+
+		const categories = await Category.find(where).sort({ created_at: sortOrder });
+		
+		if (categories.length === 0) {
+			throw new AppError('No categories found', null, 404);
+		}
+		
+		return categories;
+	} catch (error) {
+		// Throw the error to be caught by the caller
+		throw new AppError('Error finding categories', error, 500);
+	}
 	}
 
 	async findSubCategory(parentId: string, headers: any = null) {
@@ -58,10 +68,10 @@ export class CategoryService extends BaseService {
 		try {
 			const category = new Category();
 			category.is_active = true;
-			category.unique_id = this.genericUtil.getUniqueId();
 			category.name = data.name;
+			category.created_at = data.created_at;
+			category.unique_id = this.genericUtil.getUniqueId();
 
-			// Check if the category already exists
 			const checkUniqueness = await Category.findOne({ name: data.name });
 			if (checkUniqueness) {
 				throw new AppError(constants.MESSAGES.ERRORS.ALREADY_EXIST, null, 400);
