@@ -472,9 +472,11 @@ export class ProductService {
 			where.is_private = data.is_private;
 		}
 
-		if (data.name) {
-			where.name = data.name;
-		}
+			if (data && data.name) {
+				where.name = {
+					$regex: new RegExp(data.name, 'i'),
+				};
+			}
 
 		if (data.brand) {
 			where.brand = data.brand;
