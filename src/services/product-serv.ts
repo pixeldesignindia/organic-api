@@ -88,6 +88,7 @@ export class ProductService {
 						skus: 1,
 						name: 1,
 						liked: 1,
+						user_id:1,
 						isGlobal: 1,
 						category: 1,
 						is_active: 1,
@@ -241,8 +242,8 @@ export class ProductService {
 		product.is_private = data.is_private;
 		product.created_at = data.created_at;
 		product.description = data.description;
-		product.short_description = data.short_description;
 		product.deliveredBy = data.deliveredBy;
+		product.short_description = data.short_description;
 		product.unique_id = this.genericUtil.getUniqueId();
 
 		try {
@@ -472,9 +473,11 @@ export class ProductService {
 			where.is_private = data.is_private;
 		}
 
-		if (data.name) {
-			where.name = data.name;
-		}
+			if (data && data.name) {
+				where.name = {
+					$regex: new RegExp(data.name, 'i'),
+				};
+			}
 
 		if (data.brand) {
 			where.brand = data.brand;
