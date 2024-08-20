@@ -10,8 +10,8 @@ interface IBanner extends IBase {
 const BannerSchema = new Schema({
 	image_file: { type: String },
 	description: { type: String },
-	name: { type: String, required: true },
-    link:{ type: String, required: true,},
+	name: { type: String },
+    link:{ type: String},
 	created_at: { type: Date },
 	updated_at: { type: Date },
 	is_active: { type: Boolean },

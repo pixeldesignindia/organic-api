@@ -60,7 +60,9 @@ export class VenderService extends BaseService {
 				.limit(parseInt(queryPageSize))
 				.skip((parseInt(queryPageIndex) - 1) * parseInt(queryPageSize))
 				.exec();
-			return getVenders;
+			const totalCount =  await Vender.countDocuments(where);
+			const totalPages = Math.ceil(totalCount / queryPageSize);
+			return{ getVenders,totalPages,queryPageIndex}
 		} catch (error) {
 			return Promise.reject(new AppError('Error finding vender', error, 500));
 		}
