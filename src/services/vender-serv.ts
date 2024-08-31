@@ -60,9 +60,9 @@ export class VenderService extends BaseService {
 				.limit(parseInt(queryPageSize))
 				.skip((parseInt(queryPageIndex) - 1) * parseInt(queryPageSize))
 				.exec();
-			const totalCount =  await Vender.countDocuments(where);
+			const totalCount = await Vender.countDocuments(where);
 			const totalPages = Math.ceil(totalCount / queryPageSize);
-			return{ getVenders,totalPages,queryPageIndex}
+			return { getVenders, totalPages, queryPageIndex };
 		} catch (error) {
 			return Promise.reject(new AppError('Error finding vender', error, 500));
 		}
@@ -71,6 +71,7 @@ export class VenderService extends BaseService {
 		try {
 			const vender = new Vender();
 			vender.GST = data.GST;
+			vender.is_show = false;
 			vender.is_active = true;
 			vender.city = data.city;
 			vender.state = data.state;
@@ -181,6 +182,35 @@ export class VenderService extends BaseService {
 			}
 		} else {
 			return null;
+		}
+	}
+	async update(id: any, data: any, headers: any = null) {
+		try {
+			const vender = await Vender.findById(id);
+			if (!vender) {
+				return Promise.reject(new AppError(constants.MESSAGES.ERRORS.NOT_FOUND, null, 404));
+			}
+
+			if (data.city) vender.city = data.city;
+			if (data.state) vender.state = data.state;
+			if (data.phone) vender.phone = data.phone;
+			if (data.email) vender.email = data.email;
+			if (data.country) vender.country = data.country;
+			if (data.pinCode) vender.pinCode = data.pinCode;
+			if (data.firm_name) vender.firm_name = data.firm_name;
+			if (data.firm_address) vender.firm_address = data.firm_address;
+
+			if (data.hasOwnProperty('is_show')) vender.is_show = data.is_show;
+			if (data.hasOwnProperty('is_active')) vender.is_active = data.is_active;
+
+			vender.updated_at = new Date();
+			const checkUniqueness = await Vender.findOne({ firm_name: data.firm_name, _id: { $ne: id } });
+			if (checkUniqueness) {
+				return Promise.reject(new AppError(constants.MESSAGES.ERRORS.ALREADY_EXIST, null, 400));
+			}
+			return await vender.save();
+		} catch (error) {
+			return Promise.reject(new AppError('Error updating vendor', error, 500));
 		}
 	}
 }

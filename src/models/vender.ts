@@ -10,6 +10,7 @@ interface IVender extends IBase {
 	country: string;
 	pinCode: number;
 	user_id: string;
+	is_show:boolean;
 	created_at: Date;
 	updated_at: Date;
 	deleted_at: Date;
@@ -63,8 +64,9 @@ const VenderSchema = new Schema({
 	},
 	created_at: { type: Date },
 	updated_at: { type: Date },
-	image_file: { type: String},
+	image_file: { type: String },
 	is_active: { type: Boolean },
+	is_show: { type: Boolean },
 	is_deleted: { type: Boolean },
 	unique_id: { type: String, required: true },
 	firm_address: { type: String, required: true },

@@ -39,6 +39,9 @@ export class VenderController extends BaseController {
 		this.router.post(constants.API.V1 + constants.API.APP.VENDER + '/update-image', (req, res) => {
 			this.updateImage(req, res, this);
 		});
+		this.router.post(constants.API.V1 + constants.API.APP.VENDER + '/:id', (req, res) => {
+			this.updateVenderRecord(req, res, this);
+		});
 	}
 
 	private createRecord(req: Request, res: Response, that: any) {
@@ -89,6 +92,21 @@ export class VenderController extends BaseController {
 			(err: any) => {
 				LoggerUtil.log('error', { message: 'Error in update vendor', location: 'vender-ctrl => update', data: err });
 				that.responseUtil.sendFailureResponse(req, res, err, { fileName: 'vender-ctrl', methodName: 'update' }, 200);
+			}
+		);
+	}
+	private updateVenderRecord(req: Request, res: Response, that: any) {
+		that.service.updateVender(req.params.id, req.body, req.headers).then(
+			(result: any) => {
+				if (result) {
+					that.responseUtil.sendReadResponse(req, res, result, constants.HTTP_STATUS.OK);
+				} else {
+					that.responseUtil.sendReadResponse(req, res, result, constants.HTTP_STATUS.NOT_FOUND);
+				}
+			},
+			(err: any) => {
+				LoggerUtil.log('error', { message: 'Error in update vendor', location: 'vender-ctrl => update vender', data: err });
+				that.responseUtil.sendFailureResponse(req, res, err, { fileName: 'vender-ctrl', methodName: 'post' }, 200);
 			}
 		);
 	}
