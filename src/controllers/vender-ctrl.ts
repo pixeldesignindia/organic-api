@@ -102,7 +102,8 @@ export class VenderController extends BaseController {
 		);
 	}
 	private updateVenderRecord(req: Request, res: Response, that: any) {
-		that.service.updateVender(req.params.id, req.body, req.headers).then(
+		
+		that.service.update(req.params.id, req.body, req.headers).then(
 			(result: any) => {
 				if (result) {
 					that.responseUtil.sendReadResponse(req, res, result, constants.HTTP_STATUS.OK);

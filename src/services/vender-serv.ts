@@ -245,6 +245,7 @@ export class VenderService extends BaseService {
 	}
 	async update(id: any, data: any, headers: any = null) {
 		try {
+		
 			const vender = await Vender.findById(id);
 			if (!vender) {
 				return Promise.reject(new AppError(constants.MESSAGES.ERRORS.NOT_FOUND, null, 404));
