@@ -138,15 +138,16 @@ class App {
 					'register',
 					'category',
 					'statistics',
-                    'intro/video',
+					'intro/video',
 					'product/filter',
 					'product/recent',
 					'product/detail',
 					'forgot-password',
-                    'business/reviews',
+					'business/reviews',
 					'product/comments',
 					'product/has-liked',
 					'product/latest-video',
+					'verified/vender',
 					'product/has-bookmarked',
 				];
 

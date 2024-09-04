@@ -7,17 +7,20 @@ interface IVender extends IBase {
 	status: string;
 	phone: number;
 	email: string;
+	aboutUs: string;
 	country: string;
 	pinCode: number;
 	user_id: string;
+	is_show: boolean;
 	created_at: Date;
 	updated_at: Date;
 	deleted_at: Date;
 	unique_id: string;
 	firm_name: string;
-	image_file:string;
+	image_file: string;
+	banner_file: string;
 	is_active: boolean;
-	deliveredBy:string;
+	deliveredBy: string;
 	is_deleted: boolean;
 	firm_address: string;
 }
@@ -61,10 +64,13 @@ const VenderSchema = new Schema({
 	deliveredBy: {
 		type: String,
 	},
+	aboutUs: { type: String },
 	created_at: { type: Date },
 	updated_at: { type: Date },
-	image_file: { type: String},
+	image_file: { type: String },
+	banner_file: { type: String },
 	is_active: { type: Boolean },
+	is_show: { type: Boolean },
 	is_deleted: { type: Boolean },
 	unique_id: { type: String, required: true },
 	firm_address: { type: String, required: true },

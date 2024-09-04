@@ -39,6 +39,15 @@ export class VenderController extends BaseController {
 		this.router.post(constants.API.V1 + constants.API.APP.VENDER + '/update-image', (req, res) => {
 			this.updateImage(req, res, this);
 		});
+		this.router.post(constants.API.V1 + constants.API.APP.VENDER + '/:id', (req, res) => {
+			this.updateVenderRecord(req, res, this);
+		});
+		this.router.post(constants.API.V1 + constants.API.APP.VENDER + '/update-banner', (req, res) => {
+			this.updateBannerImage(req, res, this);
+		});
+		this.router.get(constants.API.V1 + constants.API.APP.VENDER + '/verified/vender', (req, res) => {
+			this.showVenderRecords(req, res, this);
+		});
 	}
 
 	private createRecord(req: Request, res: Response, that: any) {
@@ -92,6 +101,22 @@ export class VenderController extends BaseController {
 			}
 		);
 	}
+	private updateVenderRecord(req: Request, res: Response, that: any) {
+		
+		that.service.update(req.params.id, req.body, req.headers).then(
+			(result: any) => {
+				if (result) {
+					that.responseUtil.sendReadResponse(req, res, result, constants.HTTP_STATUS.OK);
+				} else {
+					that.responseUtil.sendReadResponse(req, res, result, constants.HTTP_STATUS.NOT_FOUND);
+				}
+			},
+			(err: any) => {
+				LoggerUtil.log('error', { message: 'Error in update vendor', location: 'vender-ctrl => update vender', data: err });
+				that.responseUtil.sendFailureResponse(req, res, err, { fileName: 'vender-ctrl', methodName: 'post' }, 200);
+			}
+		);
+	}
 	private findAllRecord(req: Request, res: Response, that: any) {
 		that.service.findAll(req.headers).then(
 			(result: any) => {
@@ -122,6 +147,28 @@ export class VenderController extends BaseController {
 			(err: any) => {
 				LoggerUtil.log('error', { message: 'Error in adding image', location: 'vender-ctrl => updateImage', error: err });
 				that.responseUtil.sendFailureResponse(req, res, err, { fileName: 'vender-ctrl', methodName: 'updateImage' }, 200);
+			}
+		);
+	}
+	private updateBannerImage(req: Request, res: Response, that: any) {
+		that.service.updateBannerImage(req.body, req.headers).then(
+			(result: any) => {
+				that.responseUtil.sendReadResponse(req, res, result, 200);
+			},
+			(err: any) => {
+				LoggerUtil.log('error', { message: 'Error in adding banner in vender Landing page', location: 'vender-ctrl => updateBannerImage', error: err });
+				that.responseUtil.sendFailureResponse(req, res, err, { fileName: 'vender-ctrl', methodName: 'updateBannerImage' }, 200);
+			}
+		);
+	}
+	private showVenderRecords(req: Request, res: Response, that: any) {
+		that.service.showVender(req.body,req.headers).then(
+			(result: any) => {
+				that.responseUtil.sendReadResponse(req, res, result, 200);
+			},
+			(err: any) => {
+				LoggerUtil.log('error', { message: 'Error in finding vendor', location: 'vendor-ctrl => find', data: err });
+				that.responseUtil.sendFailureResponse(req, res, err, { fileName: 'vendor-ctrl', methodName: 'find' }, 200);
 			}
 		);
 	}
