@@ -72,7 +72,6 @@ export class VenderService extends BaseService {
 	}
 	async showVender (data:any,headers:any =null){
 			data.is_show = true;
-
 			return await this.findAll(data, headers);
 	}
 	async applyVender(data: any, headers: any = null) {

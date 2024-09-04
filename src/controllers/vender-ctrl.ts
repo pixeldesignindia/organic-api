@@ -45,7 +45,7 @@ export class VenderController extends BaseController {
 		this.router.post(constants.API.V1 + constants.API.APP.VENDER + '/update-banner', (req, res) => {
 			this.updateBannerImage(req, res, this);
 		});
-		this.router.get(constants.API.V1 + constants.API.APP.VENDER + '/verified-vender', (req, res) => {
+		this.router.get(constants.API.V1 + constants.API.APP.VENDER + '/verified/vender', (req, res) => {
 			this.showVenderRecords(req, res, this);
 		});
 	}
@@ -162,7 +162,7 @@ export class VenderController extends BaseController {
 		);
 	}
 	private showVenderRecords(req: Request, res: Response, that: any) {
-		that.service.showVender( req.headers).then(
+		that.service.showVender(req.body,req.headers).then(
 			(result: any) => {
 				that.responseUtil.sendReadResponse(req, res, result, 200);
 			},

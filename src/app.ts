@@ -147,8 +147,8 @@ class App {
 					'product/comments',
 					'product/has-liked',
 					'product/latest-video',
+					'verified/vender',
 					'product/has-bookmarked',
-					'vendor/verified-vender',
 				];
 
         this.app.use((req, res, next) => {

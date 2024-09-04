@@ -45,12 +45,6 @@ export class BannerService extends BaseService {
 			banner.link = data.link;
 			banner.description = data.description;
 			banner.unique_id = this.genericUtil.getUniqueId();
-
-			const checkUniqueness = await Banner.findOne({ name: data.name });
-			if (checkUniqueness) {
-				throw new AppError(constants.MESSAGES.ERRORS.ALREADY_EXIST, null, 400);
-			}
-
 			return await Banner.create(banner);
 		} catch (error) {
 			return error;
