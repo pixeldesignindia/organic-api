@@ -695,7 +695,7 @@ export class ProductService {
 		);
 
 		const products = await Product.aggregate(pipeline);
-		return { products, totalPages,pageNumber };
+		return { products, totalPages,pageNumber,totalCount };
 	}
 
 	async getRecentProducts(data: any, headers: any = null) {
