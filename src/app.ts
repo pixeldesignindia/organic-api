@@ -186,10 +186,16 @@ class App {
 
 	ignoreUrl(urlToIgnore: string, urlsToIgnore: string[]) {
 		let ignore = false;
+
 		urlsToIgnore.forEach((url) => {
-			const regex = new RegExp(`^${url.replace(/:[^\s/]+/g, '[^/]+')}$`);
-			if (regex.test(urlToIgnore)) {
+			if (urlToIgnore.indexOf(url) > -1) {
 				ignore = true;
+			} else {
+				const regex = new RegExp(`^${url.replace(/:[^\s/]+/g, '[^/]+')}$`);
+
+				if (regex.test(urlToIgnore)) {
+					ignore = true;
+				}
 			}
 		});
 
