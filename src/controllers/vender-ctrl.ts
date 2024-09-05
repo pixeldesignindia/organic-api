@@ -26,7 +26,7 @@ export class VenderController extends BaseController {
 			this.findAllRecord(req, res, this);
 		});
 
-		this.router.get(constants.API.V1 + constants.API.APP.VENDER + '/:id', (req, res) => {
+		this.router.get(constants.API.V1 + constants.API.APP.VENDER + '/find/:id', (req, res) => {
 			this.findRecords(req, res, this);
 		});
 		this.router.post(constants.API.V1 + constants.API.APP.VENDER + '/check', (req, res) => {
