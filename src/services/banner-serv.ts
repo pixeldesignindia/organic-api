@@ -43,6 +43,7 @@ export class BannerService extends BaseService {
 			banner.is_active = true;
 			banner.name = data.name;
 			banner.link = data.link;
+			banner.title = data.title;
 			banner.description = data.description;
 			banner.unique_id = this.genericUtil.getUniqueId();
 			return await Banner.create(banner);
@@ -74,6 +75,9 @@ export class BannerService extends BaseService {
 
 		if (banner.hasOwnProperty('name') && data.hasOwnProperty('name')) {
 			updatedBanner.name = data.name;
+		}
+		if (banner.hasOwnProperty('title') && data.hasOwnProperty('title')) {
+			updatedBanner.title = data.title;
 		}
 		if (banner.hasOwnProperty('link') && data.hasOwnProperty('link')) {
 			updatedBanner.link = data.link;
