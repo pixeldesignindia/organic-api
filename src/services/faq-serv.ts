@@ -25,12 +25,11 @@ export class FAQService extends BaseService {
 	async findAll(data: any, headers: any = null) {
 		try {
 			// Fetch the latest 5 banners, sorted by creation date in descending order
-			const faqs = await FAQ.find({is_active:true}).sort({createAt:-1})
+			const faqs = await FAQ.find({ is_active: true }).sort({ createAt: -1 });
 
 			return faqs;
 		} catch (error) {
-	
-			return new  AppError('Error finding FAQ', error, 500);
+			return new AppError('Error finding FAQ', error, 500);
 		}
 	}
 
@@ -53,7 +52,8 @@ export class FAQService extends BaseService {
 			const faq = await this.find(id);
 
 			if (faq) {
-				const faqToUpdate = this.getUpdatedFaq(faq, data);
+				const faqToUpdate = await this.getUpdatedFaq(faq, data);
+
 				await FAQ.updateOne({ _id: id }, faqToUpdate);
 				return {
 					success: true,
@@ -66,21 +66,20 @@ export class FAQService extends BaseService {
 		}
 	}
 
-	getUpdatedFaq(faq: IFaq, data: any) {
+	async getUpdatedFaq(faq: IFaq, data: any) {
 		const updatedFaq: any = {};
 
-		if (faq.hasOwnProperty('answer') && data.hasOwnProperty('answer')) {
+		if (data.hasOwnProperty('answer') && faq.answer !== data.answer) {
 			updatedFaq.answer = data.answer;
 		}
-		if (faq.hasOwnProperty('question') && data.hasOwnProperty('question')) {
+		if (data.hasOwnProperty('question') && faq.question !== data.question) {
 			updatedFaq.question = data.question;
 		}
-		
-
-		if (faq.hasOwnProperty('is_active') && data.hasOwnProperty('is_active')) {
+		if (data.hasOwnProperty('is_active') && faq.is_active !== data.is_active) {
 			updatedFaq.is_active = data.is_active;
 		}
-		if (faq.hasOwnProperty('is_deleted') && data.hasOwnProperty('is_deleted')) {
+
+		if (data.hasOwnProperty('is_deleted') && faq.is_deleted !== data.is_deleted) {
 			updatedFaq.is_deleted = data.is_deleted;
 		}
 
@@ -98,5 +97,4 @@ export class FAQService extends BaseService {
 			throw new AppError('Error deleting faq', error, 500);
 		}
 	}
-
 }
