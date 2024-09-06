@@ -14,7 +14,7 @@ const constants: any = {
 	SERVER_ROOT_URL: process.env.SERVER_ROOT_URL ? process.env.SERVER_ROOT_URL : null,
 
 	SEARCH_PAST_DAYS: 7,
-	MAX_PAGED_RECORDS_TO_LOAD: 9,
+	MAX_PAGED_RECORDS_TO_LOAD: 10,
 	AWS_LINK_EXPIRY_MINUTES: 60 * 20, // URL expires in 20 minutes
 	PASSWORD_EXPIRY_TIME_HOUR: 1 * 3600000, // 1 hour
 

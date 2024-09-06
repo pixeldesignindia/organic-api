@@ -82,13 +82,13 @@ export class BannerController extends BaseController {
 		that.service.update(req.params.id, req.body, req.headers).then(
 			(result: any) => {
 				if (result) {
-					that.responseUtil.sendUpdateResponse(req, res, result, constants.HTTP_STATUS.UPDATED);
+					that.responseUtil.sendReadResponse(req, res, result, constants.HTTP_STATUS.OK);
 				} else {
 					that.responseUtil.sendReadResponse(req, res, result, constants.HTTP_STATUS.NOT_FOUND);
 				}
 			},
 			(err: any) => {
-				LoggerUtil.log('error', { message: 'Error in updating role', location: 'banner-ctrl => update', data: err });
+				LoggerUtil.log('error', { message: 'Error in update banner', location: 'banner-ctrl => update', data: err });
 				that.responseUtil.sendFailureResponse(req, res, err, { fileName: 'banner-ctrl', methodName: 'update' }, 200);
 			}
 		);

@@ -58,6 +58,7 @@ export class BannerService extends BaseService {
 
 			if (banner) {
 				const bannerToUpdate = this.getUpdatedBanner(banner, data);
+				console.log(bannerToUpdate);
 				await Banner.updateOne({ _id: id }, bannerToUpdate);
 				return {
 					success: true,
@@ -73,26 +74,30 @@ export class BannerService extends BaseService {
 	getUpdatedBanner(banner: IBanner, data: any) {
 		const updatedBanner: any = {};
 
-		if (banner.hasOwnProperty('name') && data.hasOwnProperty('name')) {
+		if (data.hasOwnProperty('name') && banner.name !== data.name) {
 			updatedBanner.name = data.name;
 		}
-		if (banner.hasOwnProperty('title') && data.hasOwnProperty('title')) {
+
+		if (data.hasOwnProperty('title') && banner.title !== data.title) {
 			updatedBanner.title = data.title;
 		}
-		if (banner.hasOwnProperty('link') && data.hasOwnProperty('link')) {
+
+		if (data.hasOwnProperty('link') && banner.link !== data.link) {
 			updatedBanner.link = data.link;
 		}
-		if (banner.hasOwnProperty('description') && data.hasOwnProperty('description')) {
+
+		if (data.hasOwnProperty('description') && banner.description !== data.description) {
 			updatedBanner.description = data.description;
 		}
 
-		if (banner.hasOwnProperty('is_active') && data.hasOwnProperty('is_active')) {
+		if (data.hasOwnProperty('is_active') && banner.is_active !== data.is_active) {
 			updatedBanner.is_active = data.is_active;
 		}
-		if (banner.hasOwnProperty('is_deleted') && data.hasOwnProperty('is_deleted')) {
+		if (data.hasOwnProperty('is_deleted') && banner.is_deleted !== data.is_deleted) {
 			updatedBanner.is_deleted = data.is_deleted;
 		}
 
+		console.log(updatedBanner);
 		return updatedBanner;
 	}
 
