@@ -6,14 +6,14 @@ import config from '../config/app-config';
 import constants from '../utils/constants';
 import { AppError } from '../models/app-error';
 import { LoggerUtil } from '../utils/logger-util';
-import { Payment } from '../models/payments';
+import { IPayment, Payment } from '../models/payments';
 
 export class PaymentService extends BaseService {
 	constructor() {
 		super(Payment);
 	}
 
-	async find(data:any, headers: any = null) {
+	async find(data: any, headers: any = null) {
 		try {
 			const payment = await Payment.findById({ transactionId: data.transactionId });
 			if (!payment) {
@@ -24,9 +24,9 @@ export class PaymentService extends BaseService {
 			throw new AppError('Error finding payment', error, 500);
 		}
 	}
-	async findOne(data:any, headers: any = null) {
+	async findOne(data: any, headers: any = null) {
 		try {
-			const payment = await Payment.findOne({ orderId:data.orderId });
+			const payment = await Payment.findOne({ orderId: data.orderId });
 			if (!payment) {
 				throw new AppError('payment not found', null, 404);
 			}
@@ -202,6 +202,49 @@ export class PaymentService extends BaseService {
 		} catch (error) {
 			LoggerUtil.log('error', { message: 'Error processing refund:' + error?.toString(), location: 'PaymentService => refund' });
 			throw new AppError('Error processing refund', error, 500);
+		}
+	}
+	public async createPayment(paymentData: any, headers: any): Promise<IPayment> {
+		try {
+			const payment = new Payment({
+				transactionId: paymentData.transactionId,
+				orderId: paymentData.orderId,
+				merchantId: paymentData.merchantId,
+				customerId: paymentData.customerId,
+				amount: paymentData.amount,
+				status: 'PENDING',
+				created_at: new Date(),
+				updated_at: new Date(),
+			});
+			return await payment.save();
+		} catch (error) {
+			LoggerUtil.log('error', { message: 'Error creating payment', error });
+			throw new Error('Payment creation failed');
+		}
+	}
+
+	/**
+	 * @function updatePaymentStatus
+	 * Updates the payment status based on the callback from PayU
+	 */
+	public async updatePaymentStatus(transactionId: string, status: string, callbackData: any): Promise<IPayment | null> {
+		try {
+			const payment = await Payment.findOne({ transactionId });
+			if (!payment) {
+				throw new Error('Payment not found');
+			}
+
+			payment.status = status;
+			payment.updated_at = new Date();
+
+			if (status === 'SUCCESS') {
+				payment.refundTransactionId = callbackData.refundTransactionId || null;
+			}
+
+			return await payment.save();
+		} catch (error) {
+			LoggerUtil.log('error', { message: 'Error updating payment status', error });
+			throw new Error('Payment update failed');
 		}
 	}
 }
