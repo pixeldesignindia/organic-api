@@ -20,7 +20,7 @@ interface PaymentInfo {
 }
 
 interface Product {
-	size:string;
+	size: string;
 	user_id: string;
 	quantity: number;
 	category: string;
@@ -29,7 +29,7 @@ interface Product {
 	originalPrice: number;
 	discountPrice: number;
 	productSkuName: string;
-	productCommissionAmount:number;
+	productCommissionAmount: number;
 }
 
 interface IOrder extends IBase {
@@ -46,10 +46,11 @@ interface IOrder extends IBase {
 	totalPrice: number;
 	is_deleted: boolean;
 	shippingCharge: number;
+	paymentStatus: string;
 	paymentInfo: PaymentInfo;
 	shippingAddress: ShippingAddress;
 	delivery_partner_id: string;
-	deliveredBy:string
+	deliveredBy: string;
 }
 
 const OrderSchema = new Schema({
@@ -79,19 +80,9 @@ const OrderSchema = new Schema({
 	status: {
 		type: String,
 		default: 'placed',
-		enum: [
-			'placed',
-			'Transferred to delivery partner', 
-			'processing',
-			'shipped',
-			'delivered',
-			'cancelled',
-			'return product',
-			'pickup from user',
-			'received product by vendor',
-			'returned'
-		],
+		enum: ['placed', 'Transferred to delivery partner', 'processing', 'shipped', 'delivered', 'cancelled', 'return product', 'pickup from user', 'received product by vendor', 'returned', 'FAILED'],
 	},
+	paymentStatus: { type: String },
 	paymentInfo: {
 		id: { type: String },
 		type: { type: String },

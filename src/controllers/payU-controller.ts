@@ -57,8 +57,14 @@ export default class PaymentController extends BaseController {
 	 */
 	private handlePaymentCallback(req: Request, res: Response, that: any) {
 		PayUService.handleCallback(req.body).then(
-			(result: any) => {
-				that.responseUtil.sendUpdateResponse(req, res, result, 200);
+			async (result: any) => {
+				// Check the payment status
+				if (result.status === 'FAILED') {
+					await that.service.handlePaymentFailure(result.orderId, result.transactionId, result.failureReason);
+				} else {
+					// Handle success or pending cases
+					that.responseUtil.sendUpdateResponse(req, res, result, 200);
+				}
 			},
 			(error: any) => {
 				LoggerUtil.log('error', { message: 'Error in handling PayU callback', location: 'payment-ctrl => handlePaymentCallback', error });

@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { LoggerUtil } from '../utils/logger-util';
+import { Order } from '../models/order';
 
 class PayUService {
 	private merchantKey: string;
@@ -50,6 +51,19 @@ class PayUService {
 		} catch (error) {
 			LoggerUtil.log('error', { message: 'Error in handling PayU callback', error });
 			throw new Error('Payment callback handling failed');
+		}
+	}
+	async handlePaymentFailure(orderId: string, transactionId: string) {
+		try {
+			// Update the order status to FAILED
+			await Order.updateOne({ orderId: orderId }, { status: 'FAILED', paymentStatus: 'FAILED' });
+
+			// Optionally, notify the user about the payment failure
+			// sendNotificationToUser(orderId, failureReason); // Implement notification logic here
+
+			return { success: true, message: 'Order status updated to FAILED' };
+		} catch (error) {
+			throw new Error('Failed to update order status: ' + error.message);
 		}
 	}
 
