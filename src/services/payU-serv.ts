@@ -57,20 +57,9 @@ export class PayUService extends BaseService {
 				phone,
 				productinfo,
 				surl,
-				furl
+				furl,
+				hash
 			} = data;
-
-			// Generate the hash using the method from the same service
-			const hash = await this.generatePayUHash({
-				key,
-				txnid,
-				amount,
-				productinfo,
-				firstname,
-				email,
-				salt
-			});
-
 			// Send the payment initiation request to PayU
 			const response = await axios.post('https://test.payu.in/_payment', {
 				key,
