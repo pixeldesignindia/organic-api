@@ -1,31 +1,52 @@
+import { BaseService } from './base-serv';
 import crypto from 'crypto';
-import constants from '../utils/constants';
-import { LoggerUtil } from '../utils/logger-util';
+import { AppError } from '../models/app-error';
 
-class PayUService {
-	/**
-	 * Generates hash using the required parameters for PayU payment
-	 * @param paymentData
-	 */
-	public static generatePaymentHash(paymentData: any): string {
-		const { key, txnid, amount, productinfo, firstname, email, salt } = paymentData;
-
-		const hashString = `${key}|${txnid}|${amount}|${productinfo}|${firstname}|${email}|||||||||||${salt}`;
-		LoggerUtil.log('info', { message: 'Generating hash for PayU', data: hashString });
-
-		const hash = crypto.createHash('sha512').update(hashString).digest('hex');
-		return hash;
+export class PayUService extends BaseService {
+	constructor() {
+		super();
 	}
 
 	/**
-	 * Verifies the PayU callback hash to ensure it matches with server calculation
-	 * @param callbackData
+	 * @function generatePayUHash
+	 * Generate the PayU hash string for payment requests.
 	 */
-	public static verifyCallbackHash(callbackData: any, salt: string): boolean {
-		const { key, txnid, amount, productinfo, firstname, email, status, hash } = callbackData;
-		const hashString = `${salt}|${status}|||||||||||${email}|${firstname}|${productinfo}|${amount}|${txnid}|${key}`;
-		const calculatedHash = crypto.createHash('sha512').update(hashString).digest('hex');
-		return calculatedHash === hash;
+	async generatePayUHash(data: any) {
+		try {
+			// Destructure necessary fields from the data object
+			const {
+				key,
+				txnid,
+				amount,
+				productinfo,
+				firstname,
+				email,
+				salt
+			} = data;
+
+			// Validate the required parameters
+			if (!key || !txnid || !amount || !productinfo || !firstname || !email || !salt) {
+				throw new AppError('Required payment parameters are missing', null, 400);
+			}
+
+			// Generate the hash string using the required fields
+			const hashString = `${key}|${txnid}|${amount}|${productinfo}|${firstname}|${email}|||||||||||${salt}`;
+
+			// Generate the SHA-512 hash from the hash string
+			const hash = crypto.createHash('sha512').update(hashString).digest('hex');
+
+			// Return the hash string as part of the response
+			return {
+				success: true,
+				hash,
+				paymentUrl: 'https://secure.payu.in/_payment',
+				...data
+			};
+		} catch (error) {
+			// Log the error and throw a custom error message
+			console.error('Error generating PayU hash:', error);
+			throw new AppError('Failed to generate PayU hash', null, 500);
+		}
 	}
 }
 
