@@ -16,39 +16,27 @@ export default class PaymentController extends BaseController {
 	 * Initializes API routes for payment
 	 */
 	public initializeRoutes() {
-		// Route for initiating payment
-		this.router.post(constants.API.V1 + constants.API.APP.PAYMENT + '/initiate', (req, res) => {
-			this.initiatePayment(req, res, this);
+		this.router.post(constants.API.V1 + constants.API.APP.PAYMENT + '/hash', (req, res) => {
+			this.generatePaymentHash(req, res, this);
 		});
-
-		// Route for PayU callback
 		this.router.post(constants.API.V1 + constants.API.APP.PAYMENT + '/callback', (req, res) => {
 			this.handlePaymentCallback(req, res, this);
 		});
 	}
 
 	/**
-	 * @function initiatePayment
-	 * Handles initiating a payment process
+	 * @function generatePaymentHash
+	 * Generates the hash required for PayU payment from the backend
 	 */
-	private initiatePayment(req: Request, res: Response, that: any) {
-		that.service.createPayment(req.body, req.headers).then(
-			(paymentData: any) => {
-				PayUService.initiatePayment(paymentData, req.body.userDetails).then(
-					(response: any) => {
-						that.responseUtil.sendCreateResponse(req, res, response, 200);
-					},
-					(error: any) => {
-						LoggerUtil.log('error', { message: 'Error in PayU payment initiation', location: 'payment-ctrl => initiatePayment', error });
-						that.responseUtil.sendFailureResponse(req, res, error, { fileName: 'payment-ctrl', methodName: 'initiatePayment' }, 500);
-					}
-				);
-			},
-			(error: any) => {
-				LoggerUtil.log('error', { message: 'Error in creating payment', location: 'payment-ctrl => initiatePayment', error });
-				that.responseUtil.sendFailureResponse(req, res, error, { fileName: 'payment-ctrl', methodName: 'initiatePayment' }, 500);
-			}
-		);
+	private generatePaymentHash(req: Request, res: Response, that: any) {
+		try {
+			const paymentData = req.body;
+			const hash = PayUService.generatePaymentHash(paymentData);
+			that.responseUtil.sendCreateResponse(req, res, { hash }, 200);
+		} catch (error) {
+			LoggerUtil.log('error', { message: 'Error in generating PayU hash', location: 'payment-ctrl => generatePaymentHash', error });
+			that.responseUtil.sendFailureResponse(req, res, error, { fileName: 'payment-ctrl', methodName: 'generatePaymentHash' }, 500);
+		}
 	}
 
 	/**
@@ -56,20 +44,22 @@ export default class PaymentController extends BaseController {
 	 * Handles the callback response from PayU (success or failure)
 	 */
 	private handlePaymentCallback(req: Request, res: Response, that: any) {
-		PayUService.handleCallback(req.body).then(
-			async (result: any) => {
-				// Check the payment status
-				if (result.status === 'FAILED') {
-					await that.service.handlePaymentFailure(result.orderId, result.transactionId, result.failureReason);
-				} else {
-					// Handle success or pending cases
+		const callbackData = req.body;
+		const salt = constants.PAYU.SALT;
+
+		if (PayUService.verifyCallbackHash(callbackData, salt)) {
+			that.service.updatePaymentStatus(callbackData).then(
+				(result: any) => {
 					that.responseUtil.sendUpdateResponse(req, res, result, 200);
+				},
+				(error: any) => {
+					LoggerUtil.log('error', { message: 'Error in updating payment status', location: 'payment-ctrl => handlePaymentCallback', error });
+					that.responseUtil.sendFailureResponse(req, res, error, { fileName: 'payment-ctrl', methodName: 'handlePaymentCallback' }, 500);
 				}
-			},
-			(error: any) => {
-				LoggerUtil.log('error', { message: 'Error in handling PayU callback', location: 'payment-ctrl => handlePaymentCallback', error });
-				that.responseUtil.sendFailureResponse(req, res, error, { fileName: 'payment-ctrl', methodName: 'handlePaymentCallback' }, 500);
-			}
-		);
+			);
+		} else {
+			LoggerUtil.log('error', { message: 'Hash verification failed', location: 'payment-ctrl => handlePaymentCallback' });
+			that.responseUtil.sendFailureResponse(req, res, 'Hash verification failed', { fileName: 'payment-ctrl', methodName: 'handlePaymentCallback' }, 400);
+		}
 	}
 }
