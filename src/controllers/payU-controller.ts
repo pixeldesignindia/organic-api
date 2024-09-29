@@ -17,10 +17,11 @@ export default class LogController extends BaseController {
      * Initializes API routes
      */
     public initializeRoutes() {
-        this.router.post(constants.API.V1 + constants.API.APP.PAYMENT + '/hash', (req, res) => { this.readLogs(req, res, this) });
+        this.router.post(constants.API.V1 + constants.API.APP.PAYMENT + '/hash', (req, res) => { this.generateHash(req, res, this) });
+		this.router.post(constants.API.V1 + constants.API.APP.PAYMENT + '/initiate', (req, res) => {this.initiatePayment(req, res, this)});
     }
 
-    private readLogs(req: Request, res: Response, that: any) {
+    private generateHash(req: Request, res: Response, that: any) {
         that.service.generatePayUHash(req.body, req.headers).then((result: any) => {
             that.responseUtil.sendReadResponse(req, res, result, 200);
         }, (err: any) => {
@@ -28,4 +29,21 @@ export default class LogController extends BaseController {
             that.responseUtil.sendFailureResponse(req, res, err, { fileName: 'payU-ctrl', methodName: 'post' }, 200);
         });
     }
+	private initiatePayment(req: Request, res: Response, that: any) {
+		// Call the service to initiate the payment
+		that.service.initiatePayment(req.body, req.headers)
+			.then((result: any) => {
+				// Respond with success
+				that.responseUtil.sendReadResponse(req, res, result, 200);
+			})
+			.catch((err: any) => {
+				// Log the error and send a failure response
+				LoggerUtil.log('error', {
+					message: 'Error initiating payment',
+					location: 'payU-ctrl => initiatePayment',
+					error: err
+				});
+				that.responseUtil.sendFailureResponse(req, res, err, { fileName: 'payU-ctrl', methodName: 'initiate' }, 500);
+			});
+	}
 }
