@@ -25,6 +25,7 @@ import CategoryController from './controllers/category-ctrl';
 import PaymentController from './controllers/payU-controller';
 import wishlistController from './controllers/wishlist-cntrl';
 import StatisticsController from './controllers/statistics-cntrl';
+import RazorpayController from './controllers/razorPay-controller';
 import BusinessController from './controllers/business-review-ctrl';
 import RegistrationController from './controllers/registration-ctrl';
 import ConfigurationController from './controllers/admin-config-ctrl';
@@ -49,6 +50,7 @@ const app = new App([
 	new SummaryController(),
 	new PaymentController(),
 	new AddressController(),
+	new RazorpayController(),
 	new BusinessController(),
 	new CategoryController(),
 	new wishlistController(),
