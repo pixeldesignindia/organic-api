@@ -78,6 +78,7 @@ const OrderSchema = new Schema<IOrder>({
         type: String,
         default: 'placed',
         enum: [
+            'pending',
             'placed',
             'processing',
             'shipped',

@@ -115,7 +115,7 @@ export class BannerService extends BaseService {
 	}
 
 	async updateImage(data: any, headers: any = null) {
-		if (!data.image && !data.mobile_image) {
+		if (!data.imageData.image && !data.imageData.mobile_image) {
 			return Promise.reject(new AppError('Image not uploaded', 'banner-serv => updateImage', constants.HTTP_STATUS.BAD_REQUEST));
 		}
 	
@@ -124,11 +124,11 @@ export class BannerService extends BaseService {
 	
 		if (banner) {
 			// Handle banner image update
-			if (data.image) {
-				let file_name = data.image.file_name;
+			if (data.imageData.image) {
+				let file_name = data.imageData.image.file_name;
 				let saved_file_name = this.dateUtil.getCurrentEpoch() + '_' + file_name;
 	
-				const base64Data = data.image.base64.replace(/^data:image\/\w+;base64,/, '');
+				const base64Data = data.imageData.base64.replace(/^data:image\/\w+;base64,/, '');
 				let fileContent = Buffer.from(base64Data, 'base64');
 				let uploadResponse: any = await this.awsS3Service.uploadFile('banner-image/' + saved_file_name, fileContent, config.AWS.S3_IMAGE_BUCKET);
 	
@@ -158,11 +158,11 @@ export class BannerService extends BaseService {
 			}
 	
 			// Handle mobile image update
-			if (data.mobile_image) {
-				let mobile_file_name = data.mobile_image.file_name;
+			if (data.imageData.mobile_image) {
+				let mobile_file_name = data.imageData.mobile_image.file_name;
 				let saved_mobile_file_name = this.dateUtil.getCurrentEpoch() + '_' + mobile_file_name;
 	
-				const mobileBase64Data = data.mobile_image.base64.replace(/^data:image\/\w+;base64,/, '');
+				const mobileBase64Data = data.imageData.mobile_image.base64.replace(/^data:image\/\w+;base64,/, '');
 				let mobileFileContent = Buffer.from(mobileBase64Data, 'base64');
 				let mobileUploadResponse: any = await this.awsS3Service.uploadFile('banner-image/' + saved_mobile_file_name, mobileFileContent, config.AWS.S3_IMAGE_BUCKET);
 	

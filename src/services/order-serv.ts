@@ -19,12 +19,10 @@ export class OrderService extends BaseService {
 	 */
 	async store(data: any, headers: any = null) {
 		const session: ClientSession = await mongoose.startSession();
-		session.startTransaction(); // Start a transaction
-
+		session.startTransaction();	
 		try {
 			let order = new Order();
-
-			// Assuming data.cart is an array of products
+			console.log(data);
 			order.cart = data.cart.map((cartItem: any) => {
 				return {
 					size: cartItem.size,
@@ -50,19 +48,15 @@ export class OrderService extends BaseService {
 			order.user_id = headers.loggeduserid;
 			order.unique_id = this.genericUtil.getUniqueId();
 			order.shippingCharge = data.shippingCharge || null;
-
-			// Payment method handling
-			if (data.paymentMethod === 'COD') {
-				// Handle Cash on Delivery
-				order.status = 'pending'; // COD orders are usually pending until delivery
+			if (data.paymentInfo.type === 'COD') {
+				order.status = 'placed';
 				order.paymentInfo = {
 					id:null,
 					type: 'COD',
-					status: 'pending', // Payment status will be 'pending' for COD
+					status: 'pending',
 				};
-				order.paidAt = null; // No payment date for COD orders yet
-			} else if (data.paymentMethod === 'Razorpay') {
-				// Handle Razorpay payment info
+				order.paidAt = null;
+			} else if (data.paymentInfo.type  === 'Razorpay') {
 				order.paymentInfo = {
 					id: data.paymentInfo.id || null,
 					type: 'Razorpay',
