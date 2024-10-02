@@ -1,61 +1,98 @@
-
 import { User } from '../models/user';
 import { Order } from '../models/order';
 import { BaseService } from './base-serv';
 import constants from '../utils/constants';
 import { Product } from '../models/product';
 import { AppError } from '../models/app-error';
-
+import mongoose, { ClientSession } from 'mongoose';
 
 export class OrderService extends BaseService {
 	constructor() {
 		super();
 	}
 
+	/**
+	 * @function store
+	 * Stores an order in the database
+	 * Handles Razorpay payments and Cash on Delivery (COD)
+	 * Uses MongoDB transactions for atomicity
+	 */
 	async store(data: any, headers: any = null) {
-		let order = new Order();
-
-		// Assuming data.cart is an array of products
-		order.cart = data.cart.map((cartItem: any) => {
-			return {
-				size: cartItem.size,
-				user_id: cartItem.user_id,
-				quantity: cartItem.quantity,
-				category: cartItem.category,
-				productId: cartItem.productId,
-				description: cartItem.description,
-				originalPrice: cartItem.originalPrice,
-				discountPrice: cartItem.discountPrice,
-				productSkuName: cartItem.productSkuName,
-				productCommissionAmount: cartItem.productCommissionAmount,
-			};
-		});
-		order.paymentInfo = {
-			id: data.paymentInfo.id || null,
-			type: data.paymentInfo.type || null,
-			status: data.paymentInfo.status || null,
-		};
-		order.shippingAddress = data.shippingAddress;
-
-		order.is_active = true;
-		order.is_deleted = false;
-		order.tax = data.tax || null;
-		order.created_at = new Date();
-		order.totalPrice = data.totalPrice;
-		order.user_id = headers.loggeduserid;
-		order.status = data.status || 'placed';
-		order.paidAt = data.paidAt || new Date();
-		order.unique_id = this.genericUtil.getUniqueId();
-		order.shippingCharge = data.shippingCharge || null;
+		const session: ClientSession = await mongoose.startSession();
+		session.startTransaction(); // Start a transaction
 
 		try {
-			return await Order.create(order);
-		} catch (err) {
-			console.log(err);
-			return Promise.reject({
-				success: false,
-				message: err ? err.toString() : 'Cannot create order',
+			let order = new Order();
+
+			// Assuming data.cart is an array of products
+			order.cart = data.cart.map((cartItem: any) => {
+				return {
+					size: cartItem.size,
+					user_id: cartItem.user_id,
+					quantity: cartItem.quantity,
+					category: cartItem.category,
+					productId: cartItem.productId,
+					description: cartItem.description,
+					originalPrice: cartItem.originalPrice,
+					discountPrice: cartItem.discountPrice,
+					productSkuName: cartItem.productSkuName,
+					productCommissionAmount: cartItem.productCommissionAmount,
+				};
 			});
+
+			// Set basic order details
+			order.shippingAddress = data.shippingAddress;
+			order.is_active = true;
+			order.is_deleted = false;
+			order.tax = data.tax || null;
+			order.created_at = new Date();
+			order.totalPrice = data.totalPrice;
+			order.user_id = headers.loggeduserid;
+			order.unique_id = this.genericUtil.getUniqueId();
+			order.shippingCharge = data.shippingCharge || null;
+
+			// Payment method handling
+			if (data.paymentMethod === 'COD') {
+				// Handle Cash on Delivery
+				order.status = 'pending'; // COD orders are usually pending until delivery
+				order.paymentInfo = {
+					id:null,
+					type: 'COD',
+					status: 'pending', // Payment status will be 'pending' for COD
+				};
+				order.paidAt = null; // No payment date for COD orders yet
+			} else if (data.paymentMethod === 'Razorpay') {
+				// Handle Razorpay payment info
+				order.paymentInfo = {
+					id: data.paymentInfo.id || null,
+					type: 'Razorpay',
+					status: data.paymentInfo.status
+				};
+				order.status = data.status || 'placed';
+				order.paidAt = data.paidAt || new Date();
+			} else {
+				throw new AppError('Invalid payment method', null, 400);
+			}
+
+			// Save the order inside the transaction
+			const savedOrder = await Order.create([order], { session });
+
+			// Commit the transaction if everything is successful
+			await session.commitTransaction();
+			session.endSession();
+
+			return {
+				success: true,
+				message: 'Order created successfully',
+				order: savedOrder,
+			};
+		} catch (err) {
+			// Abort the transaction on error
+			await session.abortTransaction();
+			session.endSession();
+			console.error('Order creation failed:', err);
+
+			throw new AppError('Order creation failed', err, 500);
 		}
 	}
 
