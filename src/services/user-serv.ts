@@ -45,7 +45,9 @@ export class UserService {
     }
 
     async findOne(filter: any, headers: any) {
+     
         return await User.findOne(filter);
+        
     }
 
     async register(data: any, headers: any = null) {
@@ -202,21 +204,29 @@ export class UserService {
     }
 
     async resetPassword(data: any, headers: any) {
-        let user: any = await this.findOne(data.Mobile, headers);
-
-        if (user) {
-           
+        try {
+            // Find the user by mobile
+            let user: any = await User.findOne({ mobile: data.mobile });
+            
+            if (user) {
+                // Update the user's password
                 await this.update(user._id, { password: data.new_password });
-                return Promise.resolve({
-                    success: true
-                });
-        } else {
-            return Promise.reject({
-                error: true,
-                message: constants.MESSAGES.ERRORS.NOT_FOUND
-            });
+                
+                // Return success response
+                return {
+                    success: true,
+                    message: "Password updated successfully"
+                };
+            } else {
+                // User not found, return an error response
+                return Promise.reject(new AppError("Not Found",null, 400));
+            }
+        } catch (error) {
+            // Return any unexpected error response
+            return Promise.reject(new AppError("An error occurred while resetting the password",error, 400));
         }
     }
+    
 
     async update(id: any, data: any, headers: any = null) {
         let user = await this.find(id);

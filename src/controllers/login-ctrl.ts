@@ -64,6 +64,7 @@ export default class LoginController extends BaseController {
 
     private resetPassword(req: Request, res: Response, that: any) {
    this.userService.resetPassword(req.body, req.headers).then((result: any) => {
+console.log(result)
             that.responseUtil.sendReadResponse(req, res, result, 200);
         }, (err: any) => {
             LoggerUtil.log('error', { message: 'Error in reset password', location: 'login-ctrl => resetPassword', error: err });
