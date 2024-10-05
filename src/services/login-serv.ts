@@ -62,6 +62,14 @@ export class LoginService extends BaseService {
             } else {
                 return await this.loginWithPin(data, headers);
             }
+        } else if (data.hasOwnProperty('mobile')) {
+            if (this.validationUtil.isEmpty(data.mobile)) {
+                return new AppError("Invalid mobile number", null, 400);
+            } else if (!data.hasOwnProperty('password')) {
+                return new AppError("Invalid password", null, 400);
+            } else {
+                return await this.loginWithMobile(data, headers);
+            }
         } else {
             return new AppError("Invalid login request", null, 400);
         }
@@ -103,11 +111,55 @@ export class LoginService extends BaseService {
                         });
                     } else {
                         return reject(new AppError(constants.MESSAGES.LOGIN.INVALID, null, 401));
-
                     }
                 } else {
                     return reject(new AppError(constants.MESSAGES.LOGIN.INVALID, null, 401));
+                }
+            } catch (err) {
+                reject(new AppError(constants.MESSAGES.CANNOT_CHECK_USER_LOGIN, err, 400));
+            }
+        });
+    }
 
+    async loginWithMobile(data: any, headers: any) {
+        return new Promise(async (resolve, reject) => {
+            try {
+                // Find user by mobile number
+                let user: any = await this.userService.findOne({ mobile: data.mobile }, headers);
+
+                if (user) {
+                    // Check if the password is correct
+                    if (this.encryptionUtil.verifyWithBcrypt(data.password, user.password)) {
+                        delete user.password;
+
+                        let userObject: any = user.toObject(); // Convert to plain object
+
+                        // Load user roles
+                        if (user.role_id) {
+                            let role: any = await this.roleService.find(user.role_id);
+                            userObject.role = role;
+                        }
+
+                        // Update FCM token if provided
+                        if (data.fcm_token) {
+                            await this.userService.update(user._id, { fcm_token: data.fcm_token }, headers);
+                        }
+
+                        // Generate JWT token and refresh token
+                        let token = this.jwtUtil.generateJWTToken(user._id.toString() + new Date().getTime(), user._id);
+                        let refreshToken = this.jwtUtil.generateRefreshToken(user._id.toString() + new Date().getTime(), user._id);
+
+                        resolve({
+                            valid: true,
+                            token: token,
+                            user: userObject,
+                            refreshToken: refreshToken
+                        });
+                    } else {
+                        return reject(new AppError("Invalid password", null, 401));
+                    }
+                } else {
+                    return reject(new AppError("Invalid mobile number", null, 401));
                 }
             } catch (err) {
                 reject(new AppError(constants.MESSAGES.CANNOT_CHECK_USER_LOGIN, err, 400));
@@ -209,77 +261,12 @@ export class LoginService extends BaseService {
                             });
                         }
                     } catch (err) {
-                        reject(new AppError(constants.MESSAGES.CANNOT_CHECK_USER_LOGIN, err, 400));
+                        reject(new AppError(constants.MESSAGES.ERRORS.UPDATE_RECORD, err, 400));
                     }
                 }
             } else {
-                reject(new AppError('Username not provided', null, 400));
+                return Promise.reject(new AppError("Invalid request", null, 400));
             }
         });
-    }
-
-    async verifyUserLogin(params: any, headers: any = null) {
-        return new Promise(async (resolve, reject) => {
-            if (params.hasOwnProperty('otp') && params.hasOwnProperty('mobile')) {
-                if (this.validationUtil.isEmpty(params.otp) || isNaN(params.otp)) {
-                    return reject(new AppError("Invalid otp", null, 400));
-                } else if (this.validationUtil.isEmpty(params.mobile)) {
-                    return reject(new AppError("Invalid mobile", null, 400));
-                } else {
-                    let user = await this.userService.findOne({ mobile: params.mobile }, headers);
-
-                    if (user) {
-                        params.user_id = user.id;
-
-                        let otpRow: any = await this.otpService.read(params);
-                        if (otpRow) {
-                            if (params.otp == 1234 || otpRow.otp == params.otp) {
-                                let token = this.jwtUtil.generateJWTToken(user.id.toString() + new Date().getTime(), user.id);
-                                let refreshToken = this.jwtUtil.generateRefreshToken(user.id.toString() + new Date().getTime(), user.id);
-
-                                resolve({
-                                    valid: true,
-                                    token: token,
-                                    refreshToken: refreshToken
-                                });
-                            } else {
-                                resolve({
-                                    valid: false
-                                });
-                            }
-                        } else {
-                            resolve({
-                                valid: false
-                            });
-                        }
-                    } else {
-                        resolve({
-                            valid: false
-                        });
-                    }
-                }
-            } else {
-                if (!params.hasOwnProperty('mobile')) {
-                    reject(new AppError('Mobile not provided', null, 400));
-                }
-                else if (!params.hasOwnProperty('otp')) {
-                    reject(new AppError('Otp not provided', null, 400));
-                } else {
-                    reject(new AppError(constants.MESSAGES.DATA_NOT_PROVIDED, null, 400));
-                }
-            }
-        });
-    }
-
-    async forgotPassword(data: any, headers: any = null) {
-        return await this.userService.forgotPassword(data, headers);
-    }
-
-    async verifyForgotPassword(data: any, headers: any = null) {
-        return await this.userService.verifyForgotPassword(data, headers);
-    }
-
-    async resetPassword(data: any, headers: any = null) {
-        return await this.userService.resetPassword(data, headers);
     }
 }
