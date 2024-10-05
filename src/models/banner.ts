@@ -6,10 +6,12 @@ interface IBanner extends IBase {
 	title:string;
 	image_file: string;
 	description: string;
+	mobile_image_file:string;
 }
 
 const BannerSchema = new Schema({
 	image_file: { type: String },
+	mobile_image_file:{type: String },
 	description: { type: String },
 	title:{type:String},
     link:{ type: String},

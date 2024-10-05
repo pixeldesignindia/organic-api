@@ -147,6 +147,7 @@ class App {
 			'product/filter',
 			'product/recent',
 			'product/detail',
+			'reset-password',
 			'forgot-password',
 			'verified/vender',
 			'business/reviews',

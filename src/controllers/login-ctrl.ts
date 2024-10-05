@@ -4,10 +4,13 @@ import BaseController from './base-ctrl';
 import constants from '../utils/constants';
 import { LoggerUtil } from '../utils/logger-util';
 import { LoginService } from '../services/login-serv';
+import { UserService } from '../services/user-serv';
 
 export default class LoginController extends BaseController {
+    private userService: UserService;
     constructor() {
         super(new LoginService());
+        this.userService = new UserService();
 
         this.initializeRoutes();
     }
@@ -60,7 +63,8 @@ export default class LoginController extends BaseController {
     }
 
     private resetPassword(req: Request, res: Response, that: any) {
-        that.service.resetPassword(req.body, req.headers).then((result: any) => {
+   this.userService.resetPassword(req.body, req.headers).then((result: any) => {
+console.log(result)
             that.responseUtil.sendReadResponse(req, res, result, 200);
         }, (err: any) => {
             LoggerUtil.log('error', { message: 'Error in reset password', location: 'login-ctrl => resetPassword', error: err });

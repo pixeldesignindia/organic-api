@@ -1,10 +1,10 @@
-
 import { User } from '../models/user';
 import { Order } from '../models/order';
 import { BaseService } from './base-serv';
 import constants from '../utils/constants';
 import { Product } from '../models/product';
 import { AppError } from '../models/app-error';
+import mongoose, { ClientSession ,SortOrder} from 'mongoose';
 
 
 export class OrderService extends BaseService {
@@ -12,50 +12,82 @@ export class OrderService extends BaseService {
 		super();
 	}
 
+	/**
+	 * @function store
+	 * Stores an order in the database
+	 * Handles Razorpay payments and Cash on Delivery (COD)
+	 * Uses MongoDB transactions for atomicity
+	 */
 	async store(data: any, headers: any = null) {
-		let order = new Order();
-
-		// Assuming data.cart is an array of products
-		order.cart = data.cart.map((cartItem: any) => {
-			return {
-				size: cartItem.size,
-				user_id: cartItem.user_id,
-				quantity: cartItem.quantity,
-				category: cartItem.category,
-				productId: cartItem.productId,
-				description: cartItem.description,
-				originalPrice: cartItem.originalPrice,
-				discountPrice: cartItem.discountPrice,
-				productSkuName: cartItem.productSkuName,
-				productCommissionAmount: cartItem.productCommissionAmount,
-			};
-		});
-		order.paymentInfo = {
-			id: data.paymentInfo.id || null,
-			type: data.paymentInfo.type || null,
-			status: data.paymentInfo.status || null,
-		};
-		order.shippingAddress = data.shippingAddress;
-
-		order.is_active = true;
-		order.is_deleted = false;
-		order.tax = data.tax || null;
-		order.created_at = new Date();
-		order.totalPrice = data.totalPrice;
-		order.user_id = headers.loggeduserid;
-		order.status = data.status || 'placed';
-		order.paidAt = data.paidAt || new Date();
-		order.unique_id = this.genericUtil.getUniqueId();
-		order.shippingCharge = data.shippingCharge || null;
-
+		const session: ClientSession = await mongoose.startSession();
+		session.startTransaction();	
 		try {
-			return await Order.create(order);
-		} catch (err) {
-			console.log(err);
-			return Promise.reject({
-				success: false,
-				message: err ? err.toString() : 'Cannot create order',
+			let order = new Order();
+			console.log(data);
+			order.cart = data.cart.map((cartItem: any) => {
+				return {
+					size: cartItem.size,
+					user_id: cartItem.user_id,
+					quantity: cartItem.quantity,
+					category: cartItem.category,
+					productId: cartItem.productId,
+					description: cartItem.description,
+					originalPrice: cartItem.originalPrice,
+					discountPrice: cartItem.discountPrice,
+					productSkuName: cartItem.productSkuName,
+					productCommissionAmount: cartItem.productCommissionAmount,
+				};
 			});
+
+			// Set basic order details
+			order.shippingAddress = data.shippingAddress;
+			order.is_active = true;
+			order.is_deleted = false;
+			order.tax = data.tax || null;
+			order.created_at = new Date();
+			order.totalPrice = data.totalPrice;
+			order.user_id = headers.loggeduserid;
+			order.unique_id = this.genericUtil.getUniqueId();
+			order.shippingCharge = data.shippingCharge || null;
+			if (data.paymentInfo.type === 'COD') {
+				order.status = 'placed';
+				order.paymentInfo = {
+					id:null,
+					type: 'COD',
+					status: 'pending',
+				};
+				order.paidAt = null;
+			} else if (data.paymentInfo.type  === 'Razorpay') {
+				order.paymentInfo = {
+					id: data.paymentInfo.id || null,
+					type: 'Razorpay',
+					status: data.paymentInfo.status
+				};
+				order.status = data.status || 'placed';
+				order.paidAt = data.paidAt || new Date();
+			} else {
+				throw new AppError('Invalid payment method', null, 400);
+			}
+
+			// Save the order inside the transaction
+			const savedOrder = await Order.create([order], { session });
+
+			// Commit the transaction if everything is successful
+			await session.commitTransaction();
+			session.endSession();
+
+			return {
+				success: true,
+				message: 'Order created successfully',
+				order: savedOrder,
+			};
+		} catch (err) {
+			// Abort the transaction on error
+			await session.abortTransaction();
+			session.endSession();
+			console.error('Order creation failed:', err);
+
+			throw new AppError('Order creation failed', err, 500);
 		}
 	}
 
@@ -256,4 +288,58 @@ export class OrderService extends BaseService {
 			return { success: false, message: error.message || 'Failed to fetch orders' };
 		}
 	}
+	async getPaymentInfo(data: any, headers: any) {
+		try {
+			// Default pagination options
+			let page = data.page ? parseInt(data.page) : 1; // Default to page 1
+			let limit = data.limit ? parseInt(data.limit) : 10; // Default to 10 records per page
+			let skip = (page - 1) * limit;
+	
+			let where: any = {};
+	
+			// Filter by order status if provided
+			if (data.status) {
+				where.status = data.status;
+			}
+	
+			// Sorting options
+			let sortField: string = data.sortField || 'created_at'; // Default sort field is 'created_at'
+			let sortOrder: SortOrder = data.sortOrder === 'desc' ? -1 : 1; // Default is ascending (1), descending (-1) if 'desc'
+	
+			// Create sort object using SortOrder type
+			const sortObject: { [key: string]: SortOrder } = {};
+			sortObject[sortField] = sortOrder;
+	
+			// Get the total count of orders matching the query (for pagination)
+			const totalOrders = await Order.countDocuments(where);
+	
+			// Fetch only the paymentInfo field with pagination, sorting, and filtering
+			const paymentInfo = await Order.find(where)
+				.select('paymentInfo')  // Only fetch the paymentInfo field
+				.sort(sortObject)  // Use the sortObject correctly
+				.skip(skip)
+				.limit(limit);
+	
+			// Calculate total pages
+			const totalPages = Math.ceil(totalOrders / limit);
+	
+			// Return the payment info along with pagination and sorting details
+			return {
+				success: true,
+				paymentInfo,
+				pagination: {
+					totalOrders,
+					currentPage: page,
+					totalPages,
+					limit,
+				},
+				sorting: {
+					sortField,
+					sortOrder: sortOrder === 1 ? 'asc' : 'desc',
+				}
+			};
+		} catch (error) {
+			return { success: false, message: error.message || 'Failed to fetch payment info' };
+		}
+	}	
 }

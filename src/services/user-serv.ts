@@ -45,7 +45,9 @@ export class UserService {
     }
 
     async findOne(filter: any, headers: any) {
+     
         return await User.findOne(filter);
+        
     }
 
     async register(data: any, headers: any = null) {
@@ -202,27 +204,29 @@ export class UserService {
     }
 
     async resetPassword(data: any, headers: any) {
-        let user: any = await this.find(data.id, headers);
-
-        if (user) {
-            if (this.encryptionUtil.verifyWithBcrypt(data.old_password, user.password)) {
-                await this.update(data.id, { password: data.new_password });
-                return Promise.resolve({
-                    success: true
-                });
+        try {
+            // Find the user by mobile
+            let user: any = await User.findOne({ mobile: data.mobile });
+            
+            if (user) {
+                // Update the user's password
+                await this.update(user._id, { password: data.new_password });
+                
+                // Return success response
+                return {
+                    success: true,
+                    message: "Password updated successfully"
+                };
             } else {
-                return Promise.resolve({
-                    success: false,
-                    message: constants.MESSAGES.ERRORS.OLD_PASSWORD_MISMATCH
-                });
+                // User not found, return an error response
+                return Promise.reject(new AppError("Not Found",null, 400));
             }
-        } else {
-            return Promise.reject({
-                error: true,
-                message: constants.MESSAGES.ERRORS.NOT_FOUND
-            });
+        } catch (error) {
+            // Return any unexpected error response
+            return Promise.reject(new AppError("An error occurred while resetting the password",error, 400));
         }
     }
+    
 
     async update(id: any, data: any, headers: any = null) {
         let user = await this.find(id);

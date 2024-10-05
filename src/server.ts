@@ -12,7 +12,7 @@ import RoleController from './controllers/role-ctrl';
 import CartController from './controllers/cart-ctrl';
 import UserController from './controllers/user-ctrl';
 import LoginController from './controllers/login-ctrl';
-import OrderController  from './controllers/order-ctrl';
+import OrderController from './controllers/order-ctrl';
 import BannerController from './controllers/banner-ctrl';
 import CouponController from './controllers/coupon-ctrl';
 import VenderController from './controllers/vender-ctrl';
@@ -22,13 +22,13 @@ import ProductController from './controllers/product-ctrl';
 import SummaryController from './controllers/summary-ctrl';
 import AddressController from './controllers/address-ctrl';
 import CategoryController from './controllers/category-ctrl';
+import PaymentController from './controllers/payU-controller';
 import wishlistController from './controllers/wishlist-cntrl';
 import StatisticsController from './controllers/statistics-cntrl';
+import RazorpayController from './controllers/razorPay-controller';
 import BusinessController from './controllers/business-review-ctrl';
 import RegistrationController from './controllers/registration-ctrl';
 import ConfigurationController from './controllers/admin-config-ctrl';
-
-
 const app = new App([
 	new CDNController(),
 	new FAQController(),
@@ -48,7 +48,9 @@ const app = new App([
 	new BannerController(),
 	new ProductController(),
 	new SummaryController(),
+	new PaymentController(),
 	new AddressController(),
+	new RazorpayController(),
 	new BusinessController(),
 	new CategoryController(),
 	new wishlistController(),
@@ -58,45 +60,44 @@ const app = new App([
 ]);
 
 if (isValidEnvironment()) {
-    /* 
+	/* 
         async() =>{} is immediately invoked async function expression 
         This is required for await
     */
-    (async () => {
-			// For Docker, postgresql may be starting in background, hence retry connection if failed
-			let retries = 1;
-			while (retries) {
-				try {
-					console.log('Trying connecting: ' + retries);
-					mongoose.connect(config.DB_CONNECTION, {});
-					break; // Stop loop if connection established
-				} catch (error) {
-					console.log(error);
-				}
-
-				await new Promise((resolve) => setTimeout(resolve, 2000));
-
-				++retries;
-
-				if (retries > 5) break;
+	(async () => {
+		// For Docker, postgresql may be starting in background, hence retry connection if failed
+		let retries = 1;
+		while (retries) {
+			try {
+				console.log('Trying connecting: ' + retries);
+				mongoose.connect(config.DB_CONNECTION, {});
+				break; // Stop loop if connection established
+			} catch (error) {
+				console.log(error);
 			}
-			// Logging middleware
-			
 
-			//cronUtil.init();
-			app.listen();
-		})();
+			await new Promise((resolve) => setTimeout(resolve, 2000));
+
+			++retries;
+
+			if (retries > 5) break;
+		}
+		// Logging middleware
+
+		//cronUtil.init();
+		app.listen();
+	})();
 } else {
-    console.log('Invalid environment data');
+	console.log('Invalid environment data');
 }
 
 function isValidEnvironment() {
-    let valid: boolean = true;
+	let valid: boolean = true;
 
-    valid = valid && process.env.APP_NAME ? true : false;
-    valid = valid && process.env.SERVER_PORT ? true : false;
-    valid = valid && process.env.EMAIL_SERVICE ? true : false;
-    valid = valid && process.env.SERVER_ROOT_URL ? true : false;
+	valid = valid && process.env.APP_NAME ? true : false;
+	valid = valid && process.env.SERVER_PORT ? true : false;
+	valid = valid && process.env.EMAIL_SERVICE ? true : false;
+	valid = valid && process.env.SERVER_ROOT_URL ? true : false;
 
-    return valid;
+	return valid;
 }

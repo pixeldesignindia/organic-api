@@ -44,6 +44,9 @@ export class OrderController extends BaseController {
 			this.router.post(constants.API.V1 + constants.API.APP.ORDER + '/assignedOrder', (req, res) => {
 				this.shippingUserOrderRecord(req, res, this);
 			});
+			this.router.post(constants.API.V1 + constants.API.APP.ORDER + '/transaction', (req, res) => {
+				this.paymentInfoRecord(req, res, this);
+			});
 	}
 
 	private createRecord(req: Request, res: Response, that: any) {
@@ -180,6 +183,21 @@ export class OrderController extends BaseController {
 			(err: any) => {
 				LoggerUtil.log('error', { message: 'Error in finding role', location: 'crud-ctrl => find', data: err });
 				that.responseUtil.sendFailureResponse(req, res, err, { fileName: 'crud-ctrl', methodName: 'find' }, 200);
+			}
+		);
+	}
+	private paymentInfoRecord(req: Request, res: Response, that: any) {
+		that.service.getPaymentInfo(req.body, req.headers).then(
+			(result: any) => {
+				if (result) {
+					that.responseUtil.sendReadResponse(req, res, result, constants.HTTP_STATUS.OK);
+				} else {
+					that.responseUtil.sendReadResponse(req, res, result, constants.HTTP_STATUS.NOT_FOUND);
+				}
+			},
+			(err: any) => {
+				LoggerUtil.log('error', { message: 'Error in finding payment info', location: 'order-ctrl => getPaymentInfo', data: err });
+				that.responseUtil.sendFailureResponse(req, res, err, { fileName: 'order-ctrl', methodName: 'getPaymentInfo' }, 200);
 			}
 		);
 	}
