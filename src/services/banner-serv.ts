@@ -38,6 +38,7 @@ export class BannerService extends BaseService {
 	}
 
 	async create(data: any, headers: any = null) {
+		
 		try {
 			const banner = new Banner();
 			banner.is_active = true;
@@ -114,32 +115,33 @@ export class BannerService extends BaseService {
 	}
 
 	async updateImage(data: any, headers: any = null) {
-		if (!data.image) {
+		if (!data.imageData.image && !data.imageData.mobile_image) {
 			return Promise.reject(new AppError('Image not uploaded', 'banner-serv => updateImage', constants.HTTP_STATUS.BAD_REQUEST));
 		}
-
-		let banner: any = Banner.findById({ _id: data.banner_id });
-
+	
+		// Fetch the banner by id
+		let banner: any = await Banner.findById({ _id: data.banner_id });
+	
 		if (banner) {
-			if (data.image) {
-				let file_name = data.image.file_name;
+			// Handle banner image update
+			if (data.imageData.image) {
+				let file_name = data.imageData.image.file_name;
 				let saved_file_name = this.dateUtil.getCurrentEpoch() + '_' + file_name;
-
-				const base64Data = data.image.base64.replace(/^data:image\/\w+;base64,/, '');
+	
+				const base64Data = data.imageData.base64.replace(/^data:image\/\w+;base64,/, '');
 				let fileContent = Buffer.from(base64Data, 'base64');
 				let uploadResponse: any = await this.awsS3Service.uploadFile('banner-image/' + saved_file_name, fileContent, config.AWS.S3_IMAGE_BUCKET);
-
+	
 				if (uploadResponse) {
 					try {
-						await Banner.updateOne({ _id: data.banner_id }, { image_file: saved_file_name });
-
-						LoggerUtil.log('info', { message: `banner image added.` });
-
-						return {
-							success: true,
-						};
+						await Banner.updateOne(
+							{ _id: data.banner_id },
+							{ image_file: saved_file_name }
+						);
+	
+						LoggerUtil.log('info', { message: `Banner image added.` });
 					} catch (error) {
-						LoggerUtil.log('error', { message: 'Error in adding user image:' + error?.toString(), location: 'user-sev => updateImage' });
+						LoggerUtil.log('error', { message: 'Error in adding banner image: ' + error?.toString(), location: 'banner-serv => updateImage' });
 						return {
 							error: true,
 							success: false,
@@ -150,18 +152,55 @@ export class BannerService extends BaseService {
 					return {
 						error: true,
 						success: false,
-						message: 'Could not upload image to storage',
+						message: 'Could not upload banner image to storage',
 					};
 				}
-			} else {
-				return {
-					error: true,
-					success: false,
-					message: 'Image not provided',
-				};
 			}
+	
+			// Handle mobile image update
+			if (data.imageData.mobile_image) {
+				let mobile_file_name = data.imageData.mobile_image.file_name;
+				let saved_mobile_file_name = this.dateUtil.getCurrentEpoch() + '_' + mobile_file_name;
+	
+				const mobileBase64Data = data.imageData.mobile_image.base64.replace(/^data:image\/\w+;base64,/, '');
+				let mobileFileContent = Buffer.from(mobileBase64Data, 'base64');
+				let mobileUploadResponse: any = await this.awsS3Service.uploadFile('banner-image/' + saved_mobile_file_name, mobileFileContent, config.AWS.S3_IMAGE_BUCKET);
+	
+				if (mobileUploadResponse) {
+					try {
+						await Banner.updateOne(
+							{ _id: data.banner_id },
+							{ mobile_image_file: saved_mobile_file_name }
+						);
+	
+						LoggerUtil.log('info', { message: `Mobile image added.` });
+					} catch (error) {
+						LoggerUtil.log('error', { message: 'Error in adding mobile image: ' + error?.toString(), location: 'banner-serv => updateImage' });
+						return {
+							error: true,
+							success: false,
+							message: error ? error.toString() : null,
+						};
+					}
+				} else {
+					return {
+						error: true,
+						success: false,
+						message: 'Could not upload mobile image to storage',
+					};
+				}
+			}
+	
+			return {
+				success: true,
+			};
 		} else {
-			return null;
+			return {
+				error: true,
+				success: false,
+				message: 'Banner not found',
+			};
 		}
 	}
+	
 }

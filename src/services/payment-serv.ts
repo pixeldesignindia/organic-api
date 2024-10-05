@@ -38,7 +38,7 @@ export class PaymentService extends BaseService {
 
 	async findAll(data: any, headers: any = null) {
 		try {
-			// Implement your logic to find all banners
+			
 		} catch (error) {
 			throw new AppError('Error finding payments', error, 500);
 		}
