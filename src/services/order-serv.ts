@@ -4,7 +4,8 @@ import { BaseService } from './base-serv';
 import constants from '../utils/constants';
 import { Product } from '../models/product';
 import { AppError } from '../models/app-error';
-import mongoose, { ClientSession } from 'mongoose';
+import mongoose, { ClientSession ,SortOrder} from 'mongoose';
+
 
 export class OrderService extends BaseService {
 	constructor() {
@@ -287,4 +288,58 @@ export class OrderService extends BaseService {
 			return { success: false, message: error.message || 'Failed to fetch orders' };
 		}
 	}
+	async getPaymentInfo(data: any, headers: any) {
+		try {
+			// Default pagination options
+			let page = data.page ? parseInt(data.page) : 1; // Default to page 1
+			let limit = data.limit ? parseInt(data.limit) : 10; // Default to 10 records per page
+			let skip = (page - 1) * limit;
+	
+			let where: any = {};
+	
+			// Filter by order status if provided
+			if (data.status) {
+				where.status = data.status;
+			}
+	
+			// Sorting options
+			let sortField: string = data.sortField || 'created_at'; // Default sort field is 'created_at'
+			let sortOrder: SortOrder = data.sortOrder === 'desc' ? -1 : 1; // Default is ascending (1), descending (-1) if 'desc'
+	
+			// Create sort object using SortOrder type
+			const sortObject: { [key: string]: SortOrder } = {};
+			sortObject[sortField] = sortOrder;
+	
+			// Get the total count of orders matching the query (for pagination)
+			const totalOrders = await Order.countDocuments(where);
+	
+			// Fetch only the paymentInfo field with pagination, sorting, and filtering
+			const paymentInfo = await Order.find(where)
+				.select('paymentInfo')  // Only fetch the paymentInfo field
+				.sort(sortObject)  // Use the sortObject correctly
+				.skip(skip)
+				.limit(limit);
+	
+			// Calculate total pages
+			const totalPages = Math.ceil(totalOrders / limit);
+	
+			// Return the payment info along with pagination and sorting details
+			return {
+				success: true,
+				paymentInfo,
+				pagination: {
+					totalOrders,
+					currentPage: page,
+					totalPages,
+					limit,
+				},
+				sorting: {
+					sortField,
+					sortOrder: sortOrder === 1 ? 'asc' : 'desc',
+				}
+			};
+		} catch (error) {
+			return { success: false, message: error.message || 'Failed to fetch payment info' };
+		}
+	}	
 }
