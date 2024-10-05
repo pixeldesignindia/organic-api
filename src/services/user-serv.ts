@@ -202,20 +202,14 @@ export class UserService {
     }
 
     async resetPassword(data: any, headers: any) {
-        let user: any = await this.find(data.id, headers);
+        let user: any = await this.findOne(data.Mobile, headers);
 
         if (user) {
-            if (this.encryptionUtil.verifyWithBcrypt(data.old_password, user.password)) {
-                await this.update(data.id, { password: data.new_password });
+           
+                await this.update(user._id, { password: data.new_password });
                 return Promise.resolve({
                     success: true
                 });
-            } else {
-                return Promise.resolve({
-                    success: false,
-                    message: constants.MESSAGES.ERRORS.OLD_PASSWORD_MISMATCH
-                });
-            }
         } else {
             return Promise.reject({
                 error: true,
