@@ -128,31 +128,39 @@ export class BannerService extends BaseService {
 				let file_name = data.imageData.image.file_name;
 				let saved_file_name = this.dateUtil.getCurrentEpoch() + '_' + file_name;
 	
-				const base64Data = data.imageData.base64.replace(/^data:image\/\w+;base64,/, '');
-				let fileContent = Buffer.from(base64Data, 'base64');
-				let uploadResponse: any = await this.awsS3Service.uploadFile('banner-image/' + saved_file_name, fileContent, config.AWS.S3_IMAGE_BUCKET);
+				if (data.imageData.image.base64) {
+					const base64Data = data.imageData.image.base64.replace(/^data:image\/\w+;base64,/, '');
+					let fileContent = Buffer.from(base64Data, 'base64');
+					let uploadResponse: any = await this.awsS3Service.uploadFile('banner-image/' + saved_file_name, fileContent, config.AWS.S3_IMAGE_BUCKET);
 	
-				if (uploadResponse) {
-					try {
-						await Banner.updateOne(
-							{ _id: data.banner_id },
-							{ image_file: saved_file_name }
-						);
+					if (uploadResponse) {
+						try {
+							await Banner.updateOne(
+								{ _id: data.banner_id },
+								{ image_file: saved_file_name }
+							);
 	
-						LoggerUtil.log('info', { message: `Banner image added.` });
-					} catch (error) {
-						LoggerUtil.log('error', { message: 'Error in adding banner image: ' + error?.toString(), location: 'banner-serv => updateImage' });
+							LoggerUtil.log('info', { message: `Banner image added.` });
+						} catch (error) {
+							LoggerUtil.log('error', { message: 'Error in adding banner image: ' + error?.toString(), location: 'banner-serv => updateImage' });
+							return {
+								error: true,
+								success: false,
+								message: error ? error.toString() : null,
+							};
+						}
+					} else {
 						return {
 							error: true,
 							success: false,
-							message: error ? error.toString() : null,
+							message: 'Could not upload banner image to storage',
 						};
 					}
 				} else {
 					return {
 						error: true,
 						success: false,
-						message: 'Could not upload banner image to storage',
+						message: 'Invalid image base64 data for banner image',
 					};
 				}
 			}
@@ -162,31 +170,39 @@ export class BannerService extends BaseService {
 				let mobile_file_name = data.imageData.mobile_image.file_name;
 				let saved_mobile_file_name = this.dateUtil.getCurrentEpoch() + '_' + mobile_file_name;
 	
-				const mobileBase64Data = data.imageData.mobile_image.base64.replace(/^data:image\/\w+;base64,/, '');
-				let mobileFileContent = Buffer.from(mobileBase64Data, 'base64');
-				let mobileUploadResponse: any = await this.awsS3Service.uploadFile('banner-image/' + saved_mobile_file_name, mobileFileContent, config.AWS.S3_IMAGE_BUCKET);
+				if (data.imageData.mobile_image.base64) {
+					const mobileBase64Data = data.imageData.mobile_image.base64.replace(/^data:image\/\w+;base64,/, '');
+					let mobileFileContent = Buffer.from(mobileBase64Data, 'base64');
+					let mobileUploadResponse: any = await this.awsS3Service.uploadFile('banner-image/' + saved_mobile_file_name, mobileFileContent, config.AWS.S3_IMAGE_BUCKET);
 	
-				if (mobileUploadResponse) {
-					try {
-						await Banner.updateOne(
-							{ _id: data.banner_id },
-							{ mobile_image_file: saved_mobile_file_name }
-						);
+					if (mobileUploadResponse) {
+						try {
+							await Banner.updateOne(
+								{ _id: data.banner_id },
+								{ mobile_image_file: saved_mobile_file_name }
+							);
 	
-						LoggerUtil.log('info', { message: `Mobile image added.` });
-					} catch (error) {
-						LoggerUtil.log('error', { message: 'Error in adding mobile image: ' + error?.toString(), location: 'banner-serv => updateImage' });
+							LoggerUtil.log('info', { message: `Mobile image added.` });
+						} catch (error) {
+							LoggerUtil.log('error', { message: 'Error in adding mobile image: ' + error?.toString(), location: 'banner-serv => updateImage' });
+							return {
+								error: true,
+								success: false,
+								message: error ? error.toString() : null,
+							};
+						}
+					} else {
 						return {
 							error: true,
 							success: false,
-							message: error ? error.toString() : null,
+							message: 'Could not upload mobile image to storage',
 						};
 					}
 				} else {
 					return {
 						error: true,
 						success: false,
-						message: 'Could not upload mobile image to storage',
+						message: 'Invalid image base64 data for mobile image',
 					};
 				}
 			}
