@@ -27,7 +27,7 @@ export default class AwsS3Service {
 					Bucket: bucketName,
 					Key: fileKey,
 					Body: fileContent,
-                    ACL: 'public-read',
+                    // ACL: 'public-read',
                     CacheControl: 'max-age=31536000'
 				};
 
