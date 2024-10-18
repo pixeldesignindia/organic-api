@@ -243,19 +243,76 @@ export class OrderService extends BaseService {
 			return { success: false, message: error.message || 'Failed to fetch address' };
 		}
 	}
-	async filter(data: any, headers: any) {
+	async filter(data: any) {
 		try {
-			let where: any = {};
-			if (data.status) {
-				where.status = data.status;
+			// Define `where` with inline type, allowing created_at to be an object
+			let where: { created_at?: { $gte: Date; $lt: Date } } = {};
+	
+			// Filter by status if provided
+			// if (data.status) {
+			//     where.status = data.status;
+			// }
+	
+			// Filter by date if provided
+			if (data.date) {
+				const startOfDay = new Date(data.date);
+				const endOfDay = new Date(startOfDay);
+				endOfDay.setDate(endOfDay.getDate() + 1); // Set to the start of the next day
+	
+				where.created_at = { // Inline definition for created_at
+					$gte: startOfDay,
+					$lt: endOfDay,
+				};
 			}
-			// populate products  on order cart
-			const order = await Order.find(where).populate('cart.productId').sort({ created_at: 1 });
-			return { success: true, order };
+	
+			// Pagination and sorting
+			const page = data.page || 1;
+			const limit = data.limit || 10;
+			const skip = (page - 1) * limit;
+			const sortField = data.sortField || 'created_at';
+			const sortOrder = data.sortOrder === 'desc' ? -1 : 1;
+	
+			// Validate sortField against allowed fields
+			const allowedSortFields = [
+				'shippingAddress.name', 
+				'totalPrice', 
+				'paymentInfo.id', 
+				'paymentInfo.type', 
+				'status', 
+				'tax', 
+				'created_at'
+			];
+			if (!allowedSortFields.includes(sortField)) {
+				throw new Error('Invalid sort field');
+			}
+	
+			// Query with pagination, sorting, and population
+			const orders = await Order.find(where)
+				.populate('cart.productId')
+				.sort({ [sortField]: sortOrder })
+				.skip(skip)
+				.limit(limit);
+	
+			// Get the total count of documents for pagination purposes
+			const totalOrders = await Order.countDocuments(where);
+	
+			return { 
+				success: true, 
+				orders, // Renamed to 'orders' for clarity
+				pagination: {
+					total: totalOrders,
+					page,
+					limit,
+					totalPages: Math.ceil(totalOrders / limit)
+				}
+			};
 		} catch (error) {
-			return { success: false, message: error.message || 'Failed to fetch address' };
+			return { success: false, message: error.message || 'Failed to fetch orders' };
 		}
 	}
+	
+	
+	
 
 	async assignOrder(data: any, headers: any) {
 		try {
