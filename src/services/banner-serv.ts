@@ -129,7 +129,7 @@ export class BannerService extends BaseService {
 				let saved_file_name = this.dateUtil.getCurrentEpoch() + '_' + file_name;
 	
 				if (data.imageData.image.base64) {
-					const base64Data = data.imageData.image.base64.replace(/^data:image\/\w+;base64,/, '');
+					const base64Data = data.imageData.image.base64
 					let fileContent = Buffer.from(base64Data, 'base64');
 					let uploadResponse: any = await this.awsS3Service.uploadFile('banner-image/' + saved_file_name, fileContent, config.AWS.S3_IMAGE_BUCKET);
 	
@@ -171,7 +171,7 @@ export class BannerService extends BaseService {
 				let saved_mobile_file_name = this.dateUtil.getCurrentEpoch() + '_' + mobile_file_name;
 	
 				if (data.imageData.mobile_image.base64) {
-					const mobileBase64Data = data.imageData.mobile_image.base64.replace(/^data:image\/\w+;base64,/, '');
+					const mobileBase64Data = data.imageData.mobile_image.base64
 					let mobileFileContent = Buffer.from(mobileBase64Data, 'base64');
 					let mobileUploadResponse: any = await this.awsS3Service.uploadFile('banner-image/' + saved_mobile_file_name, mobileFileContent, config.AWS.S3_IMAGE_BUCKET);
 	
